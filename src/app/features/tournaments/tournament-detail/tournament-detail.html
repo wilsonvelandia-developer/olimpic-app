@@ -28,14 +28,10 @@
       </div>
       <div class="page__header-actions">
         @if (auth.canEdit()) {
-          <button type="button" class="btn btn--secondary" (click)="onEdit()">
-            ✏️ Editar
-          </button>
+          <button type="button" class="btn btn--secondary" (click)="onEdit()">✏️ Editar</button>
         }
         @if (auth.isAdmin()) {
-          <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">
-            🗑️ Eliminar
-          </button>
+          <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">🗑️ Eliminar</button>
         }
       </div>
     </div>
@@ -60,20 +56,82 @@
       </div>
     </div>
 
-    <!-- Sections placeholder for teams and matches -->
-    <div class="section-tabs">
-      <div class="section-card">
-        <h2 class="section-card__title">👥 Equipos inscritos</h2>
-        <p class="section-card__empty">
-          La gestión de equipos por torneo estará disponible en la siguiente fase.
-        </p>
+    <!-- Tabs -->
+    <div class="tab-panel">
+      <div class="tab-nav" role="tablist" aria-label="Secciones del torneo">
+        <button
+          type="button"
+          role="tab"
+          class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'standings'"
+          [attr.aria-selected]="activeTab() === 'standings'"
+          (click)="onTabChange('standings')"
+        >
+          🏅 Posiciones
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'matches'"
+          [attr.aria-selected]="activeTab() === 'matches'"
+          (click)="onTabChange('matches')"
+        >
+          ⚽ Partidos
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'stats'"
+          [attr.aria-selected]="activeTab() === 'stats'"
+          (click)="onTabChange('stats')"
+        >
+          📊 Estadísticas
+        </button>
       </div>
 
-      <div class="section-card">
-        <h2 class="section-card__title">📅 Partidos programados</h2>
-        <p class="section-card__empty">
-          La generación de fixture estará disponible en la siguiente fase.
-        </p>
+      <div class="tab-content" role="tabpanel" [attr.aria-label]="tabLabel()">
+
+        <!-- Tab: Standings -->
+        @if (activeTab() === 'standings') {
+          @if (isLoadingStandings()) {
+            <app-loading-spinner label="Calculando posiciones..." />
+          } @else {
+            <app-standings-table [entries]="standings()" />
+          }
+        }
+
+        <!-- Tab: Matches -->
+        @if (activeTab() === 'matches') {
+          @if (auth.canEdit()) {
+            <div class="tab-content__actions">
+              <button type="button" class="btn btn--primary btn--sm"
+                [routerLink]="['/matches', 'new']"
+                [queryParams]="{ tournamentId: tournament()!.id }">
+                + Programar partido
+              </button>
+            </div>
+          }
+          <app-match-history
+            [matches]="matches()"
+            [totalMatches]="totalMatches()"
+            [currentPage]="matchPage()"
+            [isLoading]="isLoadingMatches()"
+            (pageChange)="onMatchPageChange($event)"
+            (matchClick)="onMatchClick($event)"
+          />
+        }
+
+        <!-- Tab: Stats -->
+        @if (activeTab() === 'stats') {
+          @if (isLoadingStats()) {
+            <app-loading-spinner label="Cargando estadísticas..." />
+          } @else if (stats()) {
+            <app-tournament-stats [stats]="stats()!" />
+          }
+        }
+
       </div>
     </div>
   }

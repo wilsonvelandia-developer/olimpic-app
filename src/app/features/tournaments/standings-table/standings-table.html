@@ -1,0 +1,59 @@
+@if (isEmpty()) {
+  <p class="standings-empty">
+    Aún no hay partidos completados. La tabla se actualizará cuando haya resultados.
+  </p>
+} @else {
+  <div class="table-wrapper">
+    <table class="table standings-table" aria-label="Tabla de posiciones">
+      <thead>
+        <tr>
+          <th scope="col" class="col-pos" abbr="Posición">#</th>
+          <th scope="col" class="col-team">Equipo</th>
+          <th scope="col" abbr="Partidos jugados">PJ</th>
+          <th scope="col" abbr="Partidos ganados">G</th>
+          <th scope="col" abbr="Partidos empatados">E</th>
+          <th scope="col" abbr="Partidos perdidos">P</th>
+          <th scope="col" abbr="Goles a favor">GF</th>
+          <th scope="col" abbr="Goles en contra">GC</th>
+          <th scope="col" abbr="Diferencia de goles">DG</th>
+          <th scope="col" abbr="Puntos" class="col-pts">Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of entries(); track entry.teamId) {
+          <tr
+            class="standings-row"
+            [class.standings-row--highlighted]="isHighlighted(entry)"
+            [class]="positionClass(entry.position)"
+          >
+            <td class="col-pos">
+              <span class="position-badge" [class]="'position-badge--' + positionClass(entry.position)">
+                {{ positionIcon(entry.position) }}
+              </span>
+            </td>
+            <td class="col-team team-name">{{ entry.teamName }}</td>
+            <td class="stat-cell">{{ entry.played }}</td>
+            <td class="stat-cell stat-cell--won">{{ entry.won }}</td>
+            <td class="stat-cell">{{ entry.drawn }}</td>
+            <td class="stat-cell stat-cell--lost">{{ entry.lost }}</td>
+            <td class="stat-cell">{{ entry.goalsFor }}</td>
+            <td class="stat-cell">{{ entry.goalsAgainst }}</td>
+            <td class="stat-cell" [class.positive]="entry.goalDifference > 0" [class.negative]="entry.goalDifference < 0">
+              {{ entry.goalDifference > 0 ? '+' : '' }}{{ entry.goalDifference }}
+            </td>
+            <td class="col-pts points-cell">{{ entry.points }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Legend -->
+  <div class="standings-legend">
+    <span class="legend-item"><span class="legend-dot legend-dot--won"></span>G = Ganados</span>
+    <span class="legend-item"><span class="legend-dot legend-dot--drawn"></span>E = Empatados</span>
+    <span class="legend-item"><span class="legend-dot legend-dot--lost"></span>P = Perdidos</span>
+    <span class="legend-item">DG = Diferencia de goles</span>
+    <span class="legend-item">Pts = Puntos (G×3, E×1)</span>
+  </div>
+}

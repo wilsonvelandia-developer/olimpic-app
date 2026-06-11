@@ -1,0 +1,89 @@
+.standings-empty {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.standings-table th {
+  text-align: center;
+}
+
+.standings-table th.col-team,
+.standings-table td.col-team {
+  text-align: left;
+}
+
+.col-pos  { width: 48px; text-align: center; }
+.col-team { min-width: 160px; }
+.col-pts  { font-weight: 700; text-align: center; }
+
+/* Row states */
+.standings-row--highlighted {
+  background-color: var(--color-primary-light) !important;
+}
+
+/* Position badge */
+.position-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.position-badge--pos--gold   { background: #fef3c7; color: #92400e; }
+.position-badge--pos--silver { background: #f1f5f9; color: #475569; }
+.position-badge--pos--bronze { background: #fdf2e9; color: #a0522d; }
+
+/* Top 3 row accents */
+.standings-table tbody tr.pos--gold   { border-left: 3px solid #f59e0b; }
+.standings-table tbody tr.pos--silver { border-left: 3px solid #94a3b8; }
+.standings-table tbody tr.pos--bronze { border-left: 3px solid #cd7f32; }
+
+.stat-cell        { text-align: center; color: var(--color-text-secondary); }
+.stat-cell--won   { color: var(--color-success); font-weight: 600; }
+.stat-cell--lost  { color: var(--color-error); }
+
+.team-name        { font-weight: 500; }
+
+.points-cell {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.positive { color: var(--color-success); font-weight: 600; }
+.negative { color: var(--color-error); }
+
+/* Legend */
+.standings-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot--won   { background: var(--color-success); }
+.legend-dot--drawn { background: var(--color-warning); }
+.legend-dot--lost  { background: var(--color-error); }

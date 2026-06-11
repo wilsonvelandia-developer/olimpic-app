@@ -1,0 +1,51 @@
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-card__icon" aria-hidden="true">📅</span>
+    <div class="stat-card__body">
+      <span class="stat-card__value">{{ stats().totalMatches }}</span>
+      <span class="stat-card__label">Total partidos</span>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card--success">
+    <span class="stat-card__icon" aria-hidden="true">✅</span>
+    <div class="stat-card__body">
+      <span class="stat-card__value">{{ stats().playedMatches }}</span>
+      <span class="stat-card__label">Jugados</span>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card--warning">
+    <span class="stat-card__icon" aria-hidden="true">⏳</span>
+    <div class="stat-card__body">
+      <span class="stat-card__value">{{ stats().pendingMatches }}</span>
+      <span class="stat-card__label">Pendientes</span>
+    </div>
+  </div>
+
+  <div class="stat-card stat-card--primary">
+    <span class="stat-card__icon" aria-hidden="true">⚽</span>
+    <div class="stat-card__body">
+      <span class="stat-card__value">{{ stats().totalGoals }}</span>
+      <span class="stat-card__label">Goles totales</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-card__icon" aria-hidden="true">📊</span>
+    <div class="stat-card__body">
+      <span class="stat-card__value">{{ stats().avgGoalsPerMatch }}</span>
+      <span class="stat-card__label">Promedio goles/partido</span>
+    </div>
+  </div>
+
+  @if (stats().mostWins) {
+    <div class="stat-card stat-card--info">
+      <span class="stat-card__icon" aria-hidden="true">🏆</span>
+      <div class="stat-card__body">
+        <span class="stat-card__value stat-card__value--text">{{ stats().mostWins }}</span>
+        <span class="stat-card__label">Más victorias</span>
+      </div>
+    </div>
+  }
+</div>

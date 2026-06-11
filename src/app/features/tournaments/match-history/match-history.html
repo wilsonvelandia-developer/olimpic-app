@@ -1,0 +1,67 @@
+@if (matches().length === 0 && !isLoading()) {
+  <p class="history-empty">No hay partidos programados para este torneo.</p>
+} @else {
+  @for (round of rounds(); track round) {
+    <div class="round-group">
+      <h3 class="round-title">{{ round }}</h3>
+      <div class="matches-list">
+        @for (match of matchesByRound()[round]; track match.id) {
+          <button
+            type="button"
+            class="match-card"
+            [class.match-card--completed]="match.status === 'completed'"
+            (click)="onMatchClick(match.id)"
+            [attr.aria-label]="match.homeTeamName + ' vs ' + match.awayTeamName"
+          >
+            <!-- Home team -->
+            <div class="match-card__team match-card__team--home">
+              <span class="match-card__team-name">{{ match.homeTeamName }}</span>
+            </div>
+
+            <!-- Score / Status -->
+            <div class="match-card__center">
+              @if (match.status === 'completed') {
+                <span class="match-card__score">
+                  {{ match.homeScore }} - {{ match.awayScore }}
+                </span>
+              } @else {
+                <div class="match-card__meta">
+                  <app-status-badge [status]="match.status" />
+                  <span class="match-card__date">{{ formatDateTime(match.scheduledAt) }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Away team -->
+            <div class="match-card__team match-card__team--away">
+              <span class="match-card__team-name">{{ match.awayTeamName }}</span>
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Pagination -->
+  @if (totalPages() > 1) {
+    <nav class="history-pagination" aria-label="Paginación de partidos">
+      <button type="button" class="btn btn--secondary btn--sm"
+        [disabled]="currentPage() === 1"
+        (click)="onPageChange(currentPage() - 1)"
+        aria-label="Anterior">‹</button>
+
+      @for (page of pageRange(); track page) {
+        <button type="button" class="btn btn--sm"
+          [class.btn--primary]="page === currentPage()"
+          [class.btn--secondary]="page !== currentPage()"
+          [attr.aria-current]="page === currentPage() ? 'page' : null"
+          (click)="onPageChange(page)">{{ page }}</button>
+      }
+
+      <button type="button" class="btn btn--secondary btn--sm"
+        [disabled]="currentPage() === totalPages()"
+        (click)="onPageChange(currentPage() + 1)"
+        aria-label="Siguiente">›</button>
+    </nav>
+  }
+}
