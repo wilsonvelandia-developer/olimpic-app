@@ -59,36 +59,32 @@
     <!-- Tabs -->
     <div class="tab-panel">
       <div class="tab-nav" role="tablist" aria-label="Secciones del torneo">
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
+        <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'standings'"
           [attr.aria-selected]="activeTab() === 'standings'"
-          (click)="onTabChange('standings')"
-        >
+          (click)="onTabChange('standings')">
           🏅 Posiciones
         </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
+        <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'matches'"
           [attr.aria-selected]="activeTab() === 'matches'"
-          (click)="onTabChange('matches')"
-        >
+          (click)="onTabChange('matches')">
           ⚽ Partidos
         </button>
-        <button
-          type="button"
-          role="tab"
-          class="tab-btn"
+        <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'stats'"
           [attr.aria-selected]="activeTab() === 'stats'"
-          (click)="onTabChange('stats')"
-        >
+          (click)="onTabChange('stats')">
           📊 Estadísticas
         </button>
+        @if (auth.canEdit()) {
+          <button type="button" role="tab" class="tab-btn tab-btn--generate"
+            [class.tab-btn--active]="activeTab() === 'fixture'"
+            [attr.aria-selected]="activeTab() === 'fixture'"
+            (click)="onTabChange('fixture')">
+            ⚙️ Generar fixture
+          </button>
+        }
       </div>
 
       <div class="tab-content" role="tabpanel" [attr.aria-label]="tabLabel()">
@@ -130,6 +126,17 @@
           } @else if (stats()) {
             <app-tournament-stats [stats]="stats()!" />
           }
+        }
+
+        <!-- Tab: Fixture Generator -->
+        @if (activeTab() === 'fixture') {
+          <app-fixture-generator
+            [tournamentId]="tournament()!.id"
+            [tournamentFormat]="tournament()!.format"
+            [tournamentName]="tournament()!.name"
+            (saved)="onFixtureSaved($event)"
+            (cancelled)="onFixtureCancelled()"
+          />
         }
 
       </div>

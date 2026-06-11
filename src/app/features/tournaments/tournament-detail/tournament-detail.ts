@@ -16,9 +16,10 @@ import { StandingsTable } from '../standings-table/standings-table';
 import { TournamentStats } from '../tournament-stats/tournament-stats';
 import { MatchHistory } from '../match-history/match-history';
 import { AuthService } from '../../../core/services/auth.service';
+import { FixtureGenerator } from '../fixture-generator/fixture-generator';
 import type { Tournament, StandingsEntry, TournamentStatsData, Match } from '../../../core/models';
 
-type ActiveTab = 'standings' | 'matches' | 'stats';
+type ActiveTab = 'standings' | 'matches' | 'stats' | 'fixture';
 
 /**
  * Tournament detail view with standings table, match history and statistics.
@@ -33,6 +34,7 @@ type ActiveTab = 'standings' | 'matches' | 'stats';
     StandingsTable,
     TournamentStats,
     MatchHistory,
+    FixtureGenerator,
   ],
   templateUrl: './tournament-detail.html',
   styleUrl: './tournament-detail.css',
@@ -65,6 +67,7 @@ export class TournamentDetail implements OnInit {
     const tab = this.activeTab();
     if (tab === 'standings') return 'Tabla de posiciones';
     if (tab === 'matches') return 'Partidos';
+    if (tab === 'fixture') return 'Generar fixture';
     return 'Estadísticas';
   });
 
@@ -149,6 +152,21 @@ export class TournamentDetail implements OnInit {
     if (!id) return;
     this.matchPage.set(page);
     this.loadMatches(id, page);
+  }
+
+  onFixtureSaved(count: number): void {
+    // Reload matches and standings after fixture is saved
+    const id = this.tournament()?.id;
+    if (id) {
+      this.loadMatches(id, 1);
+      this.loadStandings(id);
+      this.loadStats(id);
+    }
+    this.activeTab.set('matches');
+  }
+
+  onFixtureCancelled(): void {
+    this.activeTab.set('standings');
   }
 
   onMatchClick(matchId: number): void {

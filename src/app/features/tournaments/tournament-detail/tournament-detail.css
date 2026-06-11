@@ -72,6 +72,16 @@
   font-weight: 600;
 }
 
+.tab-btn--generate {
+  margin-left: auto;
+  color: var(--color-success);
+}
+
+.tab-btn--generate.tab-btn--active {
+  color: var(--color-success);
+  border-bottom-color: var(--color-success);
+}
+
 .tab-content {
   padding: 1.5rem;
   display: flex;

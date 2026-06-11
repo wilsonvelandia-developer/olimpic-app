@@ -1,0 +1,176 @@
+<div class="wizard">
+  <!-- ── Wizard header ──────────────────────────────────────────────── -->
+  <div class="wizard__header">
+    <h2 class="wizard__title">Generar fixture — {{ tournamentName() }}</h2>
+    <p class="wizard__subtitle">{{ formatLabel(tournamentFormat()) }}</p>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="wizard__progress" role="progressbar" aria-label="Progreso del asistente">
+    <div class="wizard__step" [class.wizard__step--active]="step() === 'teams'" [class.wizard__step--done]="step() !== 'teams'">
+      <span class="wizard__step-dot">1</span>
+      <span class="wizard__step-label">Equipos</span>
+    </div>
+    <div class="wizard__connector"></div>
+    <div class="wizard__step" [class.wizard__step--active]="step() === 'config'" [class.wizard__step--done]="step() === 'preview' || step() === 'saving'">
+      <span class="wizard__step-dot">2</span>
+      <span class="wizard__step-label">Configuración</span>
+    </div>
+    <div class="wizard__connector"></div>
+    <div class="wizard__step" [class.wizard__step--active]="step() === 'preview' || step() === 'saving'">
+      <span class="wizard__step-dot">3</span>
+      <span class="wizard__step-label">Vista previa</span>
+    </div>
+  </div>
+
+  <!-- ── Step 1: Teams ──────────────────────────────────────────────── -->
+  @if (step() === 'teams') {
+    <form [formGroup]="teamsForm" (ngSubmit)="onNextToConfig()" novalidate>
+      <div class="wizard__body">
+        <p class="wizard__help">Ingresa los equipos que participarán en el torneo. Mínimo 2 equipos.</p>
+
+        <div class="teams-list" formArrayName="teams">
+          @for (ctrl of teamsArray.controls; track $index) {
+            <div class="team-row" [formGroupName]="$index">
+              <div class="team-row__num">{{ $index + 1 }}</div>
+
+              <div class="form-group">
+                <label class="form-label form-label--required" [for]="'teamId-' + $index">ID</label>
+                <input [id]="'teamId-' + $index" type="number" class="form-control team-id-input"
+                  [class.form-control--error]="isTeamFieldInvalid($index, 'id')"
+                  formControlName="id" min="1" placeholder="ID" />
+              </div>
+
+              <div class="form-group team-name-group">
+                <label class="form-label form-label--required" [for]="'teamName-' + $index">Nombre</label>
+                <input [id]="'teamName-' + $index" type="text" class="form-control"
+                  [class.form-control--error]="isTeamFieldInvalid($index, 'name')"
+                  formControlName="name" placeholder="Nombre del equipo" maxlength="80" autocomplete="off" />
+              </div>
+
+              @if (teamsArray.length > 2) {
+                <button type="button" class="btn btn--secondary btn--sm team-remove-btn"
+                  [attr.aria-label]="'Eliminar equipo ' + ($index + 1)"
+                  (click)="removeTeamRow($index)">✕</button>
+              }
+            </div>
+          }
+        </div>
+
+        <button type="button" class="btn btn--secondary btn--sm" (click)="addTeamRow()">
+          + Agregar equipo
+        </button>
+      </div>
+
+      <div class="wizard__footer">
+        <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
+        <button type="submit" class="btn btn--primary">Siguiente →</button>
+      </div>
+    </form>
+  }
+
+  <!-- ── Step 2: Config ─────────────────────────────────────────────── -->
+  @if (step() === 'config') {
+    <form [formGroup]="configForm" (ngSubmit)="onGeneratePreview()" novalidate>
+      <div class="wizard__body">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label form-label--required" for="startDate">Fecha de inicio</label>
+            <input id="startDate" type="date" class="form-control"
+              [class.form-control--error]="isConfigFieldInvalid('startDate')"
+              formControlName="startDate" />
+            @if (isConfigFieldInvalid('startDate')) {
+              <span class="form-error" role="alert">Este campo es requerido.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label--required" for="daysBetweenRounds">Días entre jornadas</label>
+            <input id="daysBetweenRounds" type="number" class="form-control"
+              [class.form-control--error]="isConfigFieldInvalid('daysBetweenRounds')"
+              formControlName="daysBetweenRounds" min="1" max="30" />
+            @if (isConfigFieldInvalid('daysBetweenRounds')) {
+              <span class="form-error" role="alert">Valor entre 1 y 30.</span>
+            }
+            <span class="form-hint">Intervalo entre cada jornada o ronda.</span>
+          </div>
+
+          <div class="form-group form-group--full">
+            <label class="form-label" for="venue">Sede por defecto</label>
+            <input id="venue" type="text" class="form-control"
+              formControlName="venue" placeholder="Ej: Estadio Municipal" maxlength="100" autocomplete="off" />
+            <span class="form-hint">Opcional. Se aplicará a todos los partidos generados.</span>
+          </div>
+
+          @if (isRoundRobin()) {
+            <div class="form-group form-group--full">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="twoLegs" />
+                <span>Generar ida y vuelta (dos vueltas)</span>
+              </label>
+              <span class="form-hint">Cada enfrentamiento se juega dos veces: local y visitante invertidos.</span>
+            </div>
+          }
+
+        </div>
+      </div>
+
+      <div class="wizard__footer">
+        <button type="button" class="btn btn--secondary" (click)="onBackToTeams()">← Atrás</button>
+        <button type="submit" class="btn btn--primary">Generar fixture →</button>
+      </div>
+    </form>
+  }
+
+  <!-- ── Step 3: Preview ────────────────────────────────────────────── -->
+  @if (step() === 'preview') {
+    <div class="wizard__body">
+      @if (errorMessage()) {
+        <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <div class="preview-summary">
+        <span class="preview-stat">
+          <strong>{{ totalSlots() }}</strong> partidos
+        </span>
+        <span class="preview-stat">
+          <strong>{{ rounds().length }}</strong> jornadas/rondas
+        </span>
+      </div>
+
+      <div class="preview-rounds">
+        @for (round of rounds(); track round) {
+          <div class="preview-round">
+            <h3 class="preview-round__title">{{ round }}</h3>
+            <div class="preview-matches">
+              @for (slot of previewByRound()[round]; track slot.homeTeamId + '-' + slot.awayTeamId) {
+                <div class="preview-match">
+                  <span class="preview-match__team preview-match__team--home">{{ slot.homeTeamName }}</span>
+                  <span class="preview-match__vs">vs</span>
+                  <span class="preview-match__team preview-match__team--away">{{ slot.awayTeamName }}</span>
+                  <span class="preview-match__date">{{ formatDateTime(slot.scheduledAt) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="wizard__footer">
+      <button type="button" class="btn btn--secondary" (click)="onBackToConfig()">← Atrás</button>
+      <button type="button" class="btn btn--primary" (click)="onConfirmSave()">
+        ✓ Confirmar y guardar {{ totalSlots() }} partidos
+      </button>
+    </div>
+  }
+
+  <!-- ── Step 4: Saving ─────────────────────────────────────────────── -->
+  @if (step() === 'saving') {
+    <div class="wizard__body wizard__body--center">
+      <app-loading-spinner label="Guardando fixture..." />
+      <p class="saving-text">Creando {{ totalSlots() }} partidos en la API…</p>
+    </div>
+  }
+</div>
