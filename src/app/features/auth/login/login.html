@@ -1,0 +1,86 @@
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <!-- Brand -->
+    <div class="login-brand">
+      <span class="login-brand__icon" aria-hidden="true">🏅</span>
+      <h1 class="login-brand__name">OlimpicApp</h1>
+      <p class="login-brand__tagline">Gestión de torneos deportivos</p>
+    </div>
+
+    <!-- Error -->
+    @if (errorMessage()) {
+      <div class="alert alert--error" role="alert" aria-live="polite">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate aria-label="Formulario de inicio de sesión">
+
+      <div class="form-group">
+        <label class="form-label form-label--required" for="email">Correo electrónico</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          [class.form-control--error]="isFieldInvalid('email')"
+          formControlName="email"
+          placeholder="usuario@ejemplo.com"
+          autocomplete="email"
+          maxlength="120"
+          [attr.aria-invalid]="isFieldInvalid('email')"
+          [attr.aria-describedby]="isFieldInvalid('email') ? 'email-error' : null"
+        />
+        @if (isFieldInvalid('email')) {
+          <span id="email-error" class="form-error" role="alert">{{ getFieldError('email') }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label form-label--required" for="password">Contraseña</label>
+        <div class="input-with-action">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-control"
+            [class.form-control--error]="isFieldInvalid('password')"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            maxlength="72"
+            [attr.aria-invalid]="isFieldInvalid('password')"
+            [attr.aria-describedby]="isFieldInvalid('password') ? 'password-error' : null"
+          />
+          <button
+            type="button"
+            class="input-toggle-btn"
+            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            (click)="togglePasswordVisibility()"
+          >
+            {{ showPassword() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        @if (isFieldInvalid('password')) {
+          <span id="password-error" class="form-error" role="alert">{{ getFieldError('password') }}</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn--primary login-submit"
+        [disabled]="isLoading()"
+        [attr.aria-busy]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span class="spinner-inline" aria-hidden="true"></span>
+          Iniciando sesión...
+        } @else {
+          Iniciar sesión
+        }
+      </button>
+
+    </form>
+
+  </div>
+</div>

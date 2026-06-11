@@ -1,0 +1,71 @@
+.page { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.page__header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.page__title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+.page__subtitle { color: var(--color-text-secondary); font-size: 0.9rem; }
+
+.filters-bar {
+  display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap;
+  background: var(--color-bg-primary); padding: 1rem;
+  border-radius: var(--radius-lg); border: 1px solid var(--color-border);
+}
+.filters-bar .form-group { flex: 1; min-width: 150px; }
+.filters-bar__actions { display: flex; gap: 0.5rem; align-items: flex-end; }
+
+.alert { padding: 0.875rem 1rem; border-radius: var(--radius-md); font-size: 0.9rem; }
+.alert--error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+/* Match-specific table styles */
+.match-row--completed td { color: var(--color-text-secondary); }
+
+.match-team { font-weight: 500; }
+.match-team--home { color: var(--color-primary); }
+.match-team--away { color: var(--color-text-primary); }
+
+.scoreboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.scoreboard--pending {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.scoreboard__sep {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.round-chip {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.date-cell {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+}
+
+.pagination {
+  display: flex; align-items: center;
+  justify-content: center; gap: 0.375rem; flex-wrap: wrap;
+}

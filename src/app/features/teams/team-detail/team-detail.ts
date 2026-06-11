@@ -6,6 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { SlicePipe } from '@angular/common';
 import { TeamService } from '../team.service';
 import { PlayerService } from '../../players/player.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
@@ -17,7 +18,7 @@ import type { Team, Player } from '../../../core/models';
  */
 @Component({
   selector: 'app-team-detail',
-  imports: [RouterLink, LoadingSpinner, ConfirmDialog],
+  imports: [RouterLink, SlicePipe, LoadingSpinner, ConfirmDialog],
   templateUrl: './team-detail.html',
   styleUrl: './team-detail.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

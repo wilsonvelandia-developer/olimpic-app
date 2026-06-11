@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  APP_INITIALIZER,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -9,6 +10,7 @@ import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { sessionInitializer } from './core/initializers/session.initializer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,5 +21,10 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([authInterceptor, errorInterceptor]),
     ),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: sessionInitializer,
+      multi: true,
+    },
   ],
 };

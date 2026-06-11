@@ -1,0 +1,85 @@
+<section class="page">
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando jugador..." />
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (!isLoading() && player()) {
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/players" class="breadcrumb__link">Jugadores</a>
+      <span class="breadcrumb__sep" aria-hidden="true">›</span>
+      <span>{{ fullName() }}</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="page__header">
+      <div class="player-identity">
+        <div class="player-avatar" aria-hidden="true">
+          {{ player()!.firstName[0] }}{{ player()!.lastName[0] }}
+        </div>
+        <div>
+          <h1 class="page__title">{{ fullName() }}</h1>
+          <div class="page__meta">
+            <span class="jersey-badge">#{{ player()!.jerseyNumber }}</span>
+            <span class="meta-tag">{{ player()!.position }}</span>
+            <span class="badge"
+              [class.badge--success]="player()!.isActive"
+              [class.badge--neutral]="!player()!.isActive">
+              {{ player()!.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="page__header-actions">
+        <button type="button" class="btn btn--secondary" (click)="onViewTeam()">👥 Ver equipo</button>
+        <button type="button" class="btn btn--secondary" (click)="onEdit()">✏️ Editar</button>
+        <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">🗑️ Eliminar</button>
+      </div>
+    </div>
+
+    <!-- Info grid -->
+    <div class="info-grid">
+      <div class="info-card">
+        <span class="info-card__label">Documento</span>
+        <span class="info-card__value">{{ player()!.documentNumber }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Fecha de nacimiento</span>
+        <span class="info-card__value">{{ formatDate(player()!.birthDate) }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Edad</span>
+        <span class="info-card__value">{{ calculateAge(player()!.birthDate) }} años</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Nacionalidad</span>
+        <span class="info-card__value">{{ player()!.nationality }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Posición</span>
+        <span class="info-card__value">{{ player()!.position }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">ID del equipo</span>
+        <button type="button" class="btn btn--ghost btn--sm info-card__value" (click)="onViewTeam()">
+          Equipo #{{ player()!.teamId }} →
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog
+    title="Eliminar jugador"
+    [message]="'¿Estás seguro de que quieres eliminar a «' + fullName() + '»?'"
+    confirmLabel="Eliminar"
+    [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+}

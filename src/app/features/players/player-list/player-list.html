@@ -1,0 +1,153 @@
+<section class="page">
+  <!-- Header -->
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Jugadores</h1>
+      <p class="page__subtitle">Gestiona los jugadores registrados en la plataforma</p>
+    </div>
+    <button type="button" class="btn btn--primary" (click)="onCreatePlayer()">
+      + Nuevo jugador
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="playerSearch">Buscar</label>
+      <input
+        id="playerSearch"
+        type="search"
+        class="form-control"
+        placeholder="Nombre o documento..."
+        [(ngModel)]="searchModel"
+        maxlength="80"
+        (keyup.enter)="onApplyFilters()"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="playerTeam">ID Equipo</label>
+      <input
+        id="playerTeam"
+        type="number"
+        class="form-control"
+        placeholder="Filtrar por equipo"
+        [(ngModel)]="teamIdModel"
+        min="1"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="playerActive">Estado</label>
+      <select id="playerActive" class="form-control" [(ngModel)]="filterActiveModel">
+        <option value="">Todos</option>
+        <option value="true">Activo</option>
+        <option value="false">Inactivo</option>
+      </select>
+    </div>
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando jugadores..." />
+  }
+
+  <!-- Table -->
+  @if (!isLoading()) {
+    <div class="table-wrapper">
+      <table class="table" aria-label="Lista de jugadores">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Posición</th>
+            <th scope="col">Equipo</th>
+            <th scope="col">Documento</th>
+            <th scope="col">Nacionalidad</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (players().length === 0) {
+            <tr>
+              <td colspan="8" class="table__empty">No se encontraron jugadores.</td>
+            </tr>
+          }
+          @for (player of players(); track player.id) {
+            <tr>
+              <td>
+                <span class="jersey-number">{{ player.jerseyNumber }}</span>
+              </td>
+              <td>
+                <button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(player.id)">
+                  {{ getFullName(player) }}
+                </button>
+              </td>
+              <td>{{ player.position }}</td>
+              <td>
+                <span class="team-chip">{{ player.teamId }}</span>
+              </td>
+              <td><code class="doc-code">{{ player.documentNumber }}</code></td>
+              <td>{{ player.nationality }}</td>
+              <td>
+                <span class="badge"
+                  [class.badge--success]="player.isActive"
+                  [class.badge--neutral]="!player.isActive">
+                  {{ player.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="table__actions">
+                  <button type="button" class="btn btn--secondary btn--sm"
+                    [attr.aria-label]="'Editar ' + getFullName(player)"
+                    (click)="onEditPlayer(player.id)">✏️</button>
+                  <button type="button" class="btn btn--secondary btn--sm"
+                    [attr.aria-label]="'Eliminar ' + getFullName(player)"
+                    (click)="onDeleteConfirm(player)">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <nav class="pagination" aria-label="Paginación de jugadores">
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === 1"
+          (click)="onPageChange(currentPage() - 1)" aria-label="Anterior">‹</button>
+        @for (page of pageRange; track page) {
+          <button type="button" class="btn btn--sm"
+            [class.btn--primary]="page === currentPage()"
+            [class.btn--secondary]="page !== currentPage()"
+            [attr.aria-current]="page === currentPage() ? 'page' : null"
+            (click)="onPageChange(page)">{{ page }}</button>
+        }
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === totalPages"
+          (click)="onPageChange(currentPage() + 1)" aria-label="Siguiente">›</button>
+      </nav>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog
+    title="Eliminar jugador"
+    [message]="'¿Estás seguro de que quieres eliminar a «' + selectedPlayerName() + '»?'"
+    confirmLabel="Eliminar"
+    [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+}

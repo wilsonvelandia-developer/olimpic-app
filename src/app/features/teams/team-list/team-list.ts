@@ -12,10 +12,11 @@ import { LoadingSpinner } from '../../../shared/components/loading-spinner/loadi
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import type { Team } from '../../../core/models';
 import type { TeamFilters } from '../team.service';
+import { SlicePipe } from '@angular/common';
 
 @Component({
   selector: 'app-team-list',
-  imports: [FormsModule, LoadingSpinner, ConfirmDialog],
+  imports: [FormsModule, LoadingSpinner, ConfirmDialog, SlicePipe],
   templateUrl: './team-list.html',
   styleUrl: './team-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

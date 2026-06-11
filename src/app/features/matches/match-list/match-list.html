@@ -1,0 +1,152 @@
+<section class="page">
+  <!-- Header -->
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Partidos</h1>
+      <p class="page__subtitle">Consulta y gestiona los partidos programados</p>
+    </div>
+    <button type="button" class="btn btn--primary" (click)="onScheduleMatch()">
+      + Programar partido
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="matchTournament">ID Torneo</label>
+      <input id="matchTournament" type="number" class="form-control"
+        placeholder="Filtrar por torneo" [(ngModel)]="tournamentIdModel" min="1" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="matchStatus">Estado</label>
+      <select id="matchStatus" class="form-control" [(ngModel)]="filterStatusModel">
+        <option value="">Todos</option>
+        <option value="scheduled">Programado</option>
+        <option value="in_progress">En curso</option>
+        <option value="completed">Finalizado</option>
+        <option value="postponed">Pospuesto</option>
+        <option value="cancelled">Cancelado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="matchRound">Ronda / Jornada</label>
+      <input id="matchRound" type="text" class="form-control"
+        placeholder="Ej: Jornada 1, Cuartos" [(ngModel)]="filterRoundModel"
+        maxlength="40" (keyup.enter)="onApplyFilters()" />
+    </div>
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando partidos..." />
+  }
+
+  <!-- Table -->
+  @if (!isLoading()) {
+    <div class="table-wrapper">
+      <table class="table" aria-label="Lista de partidos">
+        <thead>
+          <tr>
+            <th scope="col">Ronda</th>
+            <th scope="col">Local</th>
+            <th scope="col">Resultado</th>
+            <th scope="col">Visitante</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Sede</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (matches().length === 0) {
+            <tr>
+              <td colspan="8" class="table__empty">No se encontraron partidos.</td>
+            </tr>
+          }
+          @for (match of matches(); track match.id) {
+            <tr [class.match-row--completed]="match.status === 'completed'">
+              <td><span class="round-chip">{{ match.round }}</span></td>
+              <td>
+                <button type="button" class="btn btn--ghost btn--sm match-team match-team--home"
+                  (click)="onViewDetail(match.id)">
+                  {{ match.homeTeamName }}
+                </button>
+              </td>
+              <td>
+                @if (match.status === 'completed') {
+                  <span class="scoreboard">
+                    <strong>{{ match.homeScore }}</strong>
+                    <span class="scoreboard__sep">-</span>
+                    <strong>{{ match.awayScore }}</strong>
+                  </span>
+                } @else {
+                  <span class="scoreboard scoreboard--pending">vs</span>
+                }
+              </td>
+              <td>
+                <button type="button" class="btn btn--ghost btn--sm match-team match-team--away"
+                  (click)="onViewDetail(match.id)">
+                  {{ match.awayTeamName }}
+                </button>
+              </td>
+              <td class="date-cell">{{ formatDateTime(match.scheduledAt) }}</td>
+              <td>{{ match.venue || '—' }}</td>
+              <td><app-status-badge [status]="match.status" /></td>
+              <td>
+                <div class="table__actions">
+                  @if (canRegisterResult(match)) {
+                    <button type="button" class="btn btn--primary btn--sm"
+                      [attr.aria-label]="'Registrar resultado de ' + match.homeTeamName + ' vs ' + match.awayTeamName"
+                      (click)="onRegisterResult(match.id)">
+                      ⚽ Resultado
+                    </button>
+                  }
+                  <button type="button" class="btn btn--secondary btn--sm"
+                    [attr.aria-label]="'Eliminar partido ' + match.homeTeamName + ' vs ' + match.awayTeamName"
+                    (click)="onDeleteConfirm(match)">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <nav class="pagination" aria-label="Paginación de partidos">
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)" aria-label="Anterior">‹</button>
+        @for (page of pageRange; track page) {
+          <button type="button" class="btn btn--sm"
+            [class.btn--primary]="page === currentPage()"
+            [class.btn--secondary]="page !== currentPage()"
+            [attr.aria-current]="page === currentPage() ? 'page' : null"
+            (click)="onPageChange(page)">{{ page }}</button>
+        }
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === totalPages" (click)="onPageChange(currentPage() + 1)" aria-label="Siguiente">›</button>
+      </nav>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog
+    title="Eliminar partido"
+    [message]="'¿Estás seguro de que quieres eliminar el partido «' + selectedMatchLabel() + '»?'"
+    confirmLabel="Eliminar"
+    [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+}

@@ -1,0 +1,134 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">{{ isEditMode() ? 'Editar deporte' : 'Nuevo deporte' }}</h1>
+      <p class="page__subtitle">Configura las reglas para habilitar el deporte en torneos</p>
+    </div>
+  </div>
+
+  @if (isLoading()) { <app-loading-spinner label="Cargando deporte..." /> }
+
+  @if (!isLoading()) {
+    <div class="form-card">
+      @if (errorMessage()) {
+        <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Basic info section -->
+        <fieldset class="form-section">
+          <legend class="form-section__title">Información básica</legend>
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label class="form-label form-label--required" for="sportName">Nombre</label>
+              <input id="sportName" type="text" class="form-control"
+                [class.form-control--error]="isFieldInvalid('name')"
+                formControlName="name" placeholder="Ej: Fútbol sala" maxlength="60"
+                autocomplete="off" (input)="onNameInput($event)" />
+              @if (isFieldInvalid('name')) {
+                <span class="form-error" role="alert">{{ getFieldError('name') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required" for="slug">Slug</label>
+              <input id="slug" type="text" class="form-control"
+                [class.form-control--error]="isFieldInvalid('slug')"
+                formControlName="slug" placeholder="ej: futbol-sala" maxlength="40" autocomplete="off" />
+              @if (isFieldInvalid('slug')) {
+                <span class="form-error" role="alert">{{ getFieldError('slug') }}</span>
+              }
+              <span class="form-hint">Identificador único en URL. Se genera automáticamente.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required" for="icon">Icono (emoji)</label>
+              <input id="icon" type="text" class="form-control icon-input"
+                [class.form-control--error]="isFieldInvalid('icon')"
+                formControlName="icon" placeholder="⚽" maxlength="10" />
+              @if (isFieldInvalid('icon')) {
+                <span class="form-error" role="alert">{{ getFieldError('icon') }}</span>
+              }
+              <span class="form-hint">Un emoji representativo del deporte.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required" for="playersPerTeam">Jugadores por equipo</label>
+              <input id="playersPerTeam" type="number" class="form-control"
+                [class.form-control--error]="isFieldInvalid('playersPerTeam')"
+                formControlName="playersPerTeam" min="1" max="50"
+                placeholder="Ej: 11 (fútbol), 5 (básquet)" />
+              @if (isFieldInvalid('playersPerTeam')) {
+                <span class="form-error" role="alert">{{ getFieldError('playersPerTeam') }}</span>
+              }
+            </div>
+
+          </div>
+        </fieldset>
+
+        <!-- Rules section -->
+        <fieldset class="form-section" formGroupName="rules">
+          <legend class="form-section__title">Reglas del deporte</legend>
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label class="form-label form-label--required" for="scoringUnit">Unidad de marcador</label>
+              <select id="scoringUnit" class="form-control"
+                [class.form-control--error]="isFieldInvalid('rules.scoringUnit')"
+                formControlName="scoringUnit">
+                @for (opt of scoringUnitOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+              @if (isFieldInvalid('rules.scoringUnit')) {
+                <span class="form-error" role="alert">{{ getFieldError('rules.scoringUnit') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required" for="periods">Número de períodos</label>
+              <input id="periods" type="number" class="form-control"
+                [class.form-control--error]="isFieldInvalid('rules.periods')"
+                formControlName="periods" min="1" max="10" />
+              @if (isFieldInvalid('rules.periods')) {
+                <span class="form-error" role="alert">{{ getFieldError('rules.periods') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required" for="periodName">Nombre del período</label>
+              <input id="periodName" type="text" class="form-control"
+                [class.form-control--error]="isFieldInvalid('rules.periodName')"
+                formControlName="periodName" placeholder="Ej: Tiempo, Set, Cuarto" maxlength="30" autocomplete="off" />
+              @if (isFieldInvalid('rules.periodName')) {
+                <span class="form-error" role="alert">{{ getFieldError('rules.periodName') }}</span>
+              }
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="hasOvertime" />
+                <span>Permite prórroga</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="hasPenalties" />
+                <span>Permite penales / desempate</span>
+              </label>
+            </div>
+
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
+          <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
+            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Crear deporte') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+</section>

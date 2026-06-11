@@ -1,0 +1,47 @@
+.page { display: flex; flex-direction: column; gap: 1.5rem; }
+.page__header { display: flex; align-items: flex-start; justify-content: space-between; }
+.page__title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+.page__subtitle { color: var(--color-text-secondary); font-size: 0.9rem; }
+
+.form-card {
+  background: var(--color-bg-primary); border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border); padding: 2rem;
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+.form-section {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+
+.form-section__title {
+  font-size: 0.875rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  padding: 0 0.375rem;
+}
+
+.icon-input {
+  font-size: 1.5rem !important;
+  text-align: center;
+}
+
+.checkbox-group {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.checkbox-label {
+  display: flex; align-items: center; gap: 0.5rem;
+  cursor: pointer; font-size: 0.9rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px; height: 16px; cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.alert { padding: 0.875rem 1rem; border-radius: var(--radius-md); font-size: 0.9rem; }
+.alert--error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }

@@ -1,0 +1,87 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Registrar resultado</h1>
+      <p class="page__subtitle">{{ matchLabel() }}</p>
+    </div>
+  </div>
+
+  @if (isLoading()) { <app-loading-spinner label="Cargando partido..." /> }
+
+  @if (!isLoading() && match()) {
+    <div class="form-card">
+      <!-- Match preview -->
+      <div class="match-preview">
+        <div class="match-preview__team match-preview__team--home">
+          <span class="match-preview__name">{{ match()!.homeTeamName }}</span>
+          <span class="match-preview__label">Local</span>
+        </div>
+
+        <div class="match-preview__center">
+          <span class="match-preview__vs">vs</span>
+          <span class="match-preview__round">{{ match()!.round }}</span>
+        </div>
+
+        <div class="match-preview__team match-preview__team--away">
+          <span class="match-preview__name">{{ match()!.awayTeamName }}</span>
+          <span class="match-preview__label">Visitante</span>
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Score input -->
+        <div class="score-row">
+          <div class="score-input-group">
+            <label class="form-label form-label--required" for="homeScore">
+              {{ match()!.homeTeamName }}
+            </label>
+            <input id="homeScore" type="number" class="form-control score-input"
+              [class.form-control--error]="isFieldInvalid('homeScore')"
+              formControlName="homeScore" min="0" max="999"
+              placeholder="0" aria-label="Goles del equipo local" />
+            @if (isFieldInvalid('homeScore')) {
+              <span class="form-error" role="alert">{{ getFieldError('homeScore') }}</span>
+            }
+          </div>
+
+          <span class="score-separator" aria-hidden="true">—</span>
+
+          <div class="score-input-group">
+            <label class="form-label form-label--required" for="awayScore">
+              {{ match()!.awayTeamName }}
+            </label>
+            <input id="awayScore" type="number" class="form-control score-input"
+              [class.form-control--error]="isFieldInvalid('awayScore')"
+              formControlName="awayScore" min="0" max="999"
+              placeholder="0" aria-label="Goles del equipo visitante" />
+            @if (isFieldInvalid('awayScore')) {
+              <span class="form-error" role="alert">{{ getFieldError('awayScore') }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Played At -->
+        <div class="form-group">
+          <label class="form-label form-label--required" for="playedAt">Fecha y hora del partido</label>
+          <input id="playedAt" type="datetime-local" class="form-control"
+            [class.form-control--error]="isFieldInvalid('playedAt')"
+            formControlName="playedAt" />
+          @if (isFieldInvalid('playedAt')) {
+            <span class="form-error" role="alert">{{ getFieldError('playedAt') }}</span>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
+          <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
+            {{ isSaving() ? 'Guardando...' : '✓ Confirmar resultado' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</section>

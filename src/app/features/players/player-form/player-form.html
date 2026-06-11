@@ -1,0 +1,123 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">{{ isEditMode() ? 'Editar jugador' : 'Nuevo jugador' }}</h1>
+      <p class="page__subtitle">{{ isEditMode() ? 'Modifica los datos del jugador' : 'Registra un nuevo jugador en la plataforma' }}</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando jugador..." />
+  }
+
+  @if (!isLoading()) {
+    <div class="form-card">
+      @if (errorMessage()) {
+        <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-grid">
+
+          <!-- First Name -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="firstName">Nombre</label>
+            <input id="firstName" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('firstName')"
+              formControlName="firstName" placeholder="Ej: Carlos" maxlength="60" autocomplete="given-name" />
+            @if (isFieldInvalid('firstName')) {
+              <span class="form-error" role="alert">{{ getFieldError('firstName') }}</span>
+            }
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="lastName">Apellido</label>
+            <input id="lastName" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('lastName')"
+              formControlName="lastName" placeholder="Ej: Gómez" maxlength="60" autocomplete="family-name" />
+            @if (isFieldInvalid('lastName')) {
+              <span class="form-error" role="alert">{{ getFieldError('lastName') }}</span>
+            }
+          </div>
+
+          <!-- Document -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="documentNumber">Número de documento</label>
+            <input id="documentNumber" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('documentNumber')"
+              formControlName="documentNumber" placeholder="Ej: 1234567890" maxlength="20" autocomplete="off" />
+            @if (isFieldInvalid('documentNumber')) {
+              <span class="form-error" role="alert">{{ getFieldError('documentNumber') }}</span>
+            }
+          </div>
+
+          <!-- Birth Date -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="birthDate">Fecha de nacimiento</label>
+            <input id="birthDate" type="date" class="form-control"
+              [class.form-control--error]="isFieldInvalid('birthDate')"
+              formControlName="birthDate" />
+            @if (isFieldInvalid('birthDate')) {
+              <span class="form-error" role="alert">{{ getFieldError('birthDate') }}</span>
+            }
+          </div>
+
+          <!-- Nationality -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="nationality">Nacionalidad</label>
+            <input id="nationality" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('nationality')"
+              formControlName="nationality" placeholder="Ej: Colombiano" maxlength="60" autocomplete="off" />
+            @if (isFieldInvalid('nationality')) {
+              <span class="form-error" role="alert">{{ getFieldError('nationality') }}</span>
+            }
+          </div>
+
+          <!-- Position -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="position">Posición</label>
+            <input id="position" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('position')"
+              formControlName="position" placeholder="Ej: Delantero, Libero, Escolta" maxlength="40" autocomplete="off" />
+            @if (isFieldInvalid('position')) {
+              <span class="form-error" role="alert">{{ getFieldError('position') }}</span>
+            }
+            <span class="form-hint">La posición depende del deporte del equipo.</span>
+          </div>
+
+          <!-- Jersey Number -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="jerseyNumber">Número de camiseta</label>
+            <input id="jerseyNumber" type="number" class="form-control"
+              [class.form-control--error]="isFieldInvalid('jerseyNumber')"
+              formControlName="jerseyNumber" min="1" max="99" />
+            @if (isFieldInvalid('jerseyNumber')) {
+              <span class="form-error" role="alert">{{ getFieldError('jerseyNumber') }}</span>
+            }
+          </div>
+
+          <!-- Team ID -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="teamId">ID del equipo</label>
+            <input id="teamId" type="number" class="form-control"
+              [class.form-control--error]="isFieldInvalid('teamId')"
+              formControlName="teamId" placeholder="ID del equipo" min="1" />
+            @if (isFieldInvalid('teamId')) {
+              <span class="form-error" role="alert">{{ getFieldError('teamId') }}</span>
+            }
+            <span class="form-hint">El selector de equipos estará disponible en la próxima versión.</span>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
+          <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
+            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Registrar jugador') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</section>

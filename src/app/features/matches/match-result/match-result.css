@@ -1,0 +1,81 @@
+.page { display: flex; flex-direction: column; gap: 1.5rem; max-width: 640px; }
+.page__header { display: flex; flex-direction: column; gap: 0.25rem; }
+.page__title { font-size: 1.5rem; font-weight: 700; }
+.page__subtitle { color: var(--color-text-secondary); font-size: 1rem; font-weight: 500; }
+
+.form-card {
+  background: var(--color-bg-primary); border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border); padding: 2rem;
+  display: flex; flex-direction: column; gap: 2rem;
+}
+
+/* Match Preview Banner */
+.match-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.match-preview__team {
+  display: flex; flex-direction: column;
+  gap: 0.25rem; flex: 1;
+}
+
+.match-preview__team--home { align-items: flex-start; }
+.match-preview__team--away { align-items: flex-end; }
+
+.match-preview__name { font-size: 1rem; font-weight: 700; }
+.match-preview__label { font-size: 0.75rem; color: var(--color-text-secondary); text-transform: uppercase; }
+
+.match-preview__center {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.25rem; flex-shrink: 0;
+}
+
+.match-preview__vs {
+  font-size: 1.25rem; font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.match-preview__round {
+  font-size: 0.75rem; color: var(--color-text-secondary);
+  background: var(--color-primary-light); color: var(--color-primary);
+  padding: 0.15rem 0.5rem; border-radius: var(--radius-full);
+}
+
+/* Score Row */
+.score-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.score-input-group {
+  display: flex; flex-direction: column;
+  gap: 0.5rem; align-items: center; flex: 1;
+  max-width: 160px;
+}
+
+.score-input {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  text-align: center;
+  height: 72px;
+  border-radius: var(--radius-lg) !important;
+}
+
+.score-separator {
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+.alert { padding: 0.875rem 1rem; border-radius: var(--radius-md); font-size: 0.9rem; }
+.alert--error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }

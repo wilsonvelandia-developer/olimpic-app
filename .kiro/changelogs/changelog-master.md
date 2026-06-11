@@ -8,7 +8,38 @@
 - Se creó spec de requerimientos del frontend en `.kiro/specs/olimpic-app-frontend/requirements.md`
 - Se pinnaron versiones exactas de todas las dependencias en `package.json` (eliminados `^` y `~`)
 - Se actualizó `.gitignore` para incluir exclusiones requeridas: `.idea/`, `.env`, `.env.*`, archivos de sistema
-- Se implementó módulo de Torneos completo con lazy loading:
+- Se implementó Dashboard completo:
+  - `DashboardService`: carga 7 contadores de estadísticas en paralelo con `forkJoin`
+  - Cards de estadísticas interactivas con navegación directa al módulo
+  - Panel de torneos recientes y partidos recientes
+  - Sección de acciones rápidas (nuevo torneo, equipo, jugador, partido)
+- Se implementó módulo Auth / Login completo:
+  - Formulario reactivo con validación de email, longitud mínima y máxima
+  - Toggle de visibilidad de contraseña accesible (aria-label dinámico)
+  - Diseño de página completa con gradiente de marca
+  - Mensajes de error genéricos al cliente (sin exposición de detalles internos)
+- Se implementó `sessionInitializer` (APP_INITIALIZER): restaura la sesión desde cookie httpOnly al iniciar la app, silencia el 401 para rutas públicas
+- Se registró `APP_INITIALIZER` en `app.config.ts`
+  - `MatchService`: CRUD, filtros y endpoint dedicado para registro de resultados (`PATCH /result`)
+  - `MatchList`: tabla con marcador, ronda, estado y botón contextual "Registrar resultado"
+  - `MatchForm`: programar / editar partido con pre-relleno de tournamentId por query param
+  - `MatchResult`: componente dedicado al registro del resultado con UI de marcador destacada
+- Se implementó módulo de Deportes completo con lazy loading:
+  - `SportService`: CRUD del catálogo de deportes maestros
+  - `SportList`: grid de cards por deporte con reglas, icono y acciones
+  - `SportForm`: formulario con sección de reglas configurables (scoringUnit, períodos, prórroga, penales) y auto-generación de slug
+  - `SportDetail`: detalle con todas las reglas del deporte
+- Rutas ampliadas: matches (list, new, :id/edit, :id/result) y sports (list, new, :id/edit, :id)
+  - `TeamService`: CRUD con filtros por búsqueda y estado
+  - `TeamList`: tabla con logo/placeholder, filtros, paginación y confirmación de borrado
+  - `TeamForm`: formulario reactivo con validación de URL para logo
+  - `TeamDetail`: vista con roster de jugadores del equipo y navegación hacia player-form
+- Se implementó módulo de Jugadores completo con lazy loading:
+  - `PlayerService`: CRUD con filtros por equipo, búsqueda y estado
+  - `PlayerList`: tabla con dorsal, soporte de pre-filtro por teamId vía query params
+  - `PlayerForm`: formulario reactivo, pre-rellena teamId desde query param al venir de team-detail
+  - `PlayerDetail`: perfil con cálculo de edad, avatar inicial y enlace al equipo
+- Rutas ampliadas para equipos y jugadores: list, new, :id/edit, :id
   - `TournamentService`: operaciones CRUD contra la API REST
   - `TournamentList`: tabla con filtros por estado/temporada, paginación y acciones de editar/eliminar
   - `TournamentForm`: formulario reactivo con validación (required, minLength, pattern, cross-field dateRange)

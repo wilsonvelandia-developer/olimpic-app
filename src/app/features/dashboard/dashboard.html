@@ -1,0 +1,146 @@
+<section class="dashboard">
+
+  <!-- Header -->
+  <div class="dashboard__header">
+    <div>
+      <h1 class="dashboard__title">Dashboard</h1>
+      <p class="dashboard__subtitle">
+        Bienvenido@if (auth.currentUser()) {, <strong>{{ auth.currentUser()!.name }}</strong>}
+      </p>
+    </div>
+    <button type="button" class="btn btn--secondary" (click)="loadDashboard()">
+      ↺ Actualizar
+    </button>
+  </div>
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando estadísticas..." />
+  }
+
+  @if (!isLoading() && stats()) {
+    <!-- Stat cards -->
+    <div class="stats-grid" role="list" aria-label="Estadísticas generales">
+      @for (card of statCards(); track card.label) {
+        <button
+          type="button"
+          class="stat-card"
+          [class]="'stat-card--' + card.accent"
+          role="listitem"
+          [attr.aria-label]="card.label + ': ' + card.value"
+          (click)="navigate(card.route)"
+        >
+          <span class="stat-card__icon" aria-hidden="true">{{ card.icon }}</span>
+          <div class="stat-card__body">
+            <span class="stat-card__value">{{ card.value }}</span>
+            <span class="stat-card__label">{{ card.label }}</span>
+          </div>
+        </button>
+      }
+    </div>
+
+    <!-- Recent activity -->
+    <div class="activity-grid">
+
+      <!-- Recent tournaments -->
+      <div class="activity-card">
+        <div class="activity-card__header">
+          <h2 class="activity-card__title">🏆 Torneos recientes</h2>
+          <button type="button" class="btn btn--ghost btn--sm" (click)="navigate('/tournaments')">
+            Ver todos →
+          </button>
+        </div>
+
+        @if (recentTournaments().length === 0) {
+          <p class="activity-card__empty">No hay torneos registrados aún.</p>
+        } @else {
+          <ul class="activity-list" role="list">
+            @for (t of recentTournaments(); track t.id) {
+              <li class="activity-item">
+                <div class="activity-item__info">
+                  <button type="button" class="activity-item__name btn btn--ghost btn--sm"
+                    (click)="navigate('/tournaments/' + t.id)">
+                    {{ t.name }}
+                  </button>
+                  <span class="activity-item__meta">
+                    {{ t.sportName ?? 'Sin deporte' }} · {{ formatDate(t.startDate) }}
+                  </span>
+                </div>
+                <app-status-badge [status]="t.status" />
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Recent matches -->
+      <div class="activity-card">
+        <div class="activity-card__header">
+          <h2 class="activity-card__title">⚽ Partidos recientes</h2>
+          <button type="button" class="btn btn--ghost btn--sm" (click)="navigate('/matches')">
+            Ver todos →
+          </button>
+        </div>
+
+        @if (recentMatches().length === 0) {
+          <p class="activity-card__empty">No hay partidos programados aún.</p>
+        } @else {
+          <ul class="activity-list" role="list">
+            @for (m of recentMatches(); track m.id) {
+              <li class="activity-item">
+                <div class="activity-item__info">
+                  <button type="button" class="activity-item__name btn btn--ghost btn--sm"
+                    (click)="navigate('/matches/' + m.id)">
+                    <span class="match-teams">
+                      {{ m.homeTeamName }}
+                      @if (m.status === 'completed') {
+                        <span class="match-score">{{ m.homeScore }} — {{ m.awayScore }}</span>
+                      } @else {
+                        <span class="match-vs">vs</span>
+                      }
+                      {{ m.awayTeamName }}
+                    </span>
+                  </button>
+                  <span class="activity-item__meta">
+                    {{ m.round }} · {{ formatDateTime(m.scheduledAt) }}
+                  </span>
+                </div>
+                <app-status-badge [status]="m.status" />
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+    </div>
+
+    <!-- Quick actions -->
+    <div class="quick-actions">
+      <h2 class="quick-actions__title">Acciones rápidas</h2>
+      <div class="quick-actions__grid">
+        <button type="button" class="quick-action-btn" (click)="navigate('/tournaments/new')">
+          <span class="quick-action-btn__icon">🏆</span>
+          <span>Nuevo torneo</span>
+        </button>
+        <button type="button" class="quick-action-btn" (click)="navigate('/teams/new')">
+          <span class="quick-action-btn__icon">👥</span>
+          <span>Nuevo equipo</span>
+        </button>
+        <button type="button" class="quick-action-btn" (click)="navigate('/players/new')">
+          <span class="quick-action-btn__icon">🏃</span>
+          <span>Nuevo jugador</span>
+        </button>
+        <button type="button" class="quick-action-btn" (click)="navigate('/matches/new')">
+          <span class="quick-action-btn__icon">⚽</span>
+          <span>Programar partido</span>
+        </button>
+      </div>
+    </div>
+  }
+
+</section>

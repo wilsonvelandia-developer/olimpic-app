@@ -1,0 +1,76 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Deportes</h1>
+      <p class="page__subtitle">Catálogo de deportes soportados por la plataforma</p>
+    </div>
+    <button type="button" class="btn btn--primary" (click)="onCreateSport()">+ Nuevo deporte</button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando deportes..." />
+  }
+
+  @if (!isLoading()) {
+    <!-- Sports cards grid -->
+    @if (sports().length === 0) {
+      <div class="empty-state">
+        <p class="empty-state__text">No hay deportes registrados. Agrega el primero.</p>
+        <button type="button" class="btn btn--primary" (click)="onCreateSport()">+ Nuevo deporte</button>
+      </div>
+    } @else {
+      <div class="sports-grid">
+        @for (sport of sports(); track sport.id) {
+          <article class="sport-card" [class.sport-card--inactive]="!sport.isActive">
+            <div class="sport-card__header">
+              <span class="sport-card__icon" aria-hidden="true">{{ sport.icon }}</span>
+              <div class="sport-card__actions">
+                <button type="button" class="btn btn--secondary btn--sm"
+                  [attr.aria-label]="'Editar ' + sport.name" (click)="onEditSport(sport.id)">✏️</button>
+                <button type="button" class="btn btn--secondary btn--sm"
+                  [attr.aria-label]="'Eliminar ' + sport.name" (click)="onDeleteConfirm(sport)">🗑️</button>
+              </div>
+            </div>
+
+            <button type="button" class="sport-card__name-btn" (click)="onViewDetail(sport.id)">
+              {{ sport.name }}
+            </button>
+
+            <div class="sport-card__meta">
+              <span class="meta-pill">{{ sport.playersPerTeam }} jugadores</span>
+              <span class="meta-pill">{{ getScoringLabel(sport.rules.scoringUnit) }}</span>
+              <span class="meta-pill">{{ sport.rules.periods }} {{ sport.rules.periodName }}(s)</span>
+            </div>
+
+            <div class="sport-card__flags">
+              @if (sport.rules.hasOvertime) {
+                <span class="flag">🕐 Prórroga</span>
+              }
+              @if (sport.rules.hasPenalties) {
+                <span class="flag">⚡ Penales</span>
+              }
+              @if (!sport.isActive) {
+                <span class="badge badge--neutral">Inactivo</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog
+    title="Eliminar deporte"
+    [message]="'¿Estás seguro de que quieres eliminar «' + selectedSportName() + '»? Esta acción fallará si existen torneos asociados.'"
+    confirmLabel="Eliminar"
+    [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+}
