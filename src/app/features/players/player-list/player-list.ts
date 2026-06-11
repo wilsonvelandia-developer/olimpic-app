@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { PlayerService } from '../player.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../core/services/auth.service';
 import type { Player } from '../../../core/models';
 import type { PlayerFilters } from '../player.service';
 
@@ -24,6 +25,7 @@ export class PlayerList implements OnInit {
   private readonly playerService = inject(PlayerService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  readonly auth = inject(AuthService);
 
   readonly players = signal<Player[]>([]);
   readonly totalCount = signal<number>(0);

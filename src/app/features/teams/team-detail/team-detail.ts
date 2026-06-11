@@ -11,6 +11,7 @@ import { TeamService } from '../team.service';
 import { PlayerService } from '../../players/player.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../core/services/auth.service';
 import type { Team, Player } from '../../../core/models';
 
 /**
@@ -28,6 +29,7 @@ export class TeamDetail implements OnInit {
   private readonly router = inject(Router);
   private readonly teamService = inject(TeamService);
   private readonly playerService = inject(PlayerService);
+  readonly auth = inject(AuthService);
 
   readonly team = signal<Team | null>(null);
   readonly players = signal<Player[]>([]);

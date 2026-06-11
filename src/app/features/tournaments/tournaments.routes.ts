@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '../../core/guards/role.guard';
 
 export const TOURNAMENT_ROUTES: Routes = [
   {
@@ -7,12 +8,18 @@ export const TOURNAMENT_ROUTES: Routes = [
       import('./tournament-list/tournament-list').then((m) => m.TournamentList),
   },
   {
+    // editor+ can create tournaments
     path: 'new',
+    canActivate: [roleGuard],
+    data: { requiredRole: 'editor' },
     loadComponent: () =>
       import('./tournament-form/tournament-form').then((m) => m.TournamentForm),
   },
   {
+    // editor+ can edit tournaments
     path: ':id/edit',
+    canActivate: [roleGuard],
+    data: { requiredRole: 'editor' },
     loadComponent: () =>
       import('./tournament-form/tournament-form').then((m) => m.TournamentForm),
   },

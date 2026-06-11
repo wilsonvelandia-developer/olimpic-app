@@ -44,19 +44,29 @@
         </div>
       </div>
       <div class="page__header-actions">
-        <button type="button" class="btn btn--secondary" (click)="onEdit()">✏️ Editar</button>
-        <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">🗑️ Eliminar</button>
+        @if (auth.canEdit()) {
+          <button type="button" class="btn btn--secondary" (click)="onEdit()">✏️ Editar</button>
+        }
+        @if (auth.isAdmin()) {
+          <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">🗑️ Eliminar</button>
+        }
       </div>
     </div>
 
     <!-- Players section -->
     <div class="section-card">
-      <div class="section-card__header">
-        <h2 class="section-card__title">👥 Jugadores ({{ players().length }})</h2>
-        <button type="button" class="btn btn--primary btn--sm" (click)="onAddPlayer()">
-          + Agregar jugador
-        </button>
-      </div>
+      @if (auth.canEdit()) {
+        <div class="section-card__header">
+          <h2 class="section-card__title">👥 Jugadores ({{ players().length }})</h2>
+          <button type="button" class="btn btn--primary btn--sm" (click)="onAddPlayer()">
+            + Agregar jugador
+          </button>
+        </div>
+      } @else {
+        <div class="section-card__header">
+          <h2 class="section-card__title">👥 Jugadores ({{ players().length }})</h2>
+        </div>
+      }
 
       @if (isLoadingPlayers()) {
         <app-loading-spinner label="Cargando jugadores..." [showLabel]="false" />
@@ -95,12 +105,14 @@
                       </span>
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        class="btn btn--secondary btn--sm"
-                        [attr.aria-label]="'Editar ' + getPlayerFullName(player)"
-                        (click)="onEditPlayer(player.id)"
-                      >✏️</button>
+                      @if (auth.canEdit()) {
+                        <button
+                          type="button"
+                          class="btn btn--secondary btn--sm"
+                          [attr.aria-label]="'Editar ' + getPlayerFullName(player)"
+                          (click)="onEditPlayer(player.id)"
+                        >✏️</button>
+                      }
                     </td>
                   </tr>
                 }

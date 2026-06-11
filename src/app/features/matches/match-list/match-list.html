@@ -5,9 +5,11 @@
       <h1 class="page__title">Partidos</h1>
       <p class="page__subtitle">Consulta y gestiona los partidos programados</p>
     </div>
-    <button type="button" class="btn btn--primary" (click)="onScheduleMatch()">
-      + Programar partido
-    </button>
+    @if (auth.canEdit()) {
+      <button type="button" class="btn btn--primary" (click)="onScheduleMatch()">
+        + Programar partido
+      </button>
+    }
   </div>
 
   <!-- Filters -->
@@ -103,16 +105,18 @@
               <td><app-status-badge [status]="match.status" /></td>
               <td>
                 <div class="table__actions">
-                  @if (canRegisterResult(match)) {
+                  @if (canRegisterResult(match) && auth.canEdit()) {
                     <button type="button" class="btn btn--primary btn--sm"
                       [attr.aria-label]="'Registrar resultado de ' + match.homeTeamName + ' vs ' + match.awayTeamName"
                       (click)="onRegisterResult(match.id)">
                       ⚽ Resultado
                     </button>
                   }
-                  <button type="button" class="btn btn--secondary btn--sm"
-                    [attr.aria-label]="'Eliminar partido ' + match.homeTeamName + ' vs ' + match.awayTeamName"
-                    (click)="onDeleteConfirm(match)">🗑️</button>
+                  @if (auth.isAdmin()) {
+                    <button type="button" class="btn btn--secondary btn--sm"
+                      [attr.aria-label]="'Eliminar partido ' + match.homeTeamName + ' vs ' + match.awayTeamName"
+                      (click)="onDeleteConfirm(match)">🗑️</button>
+                  }
                 </div>
               </td>
             </tr>

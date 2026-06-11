@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '../../core/guards/role.guard';
 
 export const TEAM_ROUTES: Routes = [
   {
@@ -7,10 +8,14 @@ export const TEAM_ROUTES: Routes = [
   },
   {
     path: 'new',
+    canActivate: [roleGuard],
+    data: { requiredRole: 'editor' },
     loadComponent: () => import('./team-form/team-form').then((m) => m.TeamForm),
   },
   {
     path: ':id/edit',
+    canActivate: [roleGuard],
+    data: { requiredRole: 'editor' },
     loadComponent: () => import('./team-form/team-form').then((m) => m.TeamForm),
   },
   {

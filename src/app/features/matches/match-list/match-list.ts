@@ -11,6 +11,7 @@ import { MatchService } from '../match.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../core/services/auth.service';
 import type { Match } from '../../../core/models';
 import type { MatchFilters } from '../match.service';
 
@@ -24,6 +25,7 @@ import type { MatchFilters } from '../match.service';
 export class MatchList implements OnInit {
   private readonly matchService = inject(MatchService);
   private readonly router = inject(Router);
+  readonly auth = inject(AuthService);
 
   readonly matches = signal<Match[]>([]);
   readonly totalCount = signal<number>(0);

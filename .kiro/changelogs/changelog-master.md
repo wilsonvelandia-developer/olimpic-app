@@ -66,7 +66,18 @@
 - `Login`: formulario reactivo, toggle de contraseña accesible, spinner inline, errores genéricos
 - `sessionInitializer` (`APP_INITIALIZER`): restaura sesión desde cookie httpOnly al iniciar, silencia 401
 
-#### Documentación y cierre (Paso 7)
+#### Sistema de roles RBAC (Paso 8)
+- Se creó `role.model.ts` con tipo `AppRole` (`admin | editor | viewer`) y jerarquía numérica
+- Se amplió `AuthService` con computeds: `isAdmin`, `canEdit`, `isViewer`, `currentRole` y método `hasRole()`
+- Se implementó `roleGuard` funcional — lee `route.data.requiredRole` y redirige a `/forbidden` si el rol es insuficiente
+- Se creó directiva estructural `HasRoleDirective` (`*hasRole`) para control de visibilidad en templates
+- Se implementó página `Forbidden` (403) con navegación de retorno
+- Se actualizó `app.routes.ts`: `/sports` protegido con `admin`, rutas de escritura con `editor`
+- Se actualizaron rutas de features con `roleGuard`: tournaments, teams, players, matches (new/edit requieren `editor`)
+- Se actualizó `Sidebar` para filtrar ítems según el rol del usuario (Deportes solo para admins)
+- Se actualizó `Navbar` con badge visual del rol (`admin` rojo, `editor` ámbar, `viewer` neutro)
+- Se aplicó control de visibilidad en templates de detalle y listado: botones crear/editar requieren `editor`, eliminar requiere `admin`
+- Build verificado: 0 errores, 0 warnings
 - `README.md`: descripción, stack, arquitectura, tabla de endpoints, instrucciones de instalación/build/test
 - Carpeta `postmanCollections/` creada con `.gitkeep`
 - Repositorio commitado en estado limpio (0 archivos pendientes)

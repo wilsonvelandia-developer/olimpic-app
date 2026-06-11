@@ -5,9 +5,11 @@
       <h1 class="page__title">Equipos</h1>
       <p class="page__subtitle">Gestiona los equipos registrados en la plataforma</p>
     </div>
-    <button type="button" class="btn btn--primary" (click)="onCreateTeam()">
-      + Nuevo equipo
-    </button>
+    @if (auth.canEdit()) {
+      <button type="button" class="btn btn--primary" (click)="onCreateTeam()">
+        + Nuevo equipo
+      </button>
+    }
   </div>
 
   <!-- Filters -->
@@ -100,18 +102,22 @@
               </td>
               <td>
                 <div class="table__actions">
-                  <button
-                    type="button"
-                    class="btn btn--secondary btn--sm"
-                    [attr.aria-label]="'Editar ' + team.name"
-                    (click)="onEditTeam(team.id)"
-                  >✏️</button>
-                  <button
-                    type="button"
-                    class="btn btn--secondary btn--sm"
-                    [attr.aria-label]="'Eliminar ' + team.name"
-                    (click)="onDeleteConfirm(team)"
-                  >🗑️</button>
+                  @if (auth.canEdit()) {
+                    <button
+                      type="button"
+                      class="btn btn--secondary btn--sm"
+                      [attr.aria-label]="'Editar ' + team.name"
+                      (click)="onEditTeam(team.id)"
+                    >✏️</button>
+                  }
+                  @if (auth.isAdmin()) {
+                    <button
+                      type="button"
+                      class="btn btn--secondary btn--sm"
+                      [attr.aria-label]="'Eliminar ' + team.name"
+                      (click)="onDeleteConfirm(team)"
+                    >🗑️</button>
+                  }
                 </div>
               </td>
             </tr>

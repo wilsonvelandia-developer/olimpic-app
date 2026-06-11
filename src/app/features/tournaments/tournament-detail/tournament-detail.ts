@@ -1,15 +1,10 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  signal,
-  OnInit,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TournamentService } from '../tournament.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../core/services/auth.service';
 import type { Tournament } from '../../../core/models';
 
 /**
@@ -27,6 +22,7 @@ export class TournamentDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly tournamentService = inject(TournamentService);
+  readonly auth = inject(AuthService);
 
   readonly tournament = signal<Tournament | null>(null);
   readonly isLoading = signal<boolean>(false);

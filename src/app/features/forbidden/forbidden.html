@@ -1,0 +1,18 @@
+<div class="forbidden-wrapper">
+  <div class="forbidden-card">
+    <span class="forbidden-icon" aria-hidden="true">🚫</span>
+    <h1 class="forbidden-title">Acceso denegado</h1>
+    <p class="forbidden-message">
+      No tienes los permisos necesarios para acceder a esta sección.
+      Contacta al administrador si crees que es un error.
+    </p>
+    <div class="forbidden-actions">
+      <button type="button" class="btn btn--primary" (click)="goToDashboard()">
+        Ir al Dashboard
+      </button>
+      <button type="button" class="btn btn--secondary" (click)="goBack()">
+        Volver
+      </button>
+    </div>
+  </div>
+</div>

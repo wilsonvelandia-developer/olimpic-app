@@ -5,9 +5,11 @@
       <h1 class="page__title">Jugadores</h1>
       <p class="page__subtitle">Gestiona los jugadores registrados en la plataforma</p>
     </div>
-    <button type="button" class="btn btn--primary" (click)="onCreatePlayer()">
-      + Nuevo jugador
-    </button>
+    @if (auth.canEdit()) {
+      <button type="button" class="btn btn--primary" (click)="onCreatePlayer()">
+        + Nuevo jugador
+      </button>
+    }
   </div>
 
   <!-- Filters -->
@@ -106,12 +108,16 @@
               </td>
               <td>
                 <div class="table__actions">
-                  <button type="button" class="btn btn--secondary btn--sm"
-                    [attr.aria-label]="'Editar ' + getFullName(player)"
-                    (click)="onEditPlayer(player.id)">✏️</button>
-                  <button type="button" class="btn btn--secondary btn--sm"
-                    [attr.aria-label]="'Eliminar ' + getFullName(player)"
-                    (click)="onDeleteConfirm(player)">🗑️</button>
+                  @if (auth.canEdit()) {
+                    <button type="button" class="btn btn--secondary btn--sm"
+                      [attr.aria-label]="'Editar ' + getFullName(player)"
+                      (click)="onEditPlayer(player.id)">✏️</button>
+                  }
+                  @if (auth.isAdmin()) {
+                    <button type="button" class="btn btn--secondary btn--sm"
+                      [attr.aria-label]="'Eliminar ' + getFullName(player)"
+                      (click)="onDeleteConfirm(player)">🗑️</button>
+                  }
                 </div>
               </td>
             </tr>

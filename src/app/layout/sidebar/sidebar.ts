@@ -1,15 +1,28 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
+import type { AppRole } from '../../core/models/role.model';
 
 interface NavItem {
   label: string;
   route: string;
   icon: string;
+  /** Minimum role required to see this nav item. Default: 'viewer' (all users). */
+  minRole?: AppRole;
 }
 
+const ALL_NAV_ITEMS: NavItem[] = [
+  { label: 'Dashboard',  route: '/dashboard',    icon: '📊' },
+  { label: 'Torneos',    route: '/tournaments',   icon: '🏆' },
+  { label: 'Equipos',    route: '/teams',         icon: '👥' },
+  { label: 'Jugadores',  route: '/players',       icon: '🏃' },
+  { label: 'Partidos',   route: '/matches',       icon: '⚽' },
+  { label: 'Deportes',   route: '/sports',        icon: '🎯', minRole: 'admin' },
+];
+
 /**
- * Sidebar navigation component. Driven by a static nav config
- * that maps to the lazy-loaded feature routes.
+ * Sidebar navigation. Filters nav items based on the current user's role.
+ * Items with minRole are hidden from users with insufficient privileges.
  */
 @Component({
   selector: 'app-sidebar',
@@ -19,14 +32,14 @@ interface NavItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidebar {
+  private readonly auth = inject(AuthService);
+
   readonly isOpen = input<boolean>(true);
 
-  readonly navItems: NavItem[] = [
-    { label: 'Dashboard', route: '/dashboard', icon: '📊' },
-    { label: 'Torneos', route: '/tournaments', icon: '🏆' },
-    { label: 'Equipos', route: '/teams', icon: '👥' },
-    { label: 'Jugadores', route: '/players', icon: '🏃' },
-    { label: 'Partidos', route: '/matches', icon: '⚽' },
-    { label: 'Deportes', route: '/sports', icon: '🎯' },
-  ];
+  /** Only include items the current user can access. */
+  readonly visibleNavItems = computed<NavItem[]>(() =>
+    ALL_NAV_ITEMS.filter(
+      (item) => !item.minRole || this.auth.hasRole(item.minRole),
+    ),
+  );
 }

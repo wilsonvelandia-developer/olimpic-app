@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { TeamService } from '../team.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { AuthService } from '../../../core/services/auth.service';
 import type { Team } from '../../../core/models';
 import type { TeamFilters } from '../team.service';
 import { SlicePipe } from '@angular/common';
@@ -24,6 +25,7 @@ import { SlicePipe } from '@angular/common';
 export class TeamList implements OnInit {
   private readonly teamService = inject(TeamService);
   private readonly router = inject(Router);
+  readonly auth = inject(AuthService);
 
   readonly teams = signal<Team[]>([]);
   readonly totalCount = signal<number>(0);

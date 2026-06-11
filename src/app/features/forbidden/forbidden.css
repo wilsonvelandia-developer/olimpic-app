@@ -1,0 +1,48 @@
+.forbidden-wrapper {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.forbidden-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-md);
+}
+
+.forbidden-icon {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.forbidden-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+.forbidden-message {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+.forbidden-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5rem;
+}

@@ -13,7 +13,12 @@
 
   <nav class="navbar__right" aria-label="User menu">
     @if (currentUser()) {
-      <span class="navbar__user">{{ currentUser()?.name }}</span>
+      <div class="navbar__user-info">
+        <span class="navbar__user-name">{{ currentUser()!.name }}</span>
+        <span class="navbar__role-badge navbar__role-badge--{{ currentUser()!.role }}">
+          {{ currentUser()!.role }}
+        </span>
+      </div>
       <button type="button" class="navbar__logout-btn" (click)="onLogout()">
         Cerrar sesión
       </button>

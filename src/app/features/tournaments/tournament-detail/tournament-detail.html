@@ -27,12 +27,16 @@
         </div>
       </div>
       <div class="page__header-actions">
-        <button type="button" class="btn btn--secondary" (click)="onEdit()">
-          ✏️ Editar
-        </button>
-        <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">
-          🗑️ Eliminar
-        </button>
+        @if (auth.canEdit()) {
+          <button type="button" class="btn btn--secondary" (click)="onEdit()">
+            ✏️ Editar
+          </button>
+        }
+        @if (auth.isAdmin()) {
+          <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">
+            🗑️ Eliminar
+          </button>
+        }
       </div>
     </div>
 

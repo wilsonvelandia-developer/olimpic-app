@@ -1,7 +1,7 @@
 <aside class="sidebar" [class.sidebar--open]="isOpen()" aria-label="Main navigation">
   <nav>
     <ul class="sidebar__nav" role="list">
-      @for (item of navItems; track item.route) {
+      @for (item of visibleNavItems(); track item.route) {
         <li>
           <a
             class="sidebar__link"
