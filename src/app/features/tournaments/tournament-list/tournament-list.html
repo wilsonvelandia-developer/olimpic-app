@@ -1,0 +1,184 @@
+<section class="page">
+  <!-- Header -->
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Torneos</h1>
+      <p class="page__subtitle">Gestiona todos los torneos deportivos</p>
+    </div>
+    <button type="button" class="btn btn--primary" (click)="onCreateTournament()">
+      + Nuevo torneo
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="filterStatus">Estado</label>
+      <select id="filterStatus" class="form-control" [(ngModel)]="filterStatusModel">
+        <option value="">Todos</option>
+        <option value="draft">Borrador</option>
+        <option value="upcoming">Próximo</option>
+        <option value="in_progress">En curso</option>
+        <option value="completed">Finalizado</option>
+        <option value="cancelled">Cancelado</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="filterSeason">Temporada</label>
+      <input
+        id="filterSeason"
+        type="text"
+        class="form-control"
+        placeholder="Ej: 2026"
+        [(ngModel)]="filterSeasonModel"
+        maxlength="10"
+      />
+    </div>
+
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">
+        Filtrar
+      </button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando torneos..." />
+  }
+
+  <!-- Table -->
+  @if (!isLoading()) {
+    <div class="table-wrapper">
+      <table class="table" aria-label="Lista de torneos">
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Deporte</th>
+            <th scope="col">Formato</th>
+            <th scope="col">Categoría</th>
+            <th scope="col">Temporada</th>
+            <th scope="col">Fechas</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (tournaments().length === 0) {
+            <tr>
+              <td colspan="8" class="table__empty">
+                No se encontraron torneos. Crea el primero.
+              </td>
+            </tr>
+          }
+          @for (tournament of tournaments(); track tournament.id) {
+            <tr>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn--ghost btn--sm"
+                  (click)="onViewDetail(tournament.id)"
+                >
+                  {{ tournament.name }}
+                </button>
+              </td>
+              <td>{{ tournament.sport?.name ?? '—' }}</td>
+              <td>{{ formatLabel(tournament.format) }}</td>
+              <td>{{ tournament.category }}</td>
+              <td>{{ tournament.season }}</td>
+              <td class="dates-cell">
+                <span>{{ tournament.startDate | slice: 0 : 10 }}</span>
+                <span class="dates-separator">→</span>
+                <span>{{ tournament.endDate | slice: 0 : 10 }}</span>
+              </td>
+              <td>
+                <app-status-badge [status]="tournament.status" />
+              </td>
+              <td>
+                <div class="table__actions">
+                  <button
+                    type="button"
+                    class="btn btn--secondary btn--sm"
+                    [attr.aria-label]="'Editar ' + tournament.name"
+                    (click)="onEditTournament(tournament.id)"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn--secondary btn--sm"
+                    [attr.aria-label]="'Eliminar ' + tournament.name"
+                    (click)="onDeleteConfirm(tournament)"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <nav class="pagination" aria-label="Paginación de torneos">
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === 1"
+          (click)="onPageChange(currentPage() - 1)"
+          aria-label="Página anterior"
+        >
+          ‹
+        </button>
+
+        @for (page of pageRange; track page) {
+          <button
+            type="button"
+            class="btn btn--sm"
+            [class.btn--primary]="page === currentPage()"
+            [class.btn--secondary]="page !== currentPage()"
+            [attr.aria-current]="page === currentPage() ? 'page' : null"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === totalPages"
+          (click)="onPageChange(currentPage() + 1)"
+          aria-label="Página siguiente"
+        >
+          ›
+        </button>
+      </nav>
+    }
+  }
+</section>
+
+<!-- Delete confirmation dialog -->
+@if (showDeleteDialog()) {
+  <app-confirm-dialog
+    title="Eliminar torneo"
+    [message]="'¿Estás seguro de que quieres eliminar «' + selectedTournamentName() + '»? Esta acción no se puede deshacer.'"
+    confirmLabel="Eliminar"
+    [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+}

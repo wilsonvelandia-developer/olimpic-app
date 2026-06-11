@@ -1,1 +1,138 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   OlimpicApp — Global Styles & Design Tokens
+   ============================================================ */
+
+@import './app/shared/styles/buttons.css';
+@import './app/shared/styles/forms.css';
+@import './app/shared/styles/tables.css';
+
+/* --- CSS Custom Properties (Design Tokens) --- */
+:root {
+  /* Brand colors */
+  --color-primary: #1a56db;
+  --color-primary-dark: #1341b0;
+  --color-primary-light: #e8f0fe;
+  --color-secondary: #f59e0b;
+
+  /* Backgrounds */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f3f4f6;
+  --color-bg-sidebar: #ffffff;
+
+  /* Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-inverse: #ffffff;
+
+  /* States */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Borders */
+  --color-border: #e5e7eb;
+  --color-hover: #f9fafb;
+
+  /* Typography */
+  --font-family-base: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* Z-index scale */
+  --z-navbar: 100;
+  --z-sidebar: 90;
+  --z-modal: 200;
+  --z-toast: 300;
+}
+
+/* --- Reset & Base --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: var(--font-size-base);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Typography base --- */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* --- Utility classes --- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+
+/* --- Status badge tokens --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge--success  { background-color: #d1fae5; color: #065f46; }
+.badge--warning  { background-color: #fef3c7; color: #92400e; }
+.badge--error    { background-color: #fee2e2; color: #991b1b; }
+.badge--info     { background-color: #dbeafe; color: #1e40af; }
+.badge--neutral  { background-color: #f3f4f6; color: #374151; }

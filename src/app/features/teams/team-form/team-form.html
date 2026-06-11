@@ -1,0 +1,80 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">{{ isEditMode() ? 'Editar equipo' : 'Nuevo equipo' }}</h1>
+      <p class="page__subtitle">{{ isEditMode() ? 'Modifica los datos del equipo' : 'Registra un nuevo equipo en la plataforma' }}</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando equipo..." />
+  }
+
+  @if (!isLoading()) {
+    <div class="form-card">
+      @if (errorMessage()) {
+        <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-grid">
+
+          <!-- Name -->
+          <div class="form-group form-group--full">
+            <label class="form-label form-label--required" for="teamName">Nombre del equipo</label>
+            <input id="teamName" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('name')"
+              formControlName="name" placeholder="Ej: Atlético Nacional" maxlength="80" autocomplete="off" />
+            @if (isFieldInvalid('name')) {
+              <span class="form-error" role="alert">{{ getFieldError('name') }}</span>
+            }
+          </div>
+
+          <!-- Short Name -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="shortName">Abreviatura</label>
+            <input id="shortName" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('shortName')"
+              formControlName="shortName" placeholder="Ej: ATN" maxlength="10"
+              style="text-transform: uppercase;" autocomplete="off" />
+            @if (isFieldInvalid('shortName')) {
+              <span class="form-error" role="alert">{{ getFieldError('shortName') }}</span>
+            }
+            <span class="form-hint">Máximo 10 caracteres. Se usará en tablas y fixtures.</span>
+          </div>
+
+          <!-- City -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="city">Ciudad</label>
+            <input id="city" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('city')"
+              formControlName="city" placeholder="Ej: Medellín" maxlength="60" autocomplete="off" />
+            @if (isFieldInvalid('city')) {
+              <span class="form-error" role="alert">{{ getFieldError('city') }}</span>
+            }
+          </div>
+
+          <!-- Logo URL -->
+          <div class="form-group form-group--full">
+            <label class="form-label" for="logoUrl">URL del logo</label>
+            <input id="logoUrl" type="url" class="form-control"
+              [class.form-control--error]="isFieldInvalid('logoUrl')"
+              formControlName="logoUrl" placeholder="https://example.com/logo.png" autocomplete="off" />
+            @if (isFieldInvalid('logoUrl')) {
+              <span class="form-error" role="alert">{{ getFieldError('logoUrl') }}</span>
+            }
+            <span class="form-hint">Opcional. URL pública de la imagen (PNG o SVG recomendado).</span>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
+          <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
+            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Crear equipo') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</section>

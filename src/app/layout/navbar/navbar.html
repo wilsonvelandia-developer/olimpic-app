@@ -1,0 +1,22 @@
+<header class="navbar" role="banner">
+  <div class="navbar__left">
+    <button
+      type="button"
+      class="navbar__menu-btn"
+      aria-label="Toggle sidebar menu"
+      (click)="onMenuToggle()"
+    >
+      ☰
+    </button>
+    <span class="navbar__logo">OlimpicApp</span>
+  </div>
+
+  <nav class="navbar__right" aria-label="User menu">
+    @if (currentUser()) {
+      <span class="navbar__user">{{ currentUser()?.name }}</span>
+      <button type="button" class="navbar__logout-btn" (click)="onLogout()">
+        Cerrar sesión
+      </button>
+    }
+  </nav>
+</header>

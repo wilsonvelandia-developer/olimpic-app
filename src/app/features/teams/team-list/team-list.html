@@ -1,0 +1,151 @@
+<section class="page">
+  <!-- Header -->
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Equipos</h1>
+      <p class="page__subtitle">Gestiona los equipos registrados en la plataforma</p>
+    </div>
+    <button type="button" class="btn btn--primary" (click)="onCreateTeam()">
+      + Nuevo equipo
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="teamSearch">Buscar</label>
+      <input
+        id="teamSearch"
+        type="search"
+        class="form-control"
+        placeholder="Nombre o ciudad..."
+        [(ngModel)]="searchModel"
+        maxlength="80"
+        (keyup.enter)="onApplyFilters()"
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="teamActive">Estado</label>
+      <select id="teamActive" class="form-control" [(ngModel)]="filterActiveModel">
+        <option value="">Todos</option>
+        <option value="true">Activo</option>
+        <option value="false">Inactivo</option>
+      </select>
+    </div>
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando equipos..." />
+  }
+
+  <!-- Table -->
+  @if (!isLoading()) {
+    <div class="table-wrapper">
+      <table class="table" aria-label="Lista de equipos">
+        <thead>
+          <tr>
+            <th scope="col">Logo</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Abreviatura</th>
+            <th scope="col">Ciudad</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (teams().length === 0) {
+            <tr>
+              <td colspan="6" class="table__empty">No se encontraron equipos. Crea el primero.</td>
+            </tr>
+          }
+          @for (team of teams(); track team.id) {
+            <tr>
+              <td>
+                @if (team.logoUrl) {
+                  <img
+                    [src]="team.logoUrl"
+                    [alt]="'Logo de ' + team.name"
+                    class="team-logo"
+                    width="36"
+                    height="36"
+                    loading="lazy"
+                  />
+                } @else {
+                  <div class="team-logo-placeholder" aria-hidden="true">
+                    {{ team.shortName | slice:0:2 }}
+                  </div>
+                }
+              </td>
+              <td>
+                <button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(team.id)">
+                  {{ team.name }}
+                </button>
+              </td>
+              <td><code class="short-name">{{ team.shortName }}</code></td>
+              <td>{{ team.city }}</td>
+              <td>
+                <span class="badge" [class.badge--success]="team.isActive" [class.badge--neutral]="!team.isActive">
+                  {{ team.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="table__actions">
+                  <button
+                    type="button"
+                    class="btn btn--secondary btn--sm"
+                    [attr.aria-label]="'Editar ' + team.name"
+                    (click)="onEditTeam(team.id)"
+                  >✏️</button>
+                  <button
+                    type="button"
+                    class="btn btn--secondary btn--sm"
+                    [attr.aria-label]="'Eliminar ' + team.name"
+                    (click)="onDeleteConfirm(team)"
+                  >🗑️</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <nav class="pagination" aria-label="Paginación de equipos">
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)" aria-label="Anterior">‹</button>
+        @for (page of pageRange; track page) {
+          <button type="button" class="btn btn--sm"
+            [class.btn--primary]="page === currentPage()"
+            [class.btn--secondary]="page !== currentPage()"
+            [attr.aria-current]="page === currentPage() ? 'page' : null"
+            (click)="onPageChange(page)">{{ page }}</button>
+        }
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === totalPages" (click)="onPageChange(currentPage() + 1)" aria-label="Siguiente">›</button>
+      </nav>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog
+    title="Eliminar equipo"
+    [message]="'¿Estás seguro de que quieres eliminar «' + selectedTeamName() + '»?'"
+    confirmLabel="Eliminar"
+    [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+}

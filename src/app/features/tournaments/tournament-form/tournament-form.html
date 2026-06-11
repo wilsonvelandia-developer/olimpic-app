@@ -1,0 +1,189 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">
+        {{ isEditMode() ? 'Editar torneo' : 'Nuevo torneo' }}
+      </h1>
+      <p class="page__subtitle">
+        {{ isEditMode() ? 'Modifica los datos del torneo' : 'Completa los datos para crear un torneo' }}
+      </p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando torneo..." />
+  }
+
+  @if (!isLoading()) {
+    <div class="form-card">
+      @if (errorMessage()) {
+        <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Date range error -->
+        @if (form.errors?.['dateRange'] && form.get('endDate')?.touched) {
+          <div class="alert alert--error" role="alert">
+            La fecha de fin debe ser posterior a la fecha de inicio.
+          </div>
+        }
+
+        <div class="form-grid">
+          <!-- Name -->
+          <div class="form-group form-group--full">
+            <label class="form-label form-label--required" for="name">Nombre del torneo</label>
+            <input
+              id="name"
+              type="text"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('name')"
+              formControlName="name"
+              placeholder="Ej: Copa Nacional de Fútbol 2026"
+              maxlength="100"
+              autocomplete="off"
+            />
+            @if (isFieldInvalid('name')) {
+              <span class="form-error" role="alert">{{ getFieldError('name') }}</span>
+            }
+          </div>
+
+          <!-- Sport -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="sportId">Deporte</label>
+            <input
+              id="sportId"
+              type="number"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('sportId')"
+              formControlName="sportId"
+              placeholder="ID del deporte"
+              min="1"
+            />
+            @if (isFieldInvalid('sportId')) {
+              <span class="form-error" role="alert">{{ getFieldError('sportId') }}</span>
+            }
+            <span class="form-hint">El selector de deportes estará disponible en la próxima versión.</span>
+          </div>
+
+          <!-- Format -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="format">Formato</label>
+            <select
+              id="format"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('format')"
+              formControlName="format"
+            >
+              <option value="">Selecciona un formato</option>
+              @for (option of formatOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('format')) {
+              <span class="form-error" role="alert">{{ getFieldError('format') }}</span>
+            }
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="category">Categoría</label>
+            <input
+              id="category"
+              type="text"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('category')"
+              formControlName="category"
+              placeholder="Ej: Masculino, Femenino, Sub-18"
+              maxlength="60"
+              autocomplete="off"
+            />
+            @if (isFieldInvalid('category')) {
+              <span class="form-error" role="alert">{{ getFieldError('category') }}</span>
+            }
+          </div>
+
+          <!-- Season -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="season">Temporada</label>
+            <input
+              id="season"
+              type="text"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('season')"
+              formControlName="season"
+              placeholder="Ej: 2026 o 2025-2026"
+              maxlength="10"
+              autocomplete="off"
+            />
+            @if (isFieldInvalid('season')) {
+              <span class="form-error" role="alert">{{ getFieldError('season') }}</span>
+            }
+          </div>
+
+          <!-- Max Teams -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="maxTeams">Máximo de equipos</label>
+            <input
+              id="maxTeams"
+              type="number"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('maxTeams')"
+              formControlName="maxTeams"
+              min="2"
+              max="256"
+            />
+            @if (isFieldInvalid('maxTeams')) {
+              <span class="form-error" role="alert">{{ getFieldError('maxTeams') }}</span>
+            }
+          </div>
+
+          <!-- Start Date -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="startDate">Fecha de inicio</label>
+            <input
+              id="startDate"
+              type="date"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('startDate')"
+              formControlName="startDate"
+            />
+            @if (isFieldInvalid('startDate')) {
+              <span class="form-error" role="alert">{{ getFieldError('startDate') }}</span>
+            }
+          </div>
+
+          <!-- End Date -->
+          <div class="form-group">
+            <label class="form-label form-label--required" for="endDate">Fecha de fin</label>
+            <input
+              id="endDate"
+              type="date"
+              class="form-control"
+              [class.form-control--error]="isFieldInvalid('endDate')"
+              formControlName="endDate"
+            />
+            @if (isFieldInvalid('endDate')) {
+              <span class="form-error" role="alert">{{ getFieldError('endDate') }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [disabled]="isSaving()"
+          >
+            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Crear torneo') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+</section>

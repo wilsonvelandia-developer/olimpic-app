@@ -1,0 +1,20 @@
+<div class="dialog-backdrop" role="dialog" aria-modal="true" [attr.aria-label]="title()">
+  <div class="dialog">
+    <h2 class="dialog__title">{{ title() }}</h2>
+    <p class="dialog__message">{{ message() }}</p>
+    <div class="dialog__actions">
+      <button type="button" class="btn btn--secondary" (click)="onCancel()">
+        {{ cancelLabel() }}
+      </button>
+      <button
+        type="button"
+        class="btn"
+        [class.btn--danger]="isDanger()"
+        [class.btn--primary]="!isDanger()"
+        (click)="onConfirm()"
+      >
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </div>
+</div>

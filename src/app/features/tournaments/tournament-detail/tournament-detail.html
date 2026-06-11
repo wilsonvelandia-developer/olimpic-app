@@ -1,0 +1,87 @@
+<section class="page">
+  @if (isLoading()) {
+    <app-loading-spinner label="Cargando torneo..." />
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (!isLoading() && tournament()) {
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/tournaments" class="breadcrumb__link">Torneos</a>
+      <span class="breadcrumb__sep" aria-hidden="true">›</span>
+      <span>{{ tournament()!.name }}</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="page__header">
+      <div class="page__header-info">
+        <h1 class="page__title">{{ tournament()!.name }}</h1>
+        <div class="page__meta">
+          <app-status-badge [status]="tournament()!.status" />
+          <span class="meta-tag">{{ tournament()!.sport?.name ?? 'Deporte #' + tournament()!.sportId }}</span>
+          <span class="meta-tag">{{ tournament()!.season }}</span>
+          <span class="meta-tag">{{ tournament()!.category }}</span>
+        </div>
+      </div>
+      <div class="page__header-actions">
+        <button type="button" class="btn btn--secondary" (click)="onEdit()">
+          ✏️ Editar
+        </button>
+        <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">
+          🗑️ Eliminar
+        </button>
+      </div>
+    </div>
+
+    <!-- Info cards -->
+    <div class="info-grid">
+      <div class="info-card">
+        <span class="info-card__label">Formato</span>
+        <span class="info-card__value">{{ formatLabel(tournament()!.format) }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Equipos máximos</span>
+        <span class="info-card__value">{{ tournament()!.maxTeams }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Fecha de inicio</span>
+        <span class="info-card__value">{{ formatDate(tournament()!.startDate) }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Fecha de fin</span>
+        <span class="info-card__value">{{ formatDate(tournament()!.endDate) }}</span>
+      </div>
+    </div>
+
+    <!-- Sections placeholder for teams and matches -->
+    <div class="section-tabs">
+      <div class="section-card">
+        <h2 class="section-card__title">👥 Equipos inscritos</h2>
+        <p class="section-card__empty">
+          La gestión de equipos por torneo estará disponible en la siguiente fase.
+        </p>
+      </div>
+
+      <div class="section-card">
+        <h2 class="section-card__title">📅 Partidos programados</h2>
+        <p class="section-card__empty">
+          La generación de fixture estará disponible en la siguiente fase.
+        </p>
+      </div>
+    </div>
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog
+    title="Eliminar torneo"
+    [message]="'¿Estás seguro de que quieres eliminar «' + tournament()!.name + '»? Esta acción no se puede deshacer.'"
+    confirmLabel="Eliminar"
+    [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
+}
