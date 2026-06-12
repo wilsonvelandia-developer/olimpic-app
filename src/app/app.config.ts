@@ -1,8 +1,8 @@
 import {
   ApplicationConfig,
-  APP_INITIALIZER,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
-  provideZoneChangeDetection,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
@@ -15,16 +15,18 @@ import { sessionInitializer } from './core/initializers/session.initializer';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
+
+    // Zoneless change detection — Angular 21 stable, no Zone.js required
+    provideZonelessChangeDetection(),
+
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
+
     provideHttpClient(
       withFetch(),
       withInterceptors([authInterceptor, errorInterceptor]),
     ),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: sessionInitializer,
-      multi: true,
-    },
+
+    // provideAppInitializer replaces the deprecated APP_INITIALIZER token in Angular 19+
+    provideAppInitializer(sessionInitializer),
   ],
 };
