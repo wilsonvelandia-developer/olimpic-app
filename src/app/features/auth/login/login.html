@@ -8,6 +8,20 @@
       <p class="login-brand__tagline">Gestión de torneos deportivos</p>
     </div>
 
+    <!-- Backend status indicator -->
+    <div class="backend-status" [class]="'backend-status--' + backendStatus()">
+      @if (backendStatus() === 'checking') {
+        <span class="status-dot status-dot--checking"></span>
+        Verificando conexión con el servidor…
+      } @else if (backendStatus() === 'online') {
+        <span class="status-dot status-dot--online"></span>
+        Servidor conectado · <code>{{ apiBaseUrl }}</code>
+      } @else {
+        <span class="status-dot status-dot--offline"></span>
+        Sin conexión al servidor · <code>{{ apiBaseUrl }}</code>
+      }
+    </div>
+
     <!-- Error -->
     @if (errorMessage()) {
       <div class="alert alert--error" role="alert" aria-live="polite">
@@ -30,10 +44,9 @@
           autocomplete="email"
           maxlength="120"
           [attr.aria-invalid]="isFieldInvalid('email')"
-          [attr.aria-describedby]="isFieldInvalid('email') ? 'email-error' : null"
         />
         @if (isFieldInvalid('email')) {
-          <span id="email-error" class="form-error" role="alert">{{ getFieldError('email') }}</span>
+          <span class="form-error" role="alert">{{ getFieldError('email') }}</span>
         }
       </div>
 
@@ -50,7 +63,6 @@
             autocomplete="current-password"
             maxlength="72"
             [attr.aria-invalid]="isFieldInvalid('password')"
-            [attr.aria-describedby]="isFieldInvalid('password') ? 'password-error' : null"
           />
           <button
             type="button"
@@ -62,14 +74,14 @@
           </button>
         </div>
         @if (isFieldInvalid('password')) {
-          <span id="password-error" class="form-error" role="alert">{{ getFieldError('password') }}</span>
+          <span class="form-error" role="alert">{{ getFieldError('password') }}</span>
         }
       </div>
 
       <button
         type="submit"
         class="btn btn--primary login-submit"
-        [disabled]="isLoading()"
+        [disabled]="isLoading() || backendStatus() === 'offline'"
         [attr.aria-busy]="isLoading()"
       >
         @if (isLoading()) {

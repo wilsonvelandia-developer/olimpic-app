@@ -59,7 +59,8 @@
               "buildTarget": "olimpic-app:build:production"
             },
             "development": {
-              "buildTarget": "olimpic-app:build:development"
+              "buildTarget": "olimpic-app:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

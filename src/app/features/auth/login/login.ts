@@ -3,10 +3,13 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
+  OnInit,
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Login page. Submits credentials to the backend which sets an httpOnly cookie.
@@ -19,19 +22,43 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Login {
+export class Login implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   readonly isLoading = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal<boolean>(false);
+  readonly backendStatus = signal<'checking' | 'online' | 'offline'>('checking');
+  readonly apiBaseUrl = environment.apiBaseUrl;
 
   readonly form = this.fb.group({
     email:    ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
     password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(72)]],
   });
+
+  ngOnInit(): void {
+    this.checkBackendHealth();
+  }
+
+  /** Pings the backend health endpoint to show connection status. */
+  private checkBackendHealth(): void {
+    // Try /health first, fall back to /api/v1 itself
+    const healthUrl = this.apiBaseUrl.replace('/api/v1', '/health');
+    this.http.get(healthUrl, { observe: 'response' }).subscribe({
+      next: () => this.backendStatus.set('online'),
+      error: (err) => {
+        // A 4xx from the server means it IS reachable
+        if (err.status > 0) {
+          this.backendStatus.set('online');
+        } else {
+          this.backendStatus.set('offline');
+        }
+      },
+    });
+  }
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -49,13 +76,18 @@ export class Login {
         if (response.success) {
           this.router.navigate(['/dashboard']);
         } else {
-          // Generic message — no internal details exposed to the client
           this.errorMessage.set('Credenciales inválidas. Verifica tu correo y contraseña.');
           this.isLoading.set(false);
         }
       },
-      error: () => {
-        this.errorMessage.set('No se pudo iniciar sesión. Intenta nuevamente.');
+      error: (err) => {
+        if (err.status === 401) {
+          this.errorMessage.set('Credenciales inválidas. Verifica tu correo y contraseña.');
+        } else if (err.status === 0) {
+          this.errorMessage.set('No se pudo conectar al servidor. Verifica que el backend esté corriendo.');
+        } else {
+          this.errorMessage.set('No se pudo iniciar sesión. Intenta nuevamente.');
+        }
         this.isLoading.set(false);
       },
     });
