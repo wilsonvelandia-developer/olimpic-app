@@ -43,22 +43,23 @@ export class Login implements OnInit {
     this.checkBackendHealth();
   }
 
-  /** Pings the backend health endpoint to show connection status. */
+  /** Pings the gateway to show connection status. */
   private checkBackendHealth(): void {
-    // Ping the gateway health endpoint — falls back gracefully if not available
-    const gatewayUrl = this.apiBaseUrl;
-    this.http.get(`${gatewayUrl}/health`, { observe: 'response' }).subscribe({
-      next: () => this.backendStatus.set('online'),
-      error: (err) => {
-        // Any HTTP response (even 4xx/5xx) means the gateway IS reachable
-        if (err.status > 0) {
-          this.backendStatus.set('online');
-        } else {
-          // status 0 = no connection (CORS blocked, server down, network error)
-          this.backendStatus.set('offline');
-        }
-      },
-    });
+    // Use the gateway root — avoids noise if /health endpoint doesn't exist.
+    // Any response (including 4xx) means the server IS reachable.
+    // status === 0 means no connection at all (CORS error, server down).
+    this.http
+      .get(this.apiBaseUrl, { observe: 'response', responseType: 'text' })
+      .subscribe({
+        next: () => this.backendStatus.set('online'),
+        error: (err) => {
+          if (err.status > 0) {
+            this.backendStatus.set('online');   // server responded, even with an error
+          } else {
+            this.backendStatus.set('offline');  // no connection
+          }
+        },
+      });
   }
 
   onSubmit(): void {
