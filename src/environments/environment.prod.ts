@@ -1,8 +1,9 @@
 /**
  * Production environment configuration.
- * API URL is injected at build time via CI/CD pipeline environment variables.
+ * The gateway URL is injected at build time via CI/CD environment variables.
+ * In production the gateway is typically served behind a reverse proxy (nginx/ALB).
  */
 export const environment = {
   production: true,
-  apiBaseUrl: '/api/v1',
+  apiBaseUrl: '',   // empty = same origin (served behind reverse proxy)
 };

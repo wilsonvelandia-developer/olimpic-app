@@ -4,30 +4,37 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type { ApiResponse, PaginatedResponse } from '../models';
 
+type QueryParams = Record<string, string | number | boolean>;
+
 /**
  * Base HTTP service for all API calls.
- * Provides typed wrappers around HttpClient for GET, POST, PUT, DELETE.
+ * Provides typed wrappers around HttpClient for GET, POST, PUT, PATCH, DELETE.
+ * All paths are appended to the gateway base URL from environment.
  */
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
 
-  get<T>(path: string, params?: Record<string, string | number>): Observable<ApiResponse<T>> {
-    const httpParams = params
-      ? new HttpParams({ fromObject: params as Record<string, string> })
-      : undefined;
-    return this.http.get<ApiResponse<T>>(`${this.baseUrl}${path}`, { params: httpParams });
+  private buildParams(params?: QueryParams): HttpParams | undefined {
+    if (!params) return undefined;
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([k, v]) => {
+      httpParams = httpParams.set(k, String(v));
+    });
+    return httpParams;
   }
 
-  getPaginated<T>(
-    path: string,
-    params?: Record<string, string | number>,
-  ): Observable<PaginatedResponse<T>> {
-    const httpParams = params
-      ? new HttpParams({ fromObject: params as Record<string, string> })
-      : undefined;
-    return this.http.get<PaginatedResponse<T>>(`${this.baseUrl}${path}`, { params: httpParams });
+  get<T>(path: string, params?: QueryParams): Observable<ApiResponse<T>> {
+    return this.http.get<ApiResponse<T>>(`${this.baseUrl}${path}`, {
+      params: this.buildParams(params),
+    });
+  }
+
+  getPaginated<T>(path: string, params?: QueryParams): Observable<PaginatedResponse<T>> {
+    return this.http.get<PaginatedResponse<T>>(`${this.baseUrl}${path}`, {
+      params: this.buildParams(params),
+    });
   }
 
   post<T>(path: string, body: unknown): Observable<ApiResponse<T>> {

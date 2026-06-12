@@ -1,8 +1,44 @@
 {
-  "/api": {
+  "/sports": {
     "target": "http://localhost:3000",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "logLevel": "info"
+  },
+  "/tournaments": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/teams": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/players": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/matches": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/auth": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/health": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
   }
 }

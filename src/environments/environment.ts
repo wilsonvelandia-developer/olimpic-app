@@ -1,8 +1,11 @@
 /**
  * Development environment configuration.
- * Replace values via environment-specific files or CI/CD secrets — never hardcode in production.
+ * The frontend communicates exclusively with the API Gateway on port 3000.
+ * The gateway routes internally to each microservice — the frontend never
+ * talks directly to individual service ports.
  */
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:3000/api/v1',
+  /** API Gateway base URL — no trailing slash, no /api/v1 prefix */
+  apiBaseUrl: 'http://localhost:3000',
 };
