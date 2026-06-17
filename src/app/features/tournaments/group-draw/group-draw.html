@@ -1,0 +1,82 @@
+<div class="group-draw">
+  <!-- Header -->
+  <div class="group-draw__header">
+    <div>
+      <h2 class="group-draw__title">🎲 Sorteo de Grupos</h2>
+      <p class="group-draw__subtitle">
+        {{ teams().length }} equipos → {{ numGroups() }} grupos
+        ({{ Math.ceil(teams().length / (numGroups() || 1)) }} por grupo)
+      </p>
+    </div>
+    <div class="group-draw__actions">
+      @if (canDraw()) {
+        <button type="button" class="btn btn--primary btn--lg draw-btn"
+          [disabled]="isAnimating() || isSaving()"
+          (click)="onDraw()">
+          <span class="draw-btn__icon" [class.draw-btn__icon--spinning]="isAnimating()">🎲</span>
+          {{ isAnimating() ? 'Sorteando...' : 'Sortear' }}
+        </button>
+      }
+      @if (canDraw() && Object.keys(groups()).length > 0 && !isConfirmed()) {
+        <button type="button" class="btn btn--success btn--lg"
+          [disabled]="isSaving()"
+          (click)="onConfirm()">
+          {{ isSaving() ? 'Guardando...' : '✓ Confirmar sorteo' }}
+        </button>
+      }
+      @if (isConfirmed() && status() === 'draft') {
+        <button type="button" class="btn btn--secondary" (click)="onReset()">
+          ↺ Repetir sorteo
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Messages -->
+  @if (errorMsg())   { <div class="alert alert--error" role="alert">{{ errorMsg() }}</div> }
+  @if (successMsg()) { <div class="alert alert--success" role="status">{{ successMsg() }}</div> }
+
+  <!-- Locked message -->
+  @if (status() !== 'draft') {
+    <div class="alert alert--info">
+      🔒 El sorteo está bloqueado porque el torneo ya no está en estado borrador.
+    </div>
+  }
+
+  <!-- Groups grid -->
+  @if (Object.keys(groups()).length > 0) {
+    <div class="groups-grid" [class.groups-grid--animating]="isAnimating()">
+      @for (label of groupLabels(); track label) {
+        <div class="group-column">
+          <div class="group-column__header">
+            <span class="group-column__letter">{{ label }}</span>
+            <span class="group-column__label">Grupo {{ label }}</span>
+          </div>
+          <div class="group-column__teams">
+            @if (groups()[label]) {
+              @for (team of groups()[label]; track team.teamId) {
+                <div class="team-slot" [style.animation-delay]="(team.drawOrder * 100) + 'ms'">
+                  <span class="team-slot__order">{{ team.drawOrder }}</span>
+                  <img class="team-slot__img"
+                    src="https://img.icons8.com/3d-fluency/256/shield.png"
+                    alt="" width="28" height="28" loading="lazy" />
+                  <span class="team-slot__name">{{ team.teamName }}</span>
+                </div>
+              }
+            }
+          </div>
+          <div class="group-column__count">
+            {{ groups()[label]?.length ?? 0 }} equipos
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (!isLoading()) {
+    <div class="draw-empty">
+      <span class="draw-empty__icon">🎲</span>
+      <p>Haz clic en <strong>Sortear</strong> para distribuir los equipos aleatoriamente en los grupos.</p>
+    </div>
+  }
+
+  <!-- Protected Math reference for template -->
+</div>

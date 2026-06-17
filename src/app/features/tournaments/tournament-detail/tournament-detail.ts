@@ -16,18 +16,19 @@ import { StandingsTable }     from '../standings-table/standings-table';
 import { TournamentStats }    from '../tournament-stats/tournament-stats';
 import { MatchHistory }       from '../match-history/match-history';
 import { FixtureGenerator }   from '../fixture-generator/fixture-generator';
+import { GroupDraw }          from '../group-draw/group-draw';
 import { AuthService }        from '../../../core/services/auth.service';
 import type {
   Tournament, StandingsEntry, TournamentStatsData, Match, TournamentFormat,
 } from '../../../core/models';
 
-type ActiveTab = 'standings' | 'matches' | 'stats' | 'fixture';
+type ActiveTab = 'standings' | 'matches' | 'stats' | 'groups' | 'fixture';
 
 @Component({
   selector: 'app-tournament-detail',
   imports: [
     RouterLink, StatusBadge, LoadingSpinner, ConfirmDialog,
-    StandingsTable, TournamentStats, MatchHistory, FixtureGenerator,
+    StandingsTable, TournamentStats, MatchHistory, FixtureGenerator, GroupDraw,
   ],
   templateUrl: './tournament-detail.html',
   styleUrl:    './tournament-detail.css',

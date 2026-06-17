@@ -40,6 +40,9 @@
           [class.tab-btn--active]="activeTab() === 'stats'"
           (click)="onTabChange('stats')">📊 Estadísticas</button>
         @if (auth.canEdit()) {
+          <button type="button" role="tab" class="tab-btn"
+            [class.tab-btn--active]="activeTab() === 'groups'"
+            (click)="onTabChange('groups')">🎲 Grupos</button>
           <button type="button" role="tab" class="tab-btn tab-btn--generate"
             [class.tab-btn--active]="activeTab() === 'fixture'"
             (click)="onTabChange('fixture')">⚙️ Generar fixture</button>
@@ -82,6 +85,14 @@
           } @else if (stats()) {
             <app-tournament-stats [stats]="stats()!" />
           }
+        }
+
+        @if (activeTab() === 'groups') {
+          <app-group-draw
+            [tournamentId]="tournament()!.id"
+            [numGroups]="tournament()!.numGroups ?? 2"
+            [status]="tournament()!.status"
+          />
         }
 
         @if (activeTab() === 'fixture') {
