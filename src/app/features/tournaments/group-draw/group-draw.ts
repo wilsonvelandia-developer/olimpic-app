@@ -1,6 +1,7 @@
 import {
   Component, ChangeDetectionStrategy, inject, signal, input, OnInit, computed,
 } from '@angular/core';
+import { SlicePipe } from '@angular/common';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import type { Team } from '../../../core/models';
@@ -19,6 +20,7 @@ interface GroupAssignment {
  */
 @Component({
   selector: 'app-group-draw',
+  imports: [SlicePipe],
   templateUrl: './group-draw.html',
   styleUrl: './group-draw.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -162,6 +164,55 @@ export class GroupDraw implements OnInit {
     this.isConfirmed.set(false);
     this.successMsg.set(null);
     this.groups.set({});
+  }
+
+  // ── Fixture generation ────────────────────────────────────────────────────
+
+  readonly fixtureMatches = signal<Array<{ home_team_id: string; away_team_id: string; scheduled_at: string; groupName: string }>>([]);
+  readonly isGenerating   = signal<boolean>(false);
+  readonly fixtureGenerated = signal<boolean>(false);
+  readonly fixtureConfig  = signal<{
+    startDate: string;
+    matchDurationMinutes: number;
+    matchesPerDay: number;
+    firstMatchTime: string;
+    randomOrder: boolean;
+  }>({
+    startDate: new Date().toISOString().slice(0, 10),
+    matchDurationMinutes: 90,
+    matchesPerDay: 6,
+    firstMatchTime: '08:00',
+    randomOrder: false,
+  });
+
+  onGenerateFixture(): void {
+    this.isGenerating.set(true);
+    this.errorMsg.set(null);
+
+    const cfg = this.fixtureConfig();
+    this.api.post<unknown[]>(`/tournaments/${this.tournamentId()}/generate-fixture`, cfg)
+      .subscribe({
+        next: (r) => {
+          this.fixtureMatches.set(r.data as typeof this.fixtureMatches extends () => infer T ? T : never);
+          this.fixtureGenerated.set(true);
+          this.isGenerating.set(false);
+          this.successMsg.set(`✓ ${(r.data as unknown[]).length} partidos generados exitosamente.`);
+        },
+        error: () => {
+          this.errorMsg.set('No se pudieron generar los partidos.');
+          this.isGenerating.set(false);
+        },
+      });
+  }
+
+  onUpdateConfig(field: string, value: string | number | boolean): void {
+    this.fixtureConfig.set({ ...this.fixtureConfig(), [field]: value });
+  }
+
+  /** Get team name from ID using loaded teams */
+  teamName(id: string): string {
+    const team = this.teams().find((t) => t.id === id);
+    return team ? (team.shortName ?? team.name) : id.slice(0, 8);
   }
 
   private groupByName(data: GroupAssignment[]): Record<string, GroupAssignment[]> {

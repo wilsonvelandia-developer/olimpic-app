@@ -78,5 +78,67 @@
     </div>
   }
 
-  <!-- Protected Math reference for template -->
+  <!-- ═══════ FIXTURE GENERATION (after groups confirmed) ═══════ -->
+  @if (isConfirmed() && !fixtureGenerated()) {
+    <div class="fixture-config">
+      <h3 class="fixture-config__title">⚽ Generar partidos de fase de grupos</h3>
+      <div class="fixture-config__form">
+        <div class="form-group">
+          <label class="form-label">Fecha primer partido</label>
+          <input type="date" class="form-control"
+            [value]="fixtureConfig().startDate"
+            (change)="onUpdateConfig('startDate', $any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duración por partido (min)</label>
+          <input type="number" class="form-control" min="30" max="300"
+            [value]="fixtureConfig().matchDurationMinutes"
+            (change)="onUpdateConfig('matchDurationMinutes', +$any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Partidos por día</label>
+          <input type="number" class="form-control" min="1" max="20"
+            [value]="fixtureConfig().matchesPerDay"
+            (change)="onUpdateConfig('matchesPerDay', +$any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora primer partido</label>
+          <input type="time" class="form-control"
+            [value]="fixtureConfig().firstMatchTime"
+            (change)="onUpdateConfig('firstMatchTime', $any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox"
+              [checked]="fixtureConfig().randomOrder"
+              (change)="onUpdateConfig('randomOrder', $any($event.target).checked)" />
+            <span>Orden aleatorio de partidos</span>
+          </label>
+        </div>
+      </div>
+      <button type="button" class="btn btn--primary btn--lg"
+        [disabled]="isGenerating()"
+        (click)="onGenerateFixture()">
+        {{ isGenerating() ? 'Generando...' : '⚽ Generar partidos' }}
+      </button>
+    </div>
+  }
+
+  @if (fixtureGenerated() && fixtureMatches().length > 0) {
+    <div class="fixture-result">
+      <h3 class="fixture-result__title">📋 Partidos generados ({{ fixtureMatches().length }})</h3>
+      <div class="fixture-result__list">
+        @for (match of fixtureMatches(); track $index) {
+          <div class="fixture-match">
+            <span class="fixture-match__group">{{ $any(match).groupName }}</span>
+            <span class="fixture-match__teams">
+              {{ teamName($any(match).home_team_id) }} vs {{ teamName($any(match).away_team_id) }}
+            </span>
+            <span class="fixture-match__date">{{ $any(match).scheduled_at | slice:0:16 }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
 </div>

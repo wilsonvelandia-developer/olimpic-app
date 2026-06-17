@@ -209,3 +209,79 @@
   padding: 0.875rem 1rem;
   border-radius: 0.5rem;
 }
+
+/* ── Fixture config ────────────────────────────────────────────────────────── */
+
+.fixture-config {
+  border: 2px dashed var(--color-border, #e2e8f0);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: var(--color-bg-secondary, #f8fafc);
+}
+
+.fixture-config__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.fixture-config__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Fixture result ────────────────────────────────────────────────────────── */
+
+.fixture-result {
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.fixture-result__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.fixture-result__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.fixture-match {
+  display: grid;
+  grid-template-columns: 60px 1fr 150px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--color-bg-secondary, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+}
+
+.fixture-match__group {
+  font-weight: 700;
+  font-size: 0.8rem;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+.fixture-match__teams {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.fixture-match__date {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, #64748b);
+  text-align: right;
+}
