@@ -9,11 +9,12 @@ import { Router } from '@angular/router';
 import { SportService } from '../sport.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { ViewToggle, type ViewMode } from '../../../shared/components/view-toggle/view-toggle';
 import type { Sport } from '../../../core/models';
 
 @Component({
   selector: 'app-sport-list',
-  imports: [LoadingSpinner, ConfirmDialog],
+  imports: [LoadingSpinner, ConfirmDialog, ViewToggle],
   templateUrl: './sport-list.html',
   styleUrl: './sport-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,9 +28,9 @@ export class SportList implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   readonly showDeleteDialog = signal<boolean>(false);
-  readonly selectedSportId = signal<number | null>(null);
+  readonly selectedSportId = signal<string | null>(null);
   readonly selectedSportName = signal<string>('');
-
+  readonly viewMode = signal<ViewMode>('card');
   ngOnInit(): void {
     this.loadSports();
   }
@@ -53,11 +54,11 @@ export class SportList implements OnInit {
     this.router.navigate(['/sports', 'new']);
   }
 
-  onEditSport(id: number): void {
+  onEditSport(id: string): void {
     this.router.navigate(['/sports', id, 'edit']);
   }
 
-  onViewDetail(id: number): void {
+  onViewDetail(id: string): void {
     this.router.navigate(['/sports', id]);
   }
 

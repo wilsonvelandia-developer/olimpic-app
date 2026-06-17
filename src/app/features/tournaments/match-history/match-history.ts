@@ -4,7 +4,7 @@ import type { Match } from '../../../core/models';
 
 /**
  * Compact match history list for the tournament detail view.
- * Groups matches by round and shows scores for completed ones.
+ * Groups matches by round (or by phase if round is absent).
  */
 @Component({
   selector: 'app-match-history',
@@ -14,27 +14,28 @@ import type { Match } from '../../../core/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatchHistory {
-  readonly matches = input.required<Match[]>();
+  readonly matches      = input.required<Match[]>();
   readonly totalMatches = input<number>(0);
-  readonly currentPage = input<number>(1);
-  readonly isLoading = input<boolean>(false);
+  readonly currentPage  = input<number>(1);
+  readonly isLoading    = input<boolean>(false);
 
   readonly pageChange = output<number>();
-  readonly matchClick = output<number>();
+  readonly matchClick = output<string>();   // UUID string
 
   readonly pageSize = 20;
 
   readonly totalPages = computed(() => Math.ceil(this.totalMatches() / this.pageSize));
-  readonly pageRange = computed(() =>
+  readonly pageRange  = computed(() =>
     Array.from({ length: this.totalPages() }, (_, i) => i + 1),
   );
 
-  /** Group matches by round for visual separation. */
+  /** Group matches by round label (fallback: phaseId). */
   readonly matchesByRound = computed<Record<string, Match[]>>(() => {
     const groups: Record<string, Match[]> = {};
     this.matches().forEach((m) => {
-      if (!groups[m.round]) groups[m.round] = [];
-      groups[m.round].push(m);
+      const key = m.round ?? m.phaseId ?? 'Sin ronda';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(m);
     });
     return groups;
   });
@@ -45,16 +46,20 @@ export class MatchHistory {
     this.pageChange.emit(page);
   }
 
-  onMatchClick(id: number): void {
+  onMatchClick(id: string): void {
     this.matchClick.emit(id);
   }
 
-  formatDateTime(dateStr: string): string {
+  formatDateTime(dateStr: string | null | undefined): string {
+    if (!dateStr) return '—';
     return new Date(dateStr).toLocaleString('es-CO', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
+      day: 'numeric', month: 'short',
+      hour: '2-digit', minute: '2-digit',
     });
+  }
+
+  teamLabel(match: Match, side: 'home' | 'away'): string {
+    if (side === 'home') return match.homeTeamName ?? match.homeTeamId;
+    return match.awayTeamName ?? match.awayTeamId;
   }
 }

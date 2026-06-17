@@ -78,6 +78,15 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/sports/sports.routes').then((m) => m.SPORT_ROUTES),
       },
+
+      // organizer+ — user management
+      {
+        path: 'users',
+        canActivate: [roleGuard],
+        data: { requiredRole: 'organizer' },
+        loadChildren: () =>
+          import('./features/users/users.routes').then((m) => m.USER_ROUTES),
+      },
     ],
   },
 

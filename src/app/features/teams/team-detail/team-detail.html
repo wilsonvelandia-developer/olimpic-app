@@ -1,45 +1,25 @@
 <section class="page">
-  @if (isLoading()) {
-    <app-loading-spinner label="Cargando equipo..." />
-  }
-
-  @if (errorMessage()) {
-    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
-  }
+  @if (isLoading())    { <app-loading-spinner label="Cargando equipo..." /> }
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
 
   @if (!isLoading() && team()) {
-    <!-- Breadcrumb -->
     <nav class="breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/teams" class="breadcrumb__link">Equipos</a>
       <span class="breadcrumb__sep" aria-hidden="true">›</span>
       <span>{{ team()!.name }}</span>
     </nav>
 
-    <!-- Header -->
     <div class="page__header">
       <div class="team-identity">
-        @if (team()!.logoUrl) {
-          <img
-            [src]="team()!.logoUrl"
-            [alt]="'Logo de ' + team()!.name"
-            class="team-logo"
-            width="64"
-            height="64"
-            loading="lazy"
-          />
-        } @else {
-          <div class="team-logo-placeholder" aria-hidden="true">
-            {{ team()!.shortName | slice:0:2 }}
-          </div>
-        }
+        <div class="team-logo-placeholder" aria-hidden="true">
+          {{ (team()!.shortName ?? team()!.name).slice(0,2).toUpperCase() }}
+        </div>
         <div>
           <h1 class="page__title">{{ team()!.name }}</h1>
           <div class="page__meta">
-            <code class="meta-code">{{ team()!.shortName }}</code>
-            <span class="meta-tag">{{ team()!.city }}</span>
-            <span class="badge" [class.badge--success]="team()!.isActive" [class.badge--neutral]="!team()!.isActive">
-              {{ team()!.isActive ? 'Activo' : 'Inactivo' }}
-            </span>
+            @if (team()!.shortName) {
+              <code class="meta-code">{{ team()!.shortName }}</code>
+            }
           </div>
         </div>
       </div>
@@ -53,24 +33,18 @@
       </div>
     </div>
 
-    <!-- Players section -->
+    <!-- Players -->
     <div class="section-card">
-      @if (auth.canEdit()) {
-        <div class="section-card__header">
-          <h2 class="section-card__title">👥 Jugadores ({{ players().length }})</h2>
+      <div class="section-card__header">
+        <h2 class="section-card__title">👥 Jugadores ({{ players().length }})</h2>
+        @if (auth.canEdit()) {
           <button type="button" class="btn btn--primary btn--sm" (click)="onAddPlayer()">
             + Agregar jugador
           </button>
-        </div>
-      } @else {
-        <div class="section-card__header">
-          <h2 class="section-card__title">👥 Jugadores ({{ players().length }})</h2>
-        </div>
-      }
+        }
+      </div>
 
-      @if (isLoadingPlayers()) {
-        <app-loading-spinner label="Cargando jugadores..." [showLabel]="false" />
-      }
+      @if (isLoadingPlayers()) { <app-loading-spinner label="Cargando jugadores..." /> }
 
       @if (!isLoadingPlayers()) {
         @if (players().length === 0) {
@@ -83,9 +57,6 @@
                   <th scope="col">#</th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Posición</th>
-                  <th scope="col">Documento</th>
-                  <th scope="col">Fecha nacimiento</th>
-                  <th scope="col">Nacionalidad</th>
                   <th scope="col">Estado</th>
                   <th scope="col">Acciones</th>
                 </tr>
@@ -94,24 +65,20 @@
                 @for (player of players(); track player.id) {
                   <tr>
                     <td><span class="jersey-number">{{ player.jerseyNumber }}</span></td>
-                    <td class="player-name">{{ getPlayerFullName(player) }}</td>
-                    <td>{{ player.position }}</td>
-                    <td><code class="doc-code">{{ player.documentNumber }}</code></td>
-                    <td>{{ formatDate(player.birthDate) }}</td>
-                    <td>{{ player.nationality }}</td>
+                    <td class="player-name">{{ player.name }}</td>
+                    <td>{{ player.position ?? '—' }}</td>
                     <td>
-                      <span class="badge" [class.badge--success]="player.isActive" [class.badge--neutral]="!player.isActive">
+                      <span class="badge"
+                        [class.badge--success]="player.isActive"
+                        [class.badge--neutral]="!player.isActive">
                         {{ player.isActive ? 'Activo' : 'Inactivo' }}
                       </span>
                     </td>
                     <td>
                       @if (auth.canEdit()) {
-                        <button
-                          type="button"
-                          class="btn btn--secondary btn--sm"
-                          [attr.aria-label]="'Editar ' + getPlayerFullName(player)"
-                          (click)="onEditPlayer(player.id)"
-                        >✏️</button>
+                        <button type="button" class="btn btn--secondary btn--sm"
+                          [attr.aria-label]="'Editar ' + player.name"
+                          (click)="onEditPlayer(player.id)">✏️</button>
                       }
                     </td>
                   </tr>
@@ -128,10 +95,7 @@
 @if (showDeleteDialog()) {
   <app-confirm-dialog
     title="Eliminar equipo"
-    [message]="'¿Estás seguro de que quieres eliminar «' + team()!.name + '»? Se perderán todos sus datos asociados.'"
-    confirmLabel="Eliminar"
-    [isDanger]="true"
-    (confirmed)="onDeleteConfirmed()"
-    (cancelled)="onDeleteCancelled()"
-  />
+    [message]="'¿Eliminar «' + team()!.name + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
 }

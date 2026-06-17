@@ -1,141 +1,97 @@
 import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  signal,
-  OnInit,
+  Component, ChangeDetectionStrategy, inject, signal, OnInit,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule }   from '@angular/forms';
 import { PlayerService } from '../player.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
-import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
-import { AuthService } from '../../../core/services/auth.service';
+import { ConfirmDialog }  from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { ViewToggle, type ViewMode } from '../../../shared/components/view-toggle/view-toggle';
+import { AuthService }    from '../../../core/services/auth.service';
 import type { Player } from '../../../core/models';
-import type { PlayerFilters } from '../player.service';
 
 @Component({
   selector: 'app-player-list',
-  imports: [FormsModule, LoadingSpinner, ConfirmDialog],
+  imports: [FormsModule, LoadingSpinner, ConfirmDialog, ViewToggle],
   templateUrl: './player-list.html',
   styleUrl: './player-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerList implements OnInit {
   private readonly playerService = inject(PlayerService);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
+  private readonly router        = inject(Router);
+  private readonly route         = inject(ActivatedRoute);
   readonly auth = inject(AuthService);
 
-  readonly players = signal<Player[]>([]);
-  readonly totalCount = signal<number>(0);
-  readonly isLoading = signal<boolean>(false);
+  readonly players      = signal<Player[]>([]);
+  readonly totalCount   = signal<number>(0);
+  readonly isLoading    = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
 
-  readonly showDeleteDialog = signal<boolean>(false);
-  readonly selectedPlayerId = signal<number | null>(null);
-  readonly selectedPlayerName = signal<string>('');
+  readonly showDeleteDialog    = signal<boolean>(false);
+  readonly selectedPlayerId    = signal<string | null>(null);
+  readonly selectedPlayerTeam  = signal<string>('');
+  readonly selectedPlayerName  = signal<string>('');
 
   readonly currentPage = signal<number>(1);
-  readonly pageSize = 10;
+  readonly pageSize    = 10;
+  readonly viewMode    = signal<ViewMode>('card');
 
-  // Filter models
-  searchModel = '';
   teamIdModel = '';
-  filterActiveModel = '';
 
   ngOnInit(): void {
-    // Support pre-filtering by teamId from query params (e.g. from team detail)
     const teamId = this.route.snapshot.queryParamMap.get('teamId');
     if (teamId) this.teamIdModel = teamId;
     this.loadPlayers();
   }
 
   loadPlayers(): void {
+    if (!this.teamIdModel.trim()) {
+      this.players.set([]);
+      this.errorMessage.set('Introduce el UUID de un equipo para ver sus jugadores.');
+      return;
+    }
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const filters: PlayerFilters = {
-      page: this.currentPage(),
-      pageSize: this.pageSize,
-    };
-    if (this.searchModel.trim()) filters.search = this.searchModel.trim();
-    if (this.teamIdModel) filters.teamId = Number(this.teamIdModel);
-    if (this.filterActiveModel !== '') filters.isActive = this.filterActiveModel === 'true';
-
-    this.playerService.getAll(filters).subscribe({
-      next: (response) => {
-        this.players.set(response.data);
-        this.totalCount.set(response.total);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.errorMessage.set('No se pudieron cargar los jugadores. Intenta nuevamente.');
-        this.isLoading.set(false);
-      },
+    this.playerService.getAllByTeam(this.teamIdModel.trim(), {
+      page: this.currentPage(), pageSize: this.pageSize,
+    }).subscribe({
+      next: (r) => { this.players.set(r.data); this.totalCount.set(r.total); this.isLoading.set(false); },
+      error: () => { this.errorMessage.set('No se pudieron cargar los jugadores.'); this.isLoading.set(false); },
     });
   }
 
-  onApplyFilters(): void {
-    this.currentPage.set(1);
-    this.loadPlayers();
-  }
+  onApplyFilters(): void  { this.currentPage.set(1); this.loadPlayers(); }
+  onClearFilters(): void  { this.teamIdModel = ''; this.players.set([]); this.errorMessage.set(null); }
 
-  onClearFilters(): void {
-    this.searchModel = '';
-    this.teamIdModel = '';
-    this.filterActiveModel = '';
-    this.currentPage.set(1);
-    this.loadPlayers();
-  }
+  onCreatePlayer(): void { this.router.navigate(['/players', 'new'], { queryParams: { teamId: this.teamIdModel } }); }
 
-  onCreatePlayer(): void {
-    this.router.navigate(['/players', 'new']);
-  }
-
-  onEditPlayer(id: number): void {
-    this.router.navigate(['/players', id, 'edit']);
-  }
-
-  onViewDetail(id: number): void {
-    this.router.navigate(['/players', id]);
-  }
+  onViewDetail(p: Player): void  { this.router.navigate(['/teams', p.teamId, 'players', p.id]); }
+  onEditPlayer(p: Player): void  { this.router.navigate(['/teams', p.teamId, 'players', p.id, 'edit']); }
 
   onDeleteConfirm(player: Player): void {
     this.selectedPlayerId.set(player.id);
-    this.selectedPlayerName.set(`${player.firstName} ${player.lastName}`);
+    this.selectedPlayerTeam.set(player.teamId);
+    this.selectedPlayerName.set(player.name);
     this.showDeleteDialog.set(true);
   }
 
-  onDeleteCancelled(): void {
-    this.showDeleteDialog.set(false);
-    this.selectedPlayerId.set(null);
-  }
+  onDeleteCancelled(): void { this.showDeleteDialog.set(false); this.selectedPlayerId.set(null); }
 
   onDeleteConfirmed(): void {
-    const id = this.selectedPlayerId();
-    if (id === null) return;
+    const id     = this.selectedPlayerId();
+    const teamId = this.selectedPlayerTeam();
+    if (!id || !teamId) return;
     this.showDeleteDialog.set(false);
-    this.playerService.delete(id).subscribe({
-      next: () => this.loadPlayers(),
+    this.playerService.delete(teamId, id).subscribe({
+      next:  () => this.loadPlayers(),
       error: () => this.errorMessage.set('No se pudo eliminar el jugador.'),
     });
   }
 
-  onPageChange(page: number): void {
-    this.currentPage.set(page);
-    this.loadPlayers();
-  }
+  onPageChange(page: number): void { this.currentPage.set(page); this.loadPlayers(); }
 
-  get totalPages(): number {
-    return Math.ceil(this.totalCount() / this.pageSize);
-  }
-
-  get pageRange(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  getFullName(player: Player): string {
-    return `${player.firstName} ${player.lastName}`;
-  }
+  get totalPages(): number   { return Math.ceil(this.totalCount() / this.pageSize); }
+  get pageRange():  number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
 }

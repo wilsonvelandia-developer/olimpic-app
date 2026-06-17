@@ -1,0 +1,67 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Usuarios</h1>
+      <p class="page__subtitle">Gestión de usuarios y perfiles del sistema</p>
+    </div>
+    <div class="page__header-actions">
+      <app-view-toggle [(mode)]="viewMode" />
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--primary" (click)="onCreateUser()">+ Nuevo usuario</button>
+      }
+    </div>
+  </div>
+
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+  @if (isLoading())    { <app-loading-spinner label="Cargando usuarios..." /> }
+
+  @if (!isLoading()) {
+    @if (users().length === 0) {
+      <div class="empty-state"><p>No hay usuarios registrados.</p></div>
+    } @else {
+
+      @if (viewMode() === 'card') {
+        <div class="items-grid">
+          @for (user of users(); track user.id) {
+            <article class="item-card">
+              <img class="item-card__img"
+                [src]="user.avatarUrl || 'https://img.icons8.com/3d-fluency/256/user-male-circle.png'"
+                [alt]="user.name" width="48" height="48" loading="lazy" />
+              <div class="item-card__body">
+                <h3 class="item-card__name">{{ user.name }}</h3>
+                <span class="item-card__sub">{{ user.email }}</span>
+              </div>
+              <div class="item-card__badge">
+                @for (role of user.roles; track role) {
+                  <span class="badge badge--success">{{ roleLabel(role) }}</span>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+      @if (viewMode() === 'list') {
+        <div class="table-wrapper">
+          <table class="table" aria-label="Lista de usuarios">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Roles</th></tr></thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr>
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.phone ?? '—' }}</td>
+                  <td>
+                    @for (role of user.roles; track role) {
+                      <span class="badge badge--success">{{ roleLabel(role) }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+</section>

@@ -68,7 +68,7 @@
                     {{ t.name }}
                   </button>
                   <span class="activity-item__meta">
-                    {{ t.sportName ?? 'Sin deporte' }} · {{ formatDate(t.startDate) }}
+                    Temporada: {{ t.season ?? '—' }}
                   </span>
                 </div>
                 <app-status-badge [status]="t.status" />
@@ -98,8 +98,8 @@
                     (click)="navigate('/matches/' + m.id)">
                     <span class="match-teams">
                       {{ m.homeTeamName }}
-                      @if (m.status === 'completed') {
-                        <span class="match-score">{{ m.homeScore }} — {{ m.awayScore }}</span>
+                      @if (m.status === 'finished') {
+                        <span class="match-score">✓</span>
                       } @else {
                         <span class="match-vs">vs</span>
                       }
@@ -107,7 +107,7 @@
                     </span>
                   </button>
                   <span class="activity-item__meta">
-                    {{ m.round }} · {{ formatDateTime(m.scheduledAt) }}
+                    {{ formatDateTime(m.scheduledAt ?? '') }}
                   </span>
                 </div>
                 <app-status-badge [status]="m.status" />

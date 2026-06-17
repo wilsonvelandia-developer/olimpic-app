@@ -2,77 +2,51 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
-import type {
-  Tournament,
-  TournamentCreateRequest,
-  TournamentUpdateRequest,
-} from '../../core/models';
+import type { Tournament, TournamentCreateRequest, TournamentUpdateRequest } from '../../core/models';
 import type { PaginatedResponse } from '../../core/models';
 
 export interface TournamentFilters {
-  sportId?: number;
-  status?: string;
-  season?: string;
-  page?: number;
+  sportId?:  string;
+  status?:   string;
+  season?:   string;
+  page?:     number;
   pageSize?: number;
 }
 
-/**
- * Domain service for tournament management.
- * All HTTP calls go through ApiService — no direct HttpClient usage here.
- */
 @Injectable({ providedIn: 'root' })
 export class TournamentService {
   private readonly api = inject(ApiService);
   private readonly basePath = '/tournaments';
 
-  /**
-   * Returns a paginated list of tournaments with optional filters.
-   */
   getAll(filters?: TournamentFilters): Observable<PaginatedResponse<Tournament>> {
     const params: Record<string, string | number> = {};
-    if (filters?.sportId) params['sportId'] = filters.sportId;
-    if (filters?.status) params['status'] = filters.status;
-    if (filters?.season) params['season'] = filters.season;
-    if (filters?.page) params['page'] = filters.page;
-    if (filters?.pageSize) params['pageSize'] = filters.pageSize ?? 10;
-
+    if (filters?.sportId)   params['sportId']  = filters.sportId;
+    if (filters?.status)    params['status']   = filters.status;
+    if (filters?.season)    params['season']   = filters.season;
+    if (filters?.page)      params['page']     = filters.page;
+    if (filters?.pageSize)  params['pageSize'] = filters.pageSize ?? 10;
     return this.api.getPaginated<Tournament>(this.basePath, params);
   }
 
-  /**
-   * Returns a single tournament by ID.
-   */
-  getById(id: number): Observable<Tournament> {
-    return this.api.get<Tournament>(`${this.basePath}/${id}`).pipe(
-      map((response) => response.data),
-    );
+  getById(id: string): Observable<Tournament> {
+    return this.api.get<Tournament>(`${this.basePath}/${id}`).pipe(map((r) => r.data));
   }
 
-  /**
-   * Creates a new tournament.
-   */
+  getPhases(id: string): Observable<import('../../core/models').Phase[]> {
+    return this.api.get<import('../../core/models').Phase[]>(`${this.basePath}/${id}/phases`)
+      .pipe(map((r) => r.data));
+  }
+
   create(payload: TournamentCreateRequest): Observable<Tournament> {
-    return this.api.post<Tournament>(this.basePath, payload).pipe(
-      map((response) => response.data),
-    );
+    return this.api.post<Tournament>(this.basePath, payload).pipe(map((r) => r.data));
   }
 
-  /**
-   * Updates an existing tournament.
-   */
-  update(id: number, payload: TournamentUpdateRequest): Observable<Tournament> {
-    return this.api.put<Tournament>(`${this.basePath}/${id}`, payload).pipe(
-      map((response) => response.data),
-    );
+  update(id: string, payload: TournamentUpdateRequest): Observable<Tournament> {
+    // Send all defined fields — the backend handles partial updates
+    return this.api.put<Tournament>(`${this.basePath}/${id}`, payload).pipe(map((r) => r.data));
   }
 
-  /**
-   * Deletes a tournament by ID.
-   */
-  delete(id: number): Observable<void> {
-    return this.api.delete<void>(`${this.basePath}/${id}`).pipe(
-      map(() => undefined),
-    );
+  delete(id: string): Observable<void> {
+    return this.api.delete<void>(`${this.basePath}/${id}`).pipe(map(() => undefined));
   }
 }

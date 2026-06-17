@@ -1,35 +1,27 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { MatchService } from '../../matches/match.service';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { ApiService } from '../../../core/services/api.service';
 import { generateFixture } from './fixture-algorithms';
 import type { FixtureConfig, FixtureSlot } from './fixture.model';
 
 export interface FixtureBatchResult {
   created: number;
-  failed: number;
+  failed:  number;
 }
 
 /**
- * Orchestrates fixture generation and persistence.
- * - generatePreview() runs the algorithm locally and returns the slots for review.
- * - saveFixture() sends all slots to the API in parallel.
+ * Orchestrates fixture generation (local algorithm) and persistence (API).
+ * Uses the matches service endpoint POST /matches to create each slot.
  */
 @Injectable({ providedIn: 'root' })
 export class FixtureGeneratorService {
-  private readonly matchService = inject(MatchService);
+  private readonly api = inject(ApiService);
 
-  /**
-   * Generates a fixture preview without persisting anything.
-   * Returns all match slots grouped by round.
-   */
   generatePreview(config: FixtureConfig): FixtureSlot[] {
     return generateFixture(config);
   }
 
-  /**
-   * Returns slots grouped by round label for display purposes.
-   */
   groupByRound(slots: FixtureSlot[]): Record<string, FixtureSlot[]> {
     const groups: Record<string, FixtureSlot[]> = {};
     slots.forEach((slot) => {
@@ -40,27 +32,27 @@ export class FixtureGeneratorService {
   }
 
   /**
-   * Persists all fixture slots by creating matches in parallel batches.
-   * Uses chunks of 10 to avoid overwhelming the API.
+   * Persists all slots via POST /matches.
+   * Backend MatchCreateRequest: { phaseId, homeTeamId, awayTeamId, scheduledAt }
+   * The fixture generator needs a phaseId instead of tournamentId.
    */
-  saveFixture(
-    tournamentId: number,
-    slots: FixtureSlot[],
-  ): Observable<FixtureBatchResult> {
+  saveFixture(phaseId: string, slots: FixtureSlot[]): Observable<FixtureBatchResult> {
+    if (slots.length === 0) return of({ created: 0, failed: 0 });
+
     const requests = slots.map((slot) =>
-      this.matchService.create({
-        tournamentId,
+      this.api.post<unknown>('/matches', {
+        phaseId,
         homeTeamId:  slot.homeTeamId,
         awayTeamId:  slot.awayTeamId,
         scheduledAt: slot.scheduledAt,
-        round:       slot.round,
-        venue:       slot.venue,
-      }),
+      }).pipe(catchError(() => of(null))),
     );
 
-    // Process in parallel — forkJoin waits for all to complete
     return forkJoin(requests).pipe(
-      map((results) => ({ created: results.length, failed: 0 })),
+      map((results) => ({
+        created: results.filter((r) => r !== null).length,
+        failed:  results.filter((r) => r === null).length,
+      })),
     );
   }
 }

@@ -1,147 +1,197 @@
 import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  signal,
-  OnInit,
+  Component, ChangeDetectionStrategy, inject, signal, OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TournamentService } from '../tournament.service';
-import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
-import type { TournamentCreateRequest, TournamentFormat } from '../../../core/models';
+import { SportService }      from '../../sports/sport.service';
+import { LoadingSpinner }    from '../../../shared/components/loading-spinner/loading-spinner';
+import type { Sport, TournamentStatus } from '../../../core/models';
 
-/**
- * Tournament creation and editing form.
- * Uses Angular Reactive Forms with strict validation.
- * In edit mode, it loads the existing tournament data by ID from the route param.
- */
 @Component({
   selector: 'app-tournament-form',
   imports: [ReactiveFormsModule, LoadingSpinner],
   templateUrl: './tournament-form.html',
-  styleUrl: './tournament-form.css',
+  styleUrl:    './tournament-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TournamentForm implements OnInit {
-  private readonly fb = inject(FormBuilder);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
+  private readonly fb                = inject(FormBuilder);
+  private readonly router            = inject(Router);
+  private readonly route             = inject(ActivatedRoute);
   private readonly tournamentService = inject(TournamentService);
+  private readonly sportService      = inject(SportService);
 
-  readonly isEditMode = signal<boolean>(false);
-  readonly tournamentId = signal<number | null>(null);
-  readonly isLoading = signal<boolean>(false);
-  readonly isSaving = signal<boolean>(false);
+  readonly isEditMode   = signal<boolean>(false);
+  readonly tournamentId = signal<string | null>(null);
+  readonly isLoading    = signal<boolean>(false);
+  readonly isSaving     = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly sports       = signal<Sport[]>([]);
+  /** True when status is not 'draft' — locks structural fields */
+  readonly isLocked     = signal<boolean>(false);
 
-  readonly formatOptions: { value: TournamentFormat; label: string }[] = [
-    { value: 'groups_knockout', label: 'Grupos + Eliminatoria' },
-    { value: 'round_robin', label: 'Todos contra todos' },
-    { value: 'single_elimination', label: 'Eliminación simple' },
-    { value: 'double_elimination', label: 'Eliminación doble' },
+  readonly statusOptions: { value: TournamentStatus; label: string }[] = [
+    { value: 'draft',     label: 'En creación' },
+    { value: 'active',    label: 'En ejecución' },
+    { value: 'finished',  label: 'Finalizado' },
+    { value: 'suspended', label: 'Suspendido' },
+    { value: 'cancelled', label: 'Cancelado' },
+    { value: 'archived',  label: 'Archivado' },
   ];
 
   readonly form = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-    sportId: [null as number | null, [Validators.required]],
-    format: ['' as TournamentFormat | '', [Validators.required]],
-    category: ['', [Validators.required, Validators.maxLength(60)]],
-    season: ['', [Validators.required, Validators.pattern(/^\d{4}(-\d{4})?$/)]],
-    startDate: ['', [Validators.required]],
-    endDate: ['', [Validators.required]],
-    maxTeams: [8, [Validators.required, Validators.min(2), Validators.max(256)]],
-  }, { validators: this.dateRangeValidator });
+    // Core
+    name:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+    sportId: ['' as string, [Validators.required]],
+    season:  [''],
+    status:  ['draft' as string],
+
+    // Scheduling
+    startDate:            [''],
+    registrationDeadline: [''],
+    expectedTeams:        [null as number | null, [Validators.min(2), Validators.max(512)]],
+    numGroups:            [null as number | null, [Validators.min(1), Validators.max(64)]],
+
+    // Category & age
+    category:          [''],
+    birthYearFrom:     [''],
+    validateBirthFrom: [false],
+    birthYearTo:       [''],
+    validateBirthTo:   [false],
+
+    // Contact
+    contactPhone: [''],
+    address:      [''],
+    locationUrl:  [''],
+
+    // Media
+    imageUrl:          [''],
+    description:       [''],
+    entryFee:          [''],
+    rulesFileUrl:      [''],
+    invitationFileUrl: [''],
+
+    // Social
+    instagramUrl: [''],
+    facebookUrl:  [''],
+    tiktokUrl:    [''],
+    youtubeUrl:   [''],
+  });
 
   ngOnInit(): void {
+    this.sportService.getAll().subscribe({ next: (d) => this.sports.set(d) });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);
-      this.tournamentId.set(Number(id));
-      this.loadTournament(Number(id));
+      this.tournamentId.set(id);
+      this.loadTournament(id);
     }
   }
 
-  /** Custom cross-field validator: endDate must be after startDate. */
-  private dateRangeValidator(group: AbstractControl): Record<string, boolean> | null {
-    const start = group.get('startDate')?.value as string;
-    const end = group.get('endDate')?.value as string;
-    if (start && end && end <= start) {
-      return { dateRange: true };
-    }
-    return null;
-  }
-
-  private loadTournament(id: number): void {
+  private loadTournament(id: string): void {
     this.isLoading.set(true);
     this.tournamentService.getById(id).subscribe({
-      next: (tournament) => {
+      next: (t) => {
         this.form.patchValue({
-          name: tournament.name,
-          sportId: tournament.sportId,
-          format: tournament.format,
-          category: tournament.category,
-          season: tournament.season,
-          startDate: tournament.startDate.slice(0, 10),
-          endDate: tournament.endDate.slice(0, 10),
-          maxTeams: tournament.maxTeams,
+          name:                 t.name,
+          sportId:              t.sportId,
+          season:               t.season ?? '',
+          status:               t.status,
+          startDate:            this.toDateInput(t.startDate),
+          registrationDeadline: this.toDateInput(t.registrationDeadline),
+          expectedTeams:        t.expectedTeams,
+          numGroups:            t.numGroups,
+          category:             t.category ?? '',
+          birthYearFrom:        this.toDateInput(t.birthYearFrom),
+          validateBirthFrom:    t.validateBirthFrom,
+          birthYearTo:          this.toDateInput(t.birthYearTo),
+          validateBirthTo:      t.validateBirthTo,
+          contactPhone:         t.contactPhone ?? '',
+          address:              t.address ?? '',
+          locationUrl:          t.locationUrl ?? '',
+          imageUrl:             t.imageUrl ?? '',
+          description:          t.description ?? '',
+          entryFee:             t.entryFee ?? '',
+          rulesFileUrl:         t.rulesFileUrl ?? '',
+          invitationFileUrl:    t.invitationFileUrl ?? '',
+          instagramUrl:         t.instagramUrl ?? '',
+          facebookUrl:          t.facebookUrl ?? '',
+          tiktokUrl:            t.tiktokUrl ?? '',
+          youtubeUrl:           t.youtubeUrl ?? '',
         });
+        // Lock structural fields if not in draft
+        this.isLocked.set(t.status !== 'draft');
         this.isLoading.set(false);
       },
-      error: () => {
-        this.errorMessage.set('No se pudo cargar el torneo.');
-        this.isLoading.set(false);
-      },
+      error: () => { this.errorMessage.set('No se pudo cargar el torneo.'); this.isLoading.set(false); },
     });
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.isSaving.set(true);
     this.errorMessage.set(null);
 
-    const payload = this.form.value as TournamentCreateRequest;
+    const v = this.form.value;
+    const payload: Record<string, unknown> = {
+      sportId:              v.sportId,
+      name:                 v.name,
+      season:               v.season || null,
+      status:               v.status || 'draft',
+      startDate:            v.startDate || null,
+      registrationDeadline: v.registrationDeadline || null,
+      expectedTeams:        v.expectedTeams ?? null,
+      numGroups:            v.numGroups ?? null,
+      category:             v.category || null,
+      birthYearFrom:        v.birthYearFrom || null,
+      validateBirthFrom:    v.validateBirthFrom ?? false,
+      birthYearTo:          v.birthYearTo || null,
+      validateBirthTo:      v.validateBirthTo ?? false,
+      contactPhone:         v.contactPhone || null,
+      address:              v.address || null,
+      locationUrl:          v.locationUrl || null,
+      imageUrl:             v.imageUrl || null,
+      description:          v.description || null,
+      entryFee:             v.entryFee || null,
+      rulesFileUrl:         v.rulesFileUrl || null,
+      invitationFileUrl:    v.invitationFileUrl || null,
+      instagramUrl:         v.instagramUrl || null,
+      facebookUrl:          v.facebookUrl || null,
+      tiktokUrl:            v.tiktokUrl || null,
+      youtubeUrl:           v.youtubeUrl || null,
+    };
+
     const id = this.tournamentId();
-
-    const request$ = id
+    const req$ = id
       ? this.tournamentService.update(id, payload)
-      : this.tournamentService.create(payload);
+      : this.tournamentService.create(payload as unknown as import('../../../core/models').TournamentCreateRequest);
 
-    request$.subscribe({
-      next: () => {
-        this.isSaving.set(false);
-        this.router.navigate(['/tournaments']);
-      },
-      error: () => {
-        this.errorMessage.set('No se pudo guardar el torneo. Verifica los datos e intenta nuevamente.');
-        this.isSaving.set(false);
-      },
+    req$.subscribe({
+      next:  () => { this.isSaving.set(false); this.router.navigate(['/tournaments']); },
+      error: () => { this.errorMessage.set('No se pudo guardar el torneo.'); this.isSaving.set(false); },
     });
   }
 
-  onCancel(): void {
-    this.router.navigate(['/tournaments']);
-  }
+  onCancel(): void { this.router.navigate(['/tournaments']); }
 
-  /** Helpers for template error access */
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
-    return !!(control?.invalid && control?.touched);
-  }
-
-  getFieldError(field: string): string {
-    const control = this.form.get(field);
-    if (!control?.errors || !control.touched) return '';
-    if (control.errors['required']) return 'Este campo es requerido.';
-    if (control.errors['minlength']) return `Mínimo ${control.errors['minlength'].requiredLength} caracteres.`;
-    if (control.errors['maxlength']) return `Máximo ${control.errors['maxlength'].requiredLength} caracteres.`;
-    if (control.errors['min']) return `El valor mínimo es ${control.errors['min'].min}.`;
-    if (control.errors['max']) return `El valor máximo es ${control.errors['max'].max}.`;
-    if (control.errors['pattern']) return 'Formato inválido. Usa YYYY o YYYY-YYYY.';
+  isFieldInvalid(f: string): boolean { const c = this.form.get(f); return !!(c?.invalid && c?.touched); }
+  getFieldError(f: string): string {
+    const c = this.form.get(f);
+    if (!c?.errors || !c.touched) return '';
+    if (c.errors['required'])  return 'Este campo es requerido.';
+    if (c.errors['minlength']) return `Mínimo ${c.errors['minlength'].requiredLength} caracteres.`;
+    if (c.errors['maxlength']) return `Máximo ${c.errors['maxlength'].requiredLength} caracteres.`;
+    if (c.errors['min'])       return `Valor mínimo: ${c.errors['min'].min}.`;
+    if (c.errors['max'])       return `Valor máximo: ${c.errors['max'].max}.`;
     return 'Valor inválido.';
+  }
+
+  /** Converts ISO datetime string to YYYY-MM-DD for date inputs. */
+  private toDateInput(value: string | null | undefined): string {
+    if (!value) return '';
+    // Handle both "2026-08-01" and "2026-08-01T05:00:00.000Z" formats
+    return value.slice(0, 10);
   }
 }

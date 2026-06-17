@@ -1,37 +1,29 @@
 import type { TournamentFormat } from '../../../core/models';
 
-/**
- * A team entry used for fixture generation.
- * The fixture generator only needs id and name — it doesn't require
- * the full Team model to keep the dependency lightweight.
- */
+/** A team entry used only for fixture generation (lightweight). */
 export interface FixtureTeam {
-  id: number;
+  id:   string;   // UUID
   name: string;
 }
 
-/**
- * Configuration inputs provided by the user to generate a fixture.
- */
+/** Configuration inputs for the fixture generation algorithm. */
 export interface FixtureConfig {
-  tournamentId: number;
-  format: TournamentFormat;
-  teams: FixtureTeam[];
-  startDate: string;       // ISO date string YYYY-MM-DD
+  tournamentId:      string;   // UUID
+  format:            TournamentFormat;
+  teams:             FixtureTeam[];
+  startDate:         string;   // YYYY-MM-DD
   daysBetweenRounds: number;
-  venue: string;
-  twoLegs: boolean;        // applies to round_robin only
+  venue:             string;
+  twoLegs:           boolean;
 }
 
-/**
- * A generated match slot — not yet persisted to the API.
- */
+/** A generated match slot — not yet persisted. */
 export interface FixtureSlot {
-  round: string;
-  homeTeamId: number;
+  round:        string;
+  homeTeamId:   string;   // UUID
   homeTeamName: string;
-  awayTeamId: number;
+  awayTeamId:   string;   // UUID
   awayTeamName: string;
-  scheduledAt: string;     // ISO datetime
-  venue: string;
+  scheduledAt:  string;   // ISO datetime
+  venue:        string;
 }

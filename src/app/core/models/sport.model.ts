@@ -1,23 +1,40 @@
 /**
- * Represents a sport supported by the platform.
- * New sports can be added by inserting records via the API.
+ * Sport model — matches the backend sports service response.
  */
 export interface Sport {
-  id: number;
-  name: string;
-  slug: string;
-  icon: string;
-  /** Max players per team on the field */
-  playersPerTeam: number;
-  /** Configurable rules per sport (sets, periods, etc.) */
-  rules: SportRules;
-  isActive: boolean;
+  id:                string;
+  name:              string;
+  slug:              string;
+  playersPerTeam:    number;
+  hasSets:           boolean;
+  setsToWin:         number | null;
+  pointsPerSet:      number | null;
+  decisiveSetPoints: number | null;
+  winMargin:         number;
+  periodsPerMatch:   number;
+  maxSubstitutions:  number | null;
+  hasRotation:       boolean;
+  iconUrl:           string | null;
+  createdAt:         string;
+  updatedAt:         string;
 }
 
-export interface SportRules {
-  scoringUnit: 'points' | 'sets' | 'goals' | 'games';
-  periods: number;
-  periodName: string;
-  hasOvertime: boolean;
-  hasPenalties: boolean;
+/** Default placeholder image when no iconUrl is set. */
+export const SPORT_DEFAULT_ICON = 'https://img.icons8.com/color/96/sports-mode.png';
+
+export interface SportCreateRequest {
+  name:               string;
+  slug:               string;
+  playersPerTeam:     number;
+  hasSets:            boolean;
+  setsToWin?:         number | null;
+  pointsPerSet?:      number | null;
+  decisiveSetPoints?: number | null;
+  winMargin?:         number;
+  periodsPerMatch?:   number;
+  maxSubstitutions?:  number | null;
+  hasRotation?:       boolean;
+  iconUrl?:           string | null;
 }
+
+export type SportUpdateRequest = Partial<SportCreateRequest>;

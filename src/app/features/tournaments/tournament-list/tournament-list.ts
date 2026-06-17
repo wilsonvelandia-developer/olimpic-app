@@ -6,18 +6,17 @@ import {
   OnInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TournamentService } from '../tournament.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
-import type { Tournament, TournamentFormat } from '../../../core/models';
+import type { Tournament } from '../../../core/models';
 import type { TournamentFilters } from '../tournament.service';
 
 @Component({
   selector: 'app-tournament-list',
-  imports: [SlicePipe, StatusBadge, LoadingSpinner, ConfirmDialog, FormsModule],
+  imports: [FormsModule, StatusBadge, LoadingSpinner, ConfirmDialog],
   templateUrl: './tournament-list.html',
   styleUrl: './tournament-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,16 +31,17 @@ export class TournamentList implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   readonly showDeleteDialog = signal<boolean>(false);
-  readonly selectedTournamentId = signal<number | null>(null);
+  readonly selectedTournamentId = signal<string | null>(null);
   readonly selectedTournamentName = signal<string>('');
 
-  // Filters
   readonly filterStatus = signal<string>('');
   readonly filterSeason = signal<string>('');
   readonly currentPage = signal<number>(1);
   readonly pageSize = 10;
 
-  // Form models for ngModel bindings
+  /** View mode: 'card' (default) or 'list'. */
+  readonly viewMode = signal<'card' | 'list'>('card');
+
   filterStatusModel = '';
   filterSeasonModel = '';
 
@@ -54,11 +54,11 @@ export class TournamentList implements OnInit {
     this.errorMessage.set(null);
 
     const filters: TournamentFilters = {
-      page: this.currentPage(),
+      page:     this.currentPage(),
       pageSize: this.pageSize,
     };
-    if (this.filterStatus()) filters.status = this.filterStatus();
-    if (this.filterSeason()) filters.season = this.filterSeason();
+    if (this.filterStatus()) filters.status  = this.filterStatus();
+    if (this.filterSeason()) filters.season  = this.filterSeason();
 
     this.tournamentService.getAll(filters).subscribe({
       next: (response) => {
@@ -93,11 +93,11 @@ export class TournamentList implements OnInit {
     this.router.navigate(['/tournaments', 'new']);
   }
 
-  onEditTournament(id: number): void {
+  onEditTournament(id: string): void {
     this.router.navigate(['/tournaments', id, 'edit']);
   }
 
-  onViewDetail(id: number): void {
+  onViewDetail(id: string): void {
     this.router.navigate(['/tournaments', id]);
   }
 
@@ -115,10 +115,9 @@ export class TournamentList implements OnInit {
   onDeleteConfirmed(): void {
     const id = this.selectedTournamentId();
     if (id === null) return;
-
     this.showDeleteDialog.set(false);
     this.tournamentService.delete(id).subscribe({
-      next: () => this.loadTournaments(),
+      next:  () => this.loadTournaments(),
       error: () => this.errorMessage.set('No se pudo eliminar el torneo.'),
     });
   }
@@ -136,13 +135,20 @@ export class TournamentList implements OnInit {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-  formatLabel(format: TournamentFormat): string {
-    const labels: Record<TournamentFormat, string> = {
-      groups_knockout: 'Grupos + Eliminatoria',
-      round_robin: 'Todos contra todos',
-      single_elimination: 'Eliminación simple',
-      double_elimination: 'Eliminación doble',
+  /** Maps backend status values to display labels. */
+  statusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      draft:     'Borrador',
+      active:    'Activo',
+      finished:  'Finalizado',
+      suspended: 'Suspendido',
+      cancelled: 'Cancelado',
+      archived:  'Archivado',
     };
-    return labels[format] ?? format;
+    return labels[status] ?? status;
+  }
+
+  toggleView(): void {
+    this.viewMode.set(this.viewMode() === 'card' ? 'list' : 'card');
   }
 }

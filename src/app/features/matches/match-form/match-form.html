@@ -2,7 +2,7 @@
   <div class="page__header">
     <div>
       <h1 class="page__title">{{ isEditMode() ? 'Editar partido' : 'Programar partido' }}</h1>
-      <p class="page__subtitle">{{ isEditMode() ? 'Modifica los datos del partido' : 'Define los equipos, ronda y fecha del encuentro' }}</p>
+      <p class="page__subtitle">Define los equipos y la fecha del encuentro</p>
     </div>
   </div>
 
@@ -10,77 +10,38 @@
 
   @if (!isLoading()) {
     <div class="form-card">
-      @if (errorMessage()) {
-        <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
-      }
+      @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="form-grid">
 
-          <!-- Tournament -->
-          <div class="form-group">
-            <label class="form-label form-label--required" for="tournamentId">ID del torneo</label>
-            <input id="tournamentId" type="number" class="form-control"
-              [class.form-control--error]="isFieldInvalid('tournamentId')"
-              formControlName="tournamentId" placeholder="ID del torneo" min="1" />
-            @if (isFieldInvalid('tournamentId')) {
-              <span class="form-error" role="alert">{{ getFieldError('tournamentId') }}</span>
-            }
+          <div class="form-group form-group--full">
+            <label class="form-label form-label--required" for="phaseId">ID de la fase (UUID)</label>
+            <input id="phaseId" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('phaseId')"
+              formControlName="phaseId" placeholder="ej: e1d02379-4a73-..." autocomplete="off" />
+            @if (isFieldInvalid('phaseId')) { <span class="form-error" role="alert">{{ getFieldError('phaseId') }}</span> }
           </div>
 
-          <!-- Round -->
           <div class="form-group">
-            <label class="form-label form-label--required" for="round">Ronda / Jornada</label>
-            <input id="round" type="text" class="form-control"
-              [class.form-control--error]="isFieldInvalid('round')"
-              formControlName="round" placeholder="Ej: Jornada 1, Semifinal" maxlength="60" autocomplete="off" />
-            @if (isFieldInvalid('round')) {
-              <span class="form-error" role="alert">{{ getFieldError('round') }}</span>
-            }
-          </div>
-
-          <!-- Home Team -->
-          <div class="form-group">
-            <label class="form-label form-label--required" for="homeTeamId">Equipo local (ID)</label>
-            <input id="homeTeamId" type="number" class="form-control"
+            <label class="form-label form-label--required" for="homeTeamId">Equipo local (UUID)</label>
+            <input id="homeTeamId" type="text" class="form-control"
               [class.form-control--error]="isFieldInvalid('homeTeamId')"
-              formControlName="homeTeamId" placeholder="ID del equipo local" min="1" />
-            @if (isFieldInvalid('homeTeamId')) {
-              <span class="form-error" role="alert">{{ getFieldError('homeTeamId') }}</span>
-            }
+              formControlName="homeTeamId" placeholder="UUID del equipo local" autocomplete="off" />
+            @if (isFieldInvalid('homeTeamId')) { <span class="form-error" role="alert">{{ getFieldError('homeTeamId') }}</span> }
           </div>
 
-          <!-- Away Team -->
           <div class="form-group">
-            <label class="form-label form-label--required" for="awayTeamId">Equipo visitante (ID)</label>
-            <input id="awayTeamId" type="number" class="form-control"
+            <label class="form-label form-label--required" for="awayTeamId">Equipo visitante (UUID)</label>
+            <input id="awayTeamId" type="text" class="form-control"
               [class.form-control--error]="isFieldInvalid('awayTeamId')"
-              formControlName="awayTeamId" placeholder="ID del equipo visitante" min="1" />
-            @if (isFieldInvalid('awayTeamId')) {
-              <span class="form-error" role="alert">{{ getFieldError('awayTeamId') }}</span>
-            }
+              formControlName="awayTeamId" placeholder="UUID del equipo visitante" autocomplete="off" />
+            @if (isFieldInvalid('awayTeamId')) { <span class="form-error" role="alert">{{ getFieldError('awayTeamId') }}</span> }
           </div>
 
-          <!-- Scheduled At -->
           <div class="form-group">
-            <label class="form-label form-label--required" for="scheduledAt">Fecha y hora</label>
-            <input id="scheduledAt" type="datetime-local" class="form-control"
-              [class.form-control--error]="isFieldInvalid('scheduledAt')"
-              formControlName="scheduledAt" />
-            @if (isFieldInvalid('scheduledAt')) {
-              <span class="form-error" role="alert">{{ getFieldError('scheduledAt') }}</span>
-            }
-          </div>
-
-          <!-- Venue -->
-          <div class="form-group">
-            <label class="form-label" for="venue">Sede / Estadio</label>
-            <input id="venue" type="text" class="form-control"
-              [class.form-control--error]="isFieldInvalid('venue')"
-              formControlName="venue" placeholder="Ej: Estadio El Campín" maxlength="100" autocomplete="off" />
-            @if (isFieldInvalid('venue')) {
-              <span class="form-error" role="alert">{{ getFieldError('venue') }}</span>
-            }
+            <label class="form-label" for="scheduledAt">Fecha y hora (opcional)</label>
+            <input id="scheduledAt" type="datetime-local" class="form-control" formControlName="scheduledAt" />
           </div>
 
         </div>
@@ -88,7 +49,7 @@
         <div class="form-actions">
           <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
           <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
-            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Programar partido') }}
+            {{ isSaving() ? 'Guardando...' : 'Programar partido' }}
           </button>
         </div>
       </form>

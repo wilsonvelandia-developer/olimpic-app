@@ -9,20 +9,20 @@
           <button
             type="button"
             class="match-card"
-            [class.match-card--completed]="match.status === 'completed'"
+            [class.match-card--completed]="match.status === 'finished'"
             (click)="onMatchClick(match.id)"
-            [attr.aria-label]="match.homeTeamName + ' vs ' + match.awayTeamName"
+            [attr.aria-label]="teamLabel(match, 'home') + ' vs ' + teamLabel(match, 'away')"
           >
             <!-- Home team -->
             <div class="match-card__team match-card__team--home">
-              <span class="match-card__team-name">{{ match.homeTeamName }}</span>
+              <span class="match-card__team-name">{{ teamLabel(match, 'home') }}</span>
             </div>
 
             <!-- Score / Status -->
             <div class="match-card__center">
-              @if (match.status === 'completed') {
+              @if (match.status === 'finished') {
                 <span class="match-card__score">
-                  {{ match.homeScore }} - {{ match.awayScore }}
+                  {{ match.homeScore ?? '?' }} - {{ match.awayScore ?? '?' }}
                 </span>
               } @else {
                 <div class="match-card__meta">
@@ -34,7 +34,7 @@
 
             <!-- Away team -->
             <div class="match-card__team match-card__team--away">
-              <span class="match-card__team-name">{{ match.awayTeamName }}</span>
+              <span class="match-card__team-name">{{ teamLabel(match, 'away') }}</span>
             </div>
           </button>
         }

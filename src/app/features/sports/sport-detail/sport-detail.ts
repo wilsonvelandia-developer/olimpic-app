@@ -30,10 +30,10 @@ export class SportDetail implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.loadSport(Number(id));
+    if (id) this.loadSport(id);
   }
 
-  private loadSport(id: number): void {
+  private loadSport(id: string): void {
     this.isLoading.set(true);
     this.sportService.getById(id).subscribe({
       next: (data) => { this.sport.set(data); this.isLoading.set(false); },

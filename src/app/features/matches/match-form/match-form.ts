@@ -1,20 +1,11 @@
 import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  signal,
-  OnInit,
+  Component, ChangeDetectionStrategy, inject, signal, OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatchService } from '../match.service';
+import { MatchService }  from '../match.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
-import type { MatchCreateRequest } from '../match.service';
 
-/**
- * Match scheduling form (create / edit).
- * Result registration is handled by a separate component (match-result).
- */
 @Component({
   selector: 'app-match-form',
   imports: [ReactiveFormsModule, LoadingSpinner],
@@ -23,101 +14,78 @@ import type { MatchCreateRequest } from '../match.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatchForm implements OnInit {
-  private readonly fb = inject(FormBuilder);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
+  private readonly fb           = inject(FormBuilder);
+  private readonly router       = inject(Router);
+  private readonly route        = inject(ActivatedRoute);
   private readonly matchService = inject(MatchService);
 
-  readonly isEditMode = signal<boolean>(false);
-  readonly matchId = signal<number | null>(null);
-  readonly isLoading = signal<boolean>(false);
-  readonly isSaving = signal<boolean>(false);
+  readonly isEditMode   = signal<boolean>(false);
+  readonly matchId      = signal<string | null>(null);
+  readonly isLoading    = signal<boolean>(false);
+  readonly isSaving     = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    tournamentId: [null as number | null, [Validators.required, Validators.min(1)]],
-    homeTeamId:   [null as number | null, [Validators.required, Validators.min(1)]],
-    awayTeamId:   [null as number | null, [Validators.required, Validators.min(1)]],
-    scheduledAt:  ['', [Validators.required]],
-    round:        ['', [Validators.required, Validators.maxLength(60)]],
-    venue:        ['', [Validators.maxLength(100)]],
+    phaseId:     ['', [Validators.required]],
+    homeTeamId:  ['', [Validators.required]],
+    awayTeamId:  ['', [Validators.required]],
+    scheduledAt: ['' as string | null],
   });
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);
-      this.matchId.set(Number(id));
-      this.loadMatch(Number(id));
+      this.matchId.set(id);
+      this.loadMatch(id);
     }
-    // Pre-fill tournamentId if provided as query param
-    const tournamentId = this.route.snapshot.queryParamMap.get('tournamentId');
-    if (tournamentId) this.form.patchValue({ tournamentId: Number(tournamentId) });
+    const phaseId = this.route.snapshot.queryParamMap.get('phaseId');
+    if (phaseId) this.form.patchValue({ phaseId });
   }
 
-  private loadMatch(id: number): void {
+  private loadMatch(id: string): void {
     this.isLoading.set(true);
     this.matchService.getById(id).subscribe({
-      next: (match) => {
+      next: (detail) => {
+        const m = detail.match;
         this.form.patchValue({
-          tournamentId: match.tournamentId,
-          homeTeamId:   match.homeTeamId,
-          awayTeamId:   match.awayTeamId,
-          scheduledAt:  match.scheduledAt.slice(0, 16), // datetime-local format
-          round:        match.round,
-          venue:        match.venue,
+          phaseId:     m.phaseId,
+          homeTeamId:  m.homeTeamId,
+          awayTeamId:  m.awayTeamId,
+          scheduledAt: m.scheduledAt ? m.scheduledAt.slice(0, 16) : null,
         });
         this.isLoading.set(false);
       },
-      error: () => {
-        this.errorMessage.set('No se pudo cargar el partido.');
-        this.isLoading.set(false);
-      },
+      error: () => { this.errorMessage.set('No se pudo cargar el partido.'); this.isLoading.set(false); },
     });
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.isSaving.set(true);
     this.errorMessage.set(null);
 
-    const payload = this.form.value as MatchCreateRequest;
-    const id = this.matchId();
-    const request$ = id
-      ? this.matchService.update(id, payload)
-      : this.matchService.create(payload);
+    const v = this.form.value;
+    const payload = {
+      phaseId:     v.phaseId!,
+      homeTeamId:  v.homeTeamId!,
+      awayTeamId:  v.awayTeamId!,
+      scheduledAt: v.scheduledAt || null,
+    };
 
-    request$.subscribe({
-      next: () => {
-        this.isSaving.set(false);
-        this.router.navigate(['/matches']);
-      },
-      error: () => {
-        this.errorMessage.set('No se pudo guardar el partido. Verifica los datos e intenta nuevamente.');
-        this.isSaving.set(false);
-      },
+    this.matchService.create(payload).subscribe({
+      next:  () => { this.isSaving.set(false); this.router.navigate(['/matches']); },
+      error: () => { this.errorMessage.set('No se pudo guardar el partido.'); this.isSaving.set(false); },
     });
   }
 
-  onCancel(): void {
-    this.router.navigate(['/matches']);
-  }
+  onCancel(): void { this.router.navigate(['/matches']); }
 
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
-    return !!(control?.invalid && control?.touched);
-  }
-
-  getFieldError(field: string): string {
-    const control = this.form.get(field);
-    if (!control?.errors || !control.touched) return '';
-    if (control.errors['required']) return 'Este campo es requerido.';
-    if (control.errors['min']) return `El valor mínimo es ${control.errors['min'].min}.`;
-    if (control.errors['maxlength']) return `Máximo ${control.errors['maxlength'].requiredLength} caracteres.`;
+  isFieldInvalid(f: string): boolean { const c = this.form.get(f); return !!(c?.invalid && c?.touched); }
+  getFieldError(f: string): string {
+    const c = this.form.get(f);
+    if (!c?.errors || !c.touched) return '';
+    if (c.errors['required']) return 'Este campo es requerido.';
     return 'Valor inválido.';
   }
 }

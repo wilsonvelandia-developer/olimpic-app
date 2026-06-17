@@ -2,70 +2,55 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
-import type { Match, MatchResultRequest } from '../../core/models';
+import type { Match, MatchCreateRequest, PeriodScoreRequest, MatchDetail } from '../../core/models';
 import type { PaginatedResponse } from '../../core/models';
 
 export interface MatchFilters {
-  tournamentId?: number;
-  status?: string;
-  round?: string;
-  page?: number;
+  phaseId?:  string;
+  teamId?:   string;
+  status?:   string;
+  page?:     number;
   pageSize?: number;
 }
 
-export interface MatchCreateRequest {
-  tournamentId: number;
-  homeTeamId: number;
-  awayTeamId: number;
-  scheduledAt: string;
-  round: string;
-  venue: string;
-}
-
-/**
- * Domain service for match management.
- * Handles scheduling, result registration, and status transitions.
- */
 @Injectable({ providedIn: 'root' })
 export class MatchService {
   private readonly api = inject(ApiService);
   private readonly basePath = '/matches';
 
-  /** Returns a paginated list of matches with optional filters. */
   getAll(filters?: MatchFilters): Observable<PaginatedResponse<Match>> {
     const params: Record<string, string | number> = {};
-    if (filters?.tournamentId) params['tournamentId'] = filters.tournamentId;
-    if (filters?.status) params['status'] = filters.status;
-    if (filters?.round) params['round'] = filters.round;
-    if (filters?.page) params['page'] = filters.page;
+    if (filters?.phaseId)  params['phaseId']  = filters.phaseId;
+    if (filters?.teamId)   params['teamId']   = filters.teamId;
+    if (filters?.status)   params['status']   = filters.status;
+    if (filters?.page)     params['page']     = filters.page;
     if (filters?.pageSize) params['pageSize'] = filters.pageSize ?? 10;
     return this.api.getPaginated<Match>(this.basePath, params);
   }
 
-  /** Returns a single match by ID. */
-  getById(id: number): Observable<Match> {
-    return this.api.get<Match>(`${this.basePath}/${id}`).pipe(map((r) => r.data));
+  getById(id: string): Observable<MatchDetail> {
+    return this.api.get<MatchDetail>(`${this.basePath}/${id}`).pipe(map((r) => r.data));
   }
 
-  /** Schedules a new match. */
   create(payload: MatchCreateRequest): Observable<Match> {
     return this.api.post<Match>(this.basePath, payload).pipe(map((r) => r.data));
   }
 
-  /** Registers the result of a played match. */
-  registerResult(id: number, result: MatchResultRequest): Observable<Match> {
+  start(id: string): Observable<MatchDetail> {
+    return this.api.put<MatchDetail>(`${this.basePath}/${id}/start`, {}).pipe(map((r) => r.data));
+  }
+
+  finish(id: string): Observable<MatchDetail> {
+    return this.api.put<MatchDetail>(`${this.basePath}/${id}/finish`, {}).pipe(map((r) => r.data));
+  }
+
+  updatePeriodScore(id: string, periodNumber: number, dto: PeriodScoreRequest): Observable<MatchDetail> {
     return this.api
-      .patch<Match>(`${this.basePath}/${id}/result`, result)
+      .put<MatchDetail>(`${this.basePath}/${id}/periods/${periodNumber}/score`, dto)
       .pipe(map((r) => r.data));
   }
 
-  /** Updates match scheduling data (date, venue, round). */
-  update(id: number, payload: Partial<MatchCreateRequest>): Observable<Match> {
-    return this.api.put<Match>(`${this.basePath}/${id}`, payload).pipe(map((r) => r.data));
-  }
-
-  /** Deletes a match by ID. */
-  delete(id: number): Observable<void> {
+  delete(id: string): Observable<void> {
     return this.api.delete<void>(`${this.basePath}/${id}`).pipe(map(() => undefined));
   }
 }

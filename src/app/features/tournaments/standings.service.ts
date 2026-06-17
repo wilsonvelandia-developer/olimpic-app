@@ -1,109 +1,104 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
-import type { StandingsEntry, TournamentStatsData } from '../../core/models';
-import type { Match } from '../../core/models';
+import type { StandingsEntry, TournamentStatsData, Match } from '../../core/models';
+import type { Standing } from '../../core/models';
 
-/**
- * Service for tournament standings and statistics.
- *
- * Strategy:
- * 1. First tries to load standings from the API endpoint `/tournaments/:id/standings`.
- * 2. If the backend does not expose that endpoint yet, the `computeFromMatches()` method
- *    calculates standings locally from the completed matches.
- *    This keeps the frontend functional while the backend is being built.
- */
 @Injectable({ providedIn: 'root' })
 export class StandingsService {
   private readonly api = inject(ApiService);
 
-  /**
-   * Loads standings from the backend.
-   * Falls back to local computation if the API returns an error.
-   */
-  getStandings(tournamentId: number): Observable<StandingsEntry[]> {
+  getStandings(tournamentId: string): Observable<StandingsEntry[]> {
     return this.api
-      .get<StandingsEntry[]>(`/tournaments/${tournamentId}/standings`)
-      .pipe(map((r) => r.data));
-  }
-
-  /**
-   * Loads all completed matches for a tournament and computes standings locally.
-   * Use this when the backend standings endpoint is not available yet.
-   */
-  computeStandingsFromMatches(tournamentId: number): Observable<StandingsEntry[]> {
-    return this.api
-      .getPaginated<Match>('/matches', { tournamentId, pageSize: 200 })
+      .get<Standing[]>(`/standings/${tournamentId}`)
       .pipe(
-        map((response) => {
-          const completed = response.data.filter((m) => m.status === 'completed');
-          return this.buildStandings(completed);
-        }),
+        map((r) => this.mapStandingsToEntries(r.data)),
+        catchError(() => of([])),
       );
   }
 
-  /**
-   * Loads tournament match statistics.
-   */
-  getTournamentStats(tournamentId: number): Observable<TournamentStatsData> {
-    return forkJoin({
-      all:       this.api.getPaginated<Match>('/matches', { tournamentId, pageSize: 1 }),
-      played:    this.api.getPaginated<Match>('/matches', { tournamentId, status: 'completed', pageSize: 200 }),
-      pending:   this.api.getPaginated<Match>('/matches', { tournamentId, status: 'scheduled', pageSize: 1 }),
-    }).pipe(
-      map(({ all, played, pending }) => {
-        const completedMatches = played.data;
-        const totalGoals = completedMatches.reduce(
-          (sum, m) => sum + (m.homeScore ?? 0) + (m.awayScore ?? 0),
-          0,
-        );
-        const playedCount = completedMatches.length;
-
-        // Find team with most wins
-        const winCounts: Record<string, number> = {};
-        completedMatches.forEach((m) => {
-          if (m.homeScore === null || m.awayScore === null) return;
-          if (m.homeScore > m.awayScore) {
-            winCounts[m.homeTeamName] = (winCounts[m.homeTeamName] ?? 0) + 1;
-          } else if (m.awayScore > m.homeScore) {
-            winCounts[m.awayTeamName] = (winCounts[m.awayTeamName] ?? 0) + 1;
-          }
-        });
-        const mostWins = Object.keys(winCounts).length
-          ? Object.entries(winCounts).sort((a, b) => b[1] - a[1])[0][0]
-          : null;
-
-        return {
-          totalMatches:      all.total,
-          playedMatches:     playedCount,
-          pendingMatches:    pending.total,
-          totalGoals,
-          avgGoalsPerMatch:  playedCount > 0 ? Math.round((totalGoals / playedCount) * 10) / 10 : 0,
-          topScorer:         null, // requires player stats endpoint
-          mostWins,
-        };
-      }),
-    );
+  recalculate(phaseId: string): Observable<StandingsEntry[]> {
+    return this.api
+      .post<Standing[]>('/standings/recalculate', { phaseId })
+      .pipe(
+        map((r) => this.mapStandingsToEntries(r.data)),
+        catchError(() => of([])),
+      );
   }
 
-  /**
-   * Loads matches for a tournament (paginated).
-   */
-  getTournamentMatches(tournamentId: number, page = 1): Observable<{ data: Match[]; total: number }> {
+  getTournamentStats(tournamentId: string): Observable<TournamentStatsData> {
     return this.api
-      .getPaginated<Match>('/matches', { tournamentId, pageSize: 20, page })
+      .getPaginated<Match>('/matches', { phaseId: tournamentId, pageSize: 200 })
+      .pipe(
+        map((response) => {
+          const all     = response.data;
+          const played  = all.filter((m) => m.status === 'finished');
+          const pending = all.filter((m) => m.status === 'scheduled');
+          return {
+            totalMatches:     all.length,
+            playedMatches:    played.length,
+            pendingMatches:   pending.length,
+            totalGoals:       0,
+            avgGoalsPerMatch: 0,
+            topScorer:        null,
+            mostWins:         null,
+          };
+        }),
+        catchError(() => of({
+          totalMatches: 0, playedMatches: 0, pendingMatches: 0,
+          totalGoals: 0, avgGoalsPerMatch: 0, topScorer: null, mostWins: null,
+        })),
+      );
+  }
+
+  getTournamentMatches(phaseId: string, page = 1): Observable<{ data: Match[]; total: number }> {
+    return this.api
+      .getPaginated<Match>('/matches', { phaseId, pageSize: 20, page })
       .pipe(map((r) => ({ data: r.data, total: r.total })));
   }
 
-  /**
-   * Builds a standings table from a list of completed matches.
-   * Applies standard football/sports scoring: W=3pts, D=1pt, L=0pts.
-   */
-  private buildStandings(matches: Match[]): StandingsEntry[] {
-    const table: Record<number, StandingsEntry> = {};
+  computeStandingsFromMatches(tournamentId: string): Observable<StandingsEntry[]> {
+    return this.api
+      .getPaginated<Match>('/matches', { phaseId: tournamentId, pageSize: 200 })
+      .pipe(
+        map((r) => this.buildStandingsFromMatches(r.data.filter((m) => m.status === 'finished'))),
+        catchError(() => of([])),
+      );
+  }
 
-    const ensure = (teamId: number, teamName: string) => {
+  // ── Private helpers ────────────────────────────────────────────────────────
+
+  private mapStandingsToEntries(standings: Standing[]): StandingsEntry[] {
+    return standings
+      .sort((a, b) => {
+        const ptsDiff = b.points - a.points;
+        if (ptsDiff !== 0) return ptsDiff;
+        const sDiff = ((b.setsWon ?? 0) - (b.setsLost ?? 0)) - ((a.setsWon ?? 0) - (a.setsLost ?? 0));
+        if (sDiff !== 0) return sDiff;
+        return (b.scoreFor - b.scoreAgainst) - (a.scoreFor - a.scoreAgainst);
+      })
+      .map((s, i) => ({
+        position:       i + 1,
+        teamId:         s.teamId,
+        teamName:       (s as unknown as Record<string, string>)['teamName'] ?? s.teamId,
+        played:         s.played,
+        won:            s.wins,
+        drawn:          s.draws,
+        lost:           s.losses,
+        goalsFor:       s.scoreFor,
+        goalsAgainst:   s.scoreAgainst,
+        goalDifference: s.scoreFor - s.scoreAgainst,
+        points:         s.points,
+        setsWon:        s.setsWon,
+        setsLost:       s.setsLost,
+      }));
+  }
+
+  private buildStandingsFromMatches(matches: Match[]): StandingsEntry[] {
+    const table: Record<string, StandingsEntry> = {};
+
+    const ensure = (teamId: string, teamName: string) => {
       if (!table[teamId]) {
         table[teamId] = {
           position: 0, teamId, teamName,
@@ -114,30 +109,24 @@ export class StandingsService {
     };
 
     matches.forEach((m) => {
-      if (m.homeScore === null || m.awayScore === null) return;
+      ensure(m.homeTeamId, m.homeTeamId);
+      ensure(m.awayTeamId, m.awayTeamId);
 
-      ensure(m.homeTeamId, m.homeTeamName);
-      ensure(m.awayTeamId, m.awayTeamName);
-
-      const home = table[m.homeTeamId];
-      const away = table[m.awayTeamId];
+      const home = table[m.homeTeamId]!;
+      const away = table[m.awayTeamId]!;
 
       home.played++;
       away.played++;
-      home.goalsFor      += m.homeScore;
-      home.goalsAgainst  += m.awayScore;
-      away.goalsFor      += m.awayScore;
-      away.goalsAgainst  += m.homeScore;
 
-      if (m.homeScore > m.awayScore) {
-        home.won++;   home.points += 3;
+      if (m.winnerId === m.homeTeamId) {
+        home.won++;  home.points += 3;
         away.lost++;
-      } else if (m.awayScore > m.homeScore) {
-        away.won++;   away.points += 3;
+      } else if (m.winnerId === m.awayTeamId) {
+        away.won++;  away.points += 3;
         home.lost++;
-      } else {
-        home.drawn++; home.points += 1;
-        away.drawn++; away.points += 1;
+      } else if (m.status === 'finished') {
+        home.drawn++; home.points++;
+        away.drawn++; away.points++;
       }
 
       home.goalDifference = home.goalsFor - home.goalsAgainst;
@@ -145,12 +134,7 @@ export class StandingsService {
     });
 
     return Object.values(table)
-      .sort((a, b) =>
-        b.points - a.points ||
-        b.goalDifference - a.goalDifference ||
-        b.goalsFor - a.goalsFor ||
-        a.teamName.localeCompare(b.teamName),
-      )
-      .map((entry, i) => ({ ...entry, position: i + 1 }));
+      .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference)
+      .map((e, i) => ({ ...e, position: i + 1 }));
   }
 }

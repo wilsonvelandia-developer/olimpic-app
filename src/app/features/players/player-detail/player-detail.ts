@@ -1,20 +1,12 @@
 import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  signal,
-  OnInit,
-  computed,
+  Component, ChangeDetectionStrategy, inject, signal, OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PlayerService } from '../player.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
-import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { ConfirmDialog }  from '../../../shared/components/confirm-dialog/confirm-dialog';
 import type { Player } from '../../../core/models';
 
-/**
- * Player detail view with full profile information.
- */
 @Component({
   selector: 'app-player-detail',
   imports: [RouterLink, LoadingSpinner, ConfirmDialog],
@@ -23,42 +15,34 @@ import type { Player } from '../../../core/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerDetail implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly route         = inject(ActivatedRoute);
+  private readonly router        = inject(Router);
   private readonly playerService = inject(PlayerService);
 
-  readonly player = signal<Player | null>(null);
-  readonly isLoading = signal<boolean>(false);
-  readonly errorMessage = signal<string | null>(null);
+  readonly player           = signal<Player | null>(null);
+  readonly isLoading        = signal<boolean>(false);
+  readonly errorMessage     = signal<string | null>(null);
   readonly showDeleteDialog = signal<boolean>(false);
 
-  readonly fullName = computed(() => {
-    const p = this.player();
-    return p ? `${p.firstName} ${p.lastName}` : '';
-  });
-
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.loadPlayer(Number(id));
+    // Supports /teams/:teamId/players/:id or /players/:id?teamId=...
+    const teamId   = this.route.snapshot.paramMap.get('teamId')
+                  ?? this.route.snapshot.queryParamMap.get('teamId') ?? '';
+    const playerId = this.route.snapshot.paramMap.get('id') ?? '';
+    if (teamId && playerId) this.loadPlayer(teamId, playerId);
   }
 
-  private loadPlayer(id: number): void {
+  private loadPlayer(teamId: string, playerId: string): void {
     this.isLoading.set(true);
-    this.playerService.getById(id).subscribe({
-      next: (data) => {
-        this.player.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.errorMessage.set('No se pudo cargar el jugador.');
-        this.isLoading.set(false);
-      },
+    this.playerService.getById(teamId, playerId).subscribe({
+      next:  (p) => { this.player.set(p); this.isLoading.set(false); },
+      error: () => { this.errorMessage.set('No se pudo cargar el jugador.'); this.isLoading.set(false); },
     });
   }
 
   onEdit(): void {
-    const id = this.player()?.id;
-    if (id) this.router.navigate(['/players', id, 'edit']);
+    const p = this.player();
+    if (p) this.router.navigate(['/teams', p.teamId, 'players', p.id, 'edit']);
   }
 
   onViewTeam(): void {
@@ -66,38 +50,16 @@ export class PlayerDetail implements OnInit {
     if (teamId) this.router.navigate(['/teams', teamId]);
   }
 
-  onDeleteConfirm(): void {
-    this.showDeleteDialog.set(true);
-  }
-
-  onDeleteCancelled(): void {
-    this.showDeleteDialog.set(false);
-  }
+  onDeleteConfirm():  void { this.showDeleteDialog.set(true); }
+  onDeleteCancelled(): void { this.showDeleteDialog.set(false); }
 
   onDeleteConfirmed(): void {
-    const id = this.player()?.id;
-    if (!id) return;
+    const p = this.player();
+    if (!p) return;
     this.showDeleteDialog.set(false);
-    this.playerService.delete(id).subscribe({
-      next: () => this.router.navigate(['/players']),
+    this.playerService.delete(p.teamId, p.id).subscribe({
+      next:  () => this.router.navigate(['/teams', p.teamId]),
       error: () => this.errorMessage.set('No se pudo eliminar el jugador.'),
     });
-  }
-
-  formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('es-CO', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }
-
-  calculateAge(birthDate: string): number {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
   }
 }

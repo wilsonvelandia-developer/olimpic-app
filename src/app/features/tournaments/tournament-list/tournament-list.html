@@ -5,9 +5,24 @@
       <h1 class="page__title">Torneos</h1>
       <p class="page__subtitle">Gestiona todos los torneos deportivos</p>
     </div>
-    <button type="button" class="btn btn--primary" (click)="onCreateTournament()">
-      + Nuevo torneo
-    </button>
+    <div class="page__header-actions">
+      <!-- View toggle -->
+      <div class="view-toggle" role="group" aria-label="Modo de visualización">
+        <button type="button" class="view-toggle__btn"
+          [class.view-toggle__btn--active]="viewMode() === 'card'"
+          (click)="viewMode.set('card')" aria-label="Vista de tarjetas">
+          🃏
+        </button>
+        <button type="button" class="view-toggle__btn"
+          [class.view-toggle__btn--active]="viewMode() === 'list'"
+          (click)="viewMode.set('list')" aria-label="Vista de lista">
+          📋
+        </button>
+      </div>
+      <button type="button" class="btn btn--primary" (click)="onCreateTournament()">
+        + Nuevo torneo
+      </button>
+    </div>
   </div>
 
   <!-- Filters -->
@@ -17,168 +32,141 @@
       <select id="filterStatus" class="form-control" [(ngModel)]="filterStatusModel">
         <option value="">Todos</option>
         <option value="draft">Borrador</option>
-        <option value="upcoming">Próximo</option>
-        <option value="in_progress">En curso</option>
-        <option value="completed">Finalizado</option>
+        <option value="active">Activo</option>
+        <option value="finished">Finalizado</option>
+        <option value="suspended">Suspendido</option>
         <option value="cancelled">Cancelado</option>
+        <option value="archived">Archivado</option>
       </select>
     </div>
-
     <div class="form-group">
       <label class="form-label" for="filterSeason">Temporada</label>
-      <input
-        id="filterSeason"
-        type="text"
-        class="form-control"
-        placeholder="Ej: 2026"
-        [(ngModel)]="filterSeasonModel"
-        maxlength="10"
-      />
+      <input id="filterSeason" type="text" class="form-control" placeholder="Ej: 2026"
+        [(ngModel)]="filterSeasonModel" maxlength="10" />
     </div>
-
     <div class="filters-bar__actions">
-      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">
-        Filtrar
-      </button>
-      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">
-        Limpiar
-      </button>
+      <button type="button" class="btn btn--primary"   (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
     </div>
   </div>
 
-  <!-- Error -->
-  @if (errorMessage()) {
-    <div class="alert alert--error" role="alert">
-      {{ errorMessage() }}
-    </div>
-  }
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+  @if (isLoading())    { <app-loading-spinner label="Cargando torneos..." /> }
 
-  <!-- Loading -->
-  @if (isLoading()) {
-    <app-loading-spinner label="Cargando torneos..." />
-  }
-
-  <!-- Table -->
   @if (!isLoading()) {
-    <div class="table-wrapper">
-      <table class="table" aria-label="Lista de torneos">
-        <thead>
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Deporte</th>
-            <th scope="col">Formato</th>
-            <th scope="col">Categoría</th>
-            <th scope="col">Temporada</th>
-            <th scope="col">Fechas</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (tournaments().length === 0) {
-            <tr>
-              <td colspan="8" class="table__empty">
-                No se encontraron torneos. Crea el primero.
-              </td>
-            </tr>
-          }
-          @for (tournament of tournaments(); track tournament.id) {
-            <tr>
-              <td>
-                <button
-                  type="button"
-                  class="btn btn--ghost btn--sm"
-                  (click)="onViewDetail(tournament.id)"
-                >
-                  {{ tournament.name }}
-                </button>
-              </td>
-              <td>{{ tournament.sport?.name ?? '—' }}</td>
-              <td>{{ formatLabel(tournament.format) }}</td>
-              <td>{{ tournament.category }}</td>
-              <td>{{ tournament.season }}</td>
-              <td class="dates-cell">
-                <span>{{ tournament.startDate | slice: 0 : 10 }}</span>
-                <span class="dates-separator">→</span>
-                <span>{{ tournament.endDate | slice: 0 : 10 }}</span>
-              </td>
-              <td>
-                <app-status-badge [status]="tournament.status" />
-              </td>
-              <td>
-                <div class="table__actions">
-                  <button
-                    type="button"
-                    class="btn btn--secondary btn--sm"
-                    [attr.aria-label]="'Editar ' + tournament.name"
-                    (click)="onEditTournament(tournament.id)"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn--secondary btn--sm"
-                    [attr.aria-label]="'Eliminar ' + tournament.name"
-                    (click)="onDeleteConfirm(tournament)"
-                  >
-                    🗑️
-                  </button>
+    @if (tournaments().length === 0) {
+      <div class="empty-state">
+        <p class="empty-state__text">No se encontraron torneos. Crea el primero.</p>
+      </div>
+    } @else {
+
+      <!-- ═══════ CARD VIEW (default) ═══════ -->
+      @if (viewMode() === 'card') {
+        <div class="tournaments-grid">
+          @for (t of tournaments(); track t.id) {
+            <article class="tournament-card" (click)="onViewDetail(t.id)">
+              <!-- Image -->
+              <div class="tournament-card__image">
+                <img [src]="t.imageUrl || 'https://img.icons8.com/3d-fluency/256/trophy.png'"
+                  [alt]="t.name" loading="lazy" class="tournament-card__img" />
+              </div>
+
+              <!-- Body -->
+              <div class="tournament-card__body">
+                <h3 class="tournament-card__name">{{ t.name }}</h3>
+                <div class="tournament-card__meta">
+                  <app-status-badge [status]="t.status" />
+                  @if (t.category) {
+                    <span class="meta-chip">{{ t.category }}</span>
+                  }
+                  @if (t.season) {
+                    <span class="meta-chip">{{ t.season }}</span>
+                  }
                 </div>
-              </td>
-            </tr>
+                @if (t.startDate) {
+                  <span class="tournament-card__date">📅 {{ t.startDate }}</span>
+                }
+                @if (t.entryFee) {
+                  <span class="tournament-card__fee">💰 {{ t.entryFee }}</span>
+                }
+              </div>
+
+              <!-- Actions -->
+              <div class="tournament-card__actions" (click)="$event.stopPropagation()">
+                <button type="button" class="btn btn--secondary btn--sm"
+                  (click)="onEditTournament(t.id)" aria-label="Editar">✏️</button>
+                <button type="button" class="btn btn--secondary btn--sm"
+                  (click)="onDeleteConfirm(t)" aria-label="Eliminar">🗑️</button>
+              </div>
+            </article>
           }
-        </tbody>
-      </table>
-    </div>
+        </div>
+      }
+
+      <!-- ═══════ LIST VIEW ═══════ -->
+      @if (viewMode() === 'list') {
+        <div class="table-wrapper">
+          <table class="table" aria-label="Lista de torneos">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Temporada</th>
+                <th scope="col">Fecha inicio</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (t of tournaments(); track t.id) {
+                <tr>
+                  <td>
+                    <button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(t.id)">
+                      {{ t.name }}
+                    </button>
+                  </td>
+                  <td>{{ t.category ?? '—' }}</td>
+                  <td>{{ t.season ?? '—' }}</td>
+                  <td>{{ t.startDate ?? '—' }}</td>
+                  <td><app-status-badge [status]="t.status" /></td>
+                  <td>
+                    <div class="table__actions">
+                      <button type="button" class="btn btn--secondary btn--sm"
+                        (click)="onEditTournament(t.id)">✏️</button>
+                      <button type="button" class="btn btn--secondary btn--sm"
+                        (click)="onDeleteConfirm(t)">🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
 
     <!-- Pagination -->
     @if (totalPages > 1) {
       <nav class="pagination" aria-label="Paginación de torneos">
-        <button
-          type="button"
-          class="btn btn--secondary btn--sm"
-          [disabled]="currentPage() === 1"
-          (click)="onPageChange(currentPage() - 1)"
-          aria-label="Página anterior"
-        >
-          ‹
-        </button>
-
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)">‹</button>
         @for (page of pageRange; track page) {
-          <button
-            type="button"
-            class="btn btn--sm"
+          <button type="button" class="btn btn--sm"
             [class.btn--primary]="page === currentPage()"
             [class.btn--secondary]="page !== currentPage()"
-            [attr.aria-current]="page === currentPage() ? 'page' : null"
-            (click)="onPageChange(page)"
-          >
-            {{ page }}
-          </button>
+            (click)="onPageChange(page)">{{ page }}</button>
         }
-
-        <button
-          type="button"
-          class="btn btn--secondary btn--sm"
-          [disabled]="currentPage() === totalPages"
-          (click)="onPageChange(currentPage() + 1)"
-          aria-label="Página siguiente"
-        >
-          ›
-        </button>
+        <button type="button" class="btn btn--secondary btn--sm"
+          [disabled]="currentPage() === totalPages" (click)="onPageChange(currentPage() + 1)">›</button>
       </nav>
     }
   }
 </section>
 
-<!-- Delete confirmation dialog -->
 @if (showDeleteDialog()) {
   <app-confirm-dialog
     title="Eliminar torneo"
-    [message]="'¿Estás seguro de que quieres eliminar «' + selectedTournamentName() + '»? Esta acción no se puede deshacer.'"
-    confirmLabel="Eliminar"
-    [isDanger]="true"
-    (confirmed)="onDeleteConfirmed()"
-    (cancelled)="onDeleteCancelled()"
-  />
+    [message]="'¿Eliminar «' + selectedTournamentName() + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
 }

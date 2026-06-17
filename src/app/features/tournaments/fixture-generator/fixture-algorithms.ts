@@ -31,7 +31,7 @@ export function generateRoundRobin(config: FixtureConfig): FixtureSlot[] {
   // Pad to even number with a BYE
   const hasBye = teams.length % 2 !== 0;
   if (hasBye) {
-    teams = [...teams, { id: -1, name: 'BYE' }];
+    teams = [...teams, { id: 'BYE', name: 'BYE' }];
   }
 
   const n = teams.length;
@@ -52,7 +52,7 @@ export function generateRoundRobin(config: FixtureConfig): FixtureSlot[] {
         const away = roundTeams[n - 1 - m];
 
         // Skip BYE matches
-        if (home.id === -1 || away.id === -1) continue;
+        if (home.id === 'BYE' || away.id === 'BYE') continue;
 
         const [homeTeam, awayTeam] = swapHomeAway ? [away, home] : [home, away];
 
@@ -102,7 +102,7 @@ export function generateSingleElimination(config: FixtureConfig): FixtureSlot[] 
 
   // Pad with BYEs
   while (teams.length < bracketSize) {
-    teams.push({ id: -1, name: 'BYE' });
+    teams.push({ id: `BYE-${teams.length}`, name: 'BYE' });
   }
 
   const roundNames = getRoundNames(bracketSize);
@@ -118,7 +118,7 @@ export function generateSingleElimination(config: FixtureConfig): FixtureSlot[] 
       const home = currentRoundTeams[i];
       const away = currentRoundTeams[i + 1];
 
-      if (home.id !== -1 && away.id !== -1) {
+      if (home.id !== 'BYE' && away.id !== 'BYE') {
         slots.push({
           round: roundLabel,
           homeTeamId:   home.id,
@@ -129,11 +129,11 @@ export function generateSingleElimination(config: FixtureConfig): FixtureSlot[] 
           venue:        config.venue,
         });
         // Winner TBD — placeholder for next round
-        nextRound.push({ id: -(i + 100), name: `Ganador ${roundLabel} P${i / 2 + 1}` });
-      } else if (home.id !== -1) {
-        nextRound.push(home); // automatic advance
-      } else if (away.id !== -1) {
-        nextRound.push(away); // automatic advance
+        nextRound.push({ id: `TBD-${i}`, name: `Ganador ${roundLabel} P${i / 2 + 1}` });
+      } else if (home.id !== 'BYE') {
+        nextRound.push(home);
+      } else if (away.id !== 'BYE') {
+        nextRound.push(away);
       }
     }
 
@@ -188,8 +188,8 @@ export function generateGroupsKnockout(config: FixtureConfig): FixtureSlot[] {
   const knockoutTeams: FixtureTeam[] = [];
   groups.forEach((_, gi) => {
     const label = String.fromCharCode(65 + gi);
-    knockoutTeams.push({ id: -(gi * 2 + 1), name: `1° Grupo ${label}` });
-    knockoutTeams.push({ id: -(gi * 2 + 2), name: `2° Grupo ${label}` });
+    knockoutTeams.push({ id: `G${label}-1`, name: `1° Grupo ${label}` });
+    knockoutTeams.push({ id: `G${label}-2`, name: `2° Grupo ${label}` });
   });
 
   const knockoutSlots = generateSingleElimination({

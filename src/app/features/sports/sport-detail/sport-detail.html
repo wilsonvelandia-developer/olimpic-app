@@ -1,5 +1,5 @@
 <section class="page">
-  @if (isLoading()) { <app-loading-spinner label="Cargando deporte..." /> }
+  @if (isLoading())    { <app-loading-spinner label="Cargando deporte..." /> }
   @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
 
   @if (!isLoading() && sport()) {
@@ -11,14 +11,16 @@
 
     <div class="page__header">
       <div class="sport-identity">
-        <span class="sport-icon" aria-hidden="true">{{ sport()!.icon }}</span>
+        <img
+          [src]="sport()!.iconUrl || 'https://img.icons8.com/color/96/sports-mode.png'"
+          [alt]="'Icono de ' + sport()!.name"
+          width="64" height="64" loading="lazy"
+          class="sport-icon-img"
+        />
         <div>
           <h1 class="page__title">{{ sport()!.name }}</h1>
           <div class="page__meta">
             <code class="slug-chip">{{ sport()!.slug }}</code>
-            <span class="badge" [class.badge--success]="sport()!.isActive" [class.badge--neutral]="!sport()!.isActive">
-              {{ sport()!.isActive ? 'Activo' : 'Inactivo' }}
-            </span>
           </div>
         </div>
       </div>
@@ -28,26 +30,36 @@
       </div>
     </div>
 
-    <!-- Info grid -->
     <div class="info-grid">
       <div class="info-card">
         <span class="info-card__label">Jugadores por equipo</span>
         <span class="info-card__value">{{ sport()!.playersPerTeam }}</span>
       </div>
       <div class="info-card">
-        <span class="info-card__label">Unidad de marcador</span>
-        <span class="info-card__value">{{ getScoringLabel(sport()!.rules.scoringUnit) }}</span>
+        <span class="info-card__label">Usa sets</span>
+        <span class="info-card__value">{{ sport()!.hasSets ? 'Sí (' + sport()!.setsToWin + ' para ganar)' : 'No' }}</span>
       </div>
+      @if (sport()!.hasSets) {
+        <div class="info-card">
+          <span class="info-card__label">Puntos por set</span>
+          <span class="info-card__value">{{ sport()!.pointsPerSet }} (decisivo: {{ sport()!.decisiveSetPoints }})</span>
+        </div>
+      }
       <div class="info-card">
         <span class="info-card__label">Períodos</span>
-        <span class="info-card__value">{{ sport()!.rules.periods }} {{ sport()!.rules.periodName }}(s)</span>
+        <span class="info-card__value">{{ sport()!.periodsPerMatch }}</span>
       </div>
       <div class="info-card">
-        <span class="info-card__label">Prórroga / Penales</span>
-        <span class="info-card__value">
-          {{ sport()!.rules.hasOvertime ? '✓ Prórroga' : '✗ Sin prórroga' }} ·
-          {{ sport()!.rules.hasPenalties ? '✓ Penales' : '✗ Sin penales' }}
-        </span>
+        <span class="info-card__label">Margen de victoria</span>
+        <span class="info-card__value">{{ sport()!.winMargin }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Máx. sustituciones</span>
+        <span class="info-card__value">{{ sport()!.maxSubstitutions ?? 'Ilimitadas' }}</span>
+      </div>
+      <div class="info-card">
+        <span class="info-card__label">Control de rotación</span>
+        <span class="info-card__value">{{ sport()!.hasRotation ? '✓ Sí' : '✗ No' }}</span>
       </div>
     </div>
   }
@@ -56,10 +68,7 @@
 @if (showDeleteDialog()) {
   <app-confirm-dialog
     title="Eliminar deporte"
-    [message]="'¿Estás seguro de que quieres eliminar «' + sport()!.name + '»?'"
-    confirmLabel="Eliminar"
-    [isDanger]="true"
-    (confirmed)="onDeleteConfirmed()"
-    (cancelled)="onDeleteCancelled()"
-  />
+    [message]="'¿Eliminar «' + sport()!.name + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
 }

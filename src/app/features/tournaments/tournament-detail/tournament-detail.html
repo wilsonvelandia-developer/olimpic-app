@@ -1,29 +1,20 @@
 <section class="page">
-  @if (isLoading()) {
-    <app-loading-spinner label="Cargando torneo..." />
-  }
-
-  @if (errorMessage()) {
-    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
-  }
+  @if (isLoading()) { <app-loading-spinner label="Cargando torneo..." /> }
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
 
   @if (!isLoading() && tournament()) {
-    <!-- Breadcrumb -->
     <nav class="breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/tournaments" class="breadcrumb__link">Torneos</a>
       <span class="breadcrumb__sep" aria-hidden="true">›</span>
       <span>{{ tournament()!.name }}</span>
     </nav>
 
-    <!-- Header -->
     <div class="page__header">
       <div class="page__header-info">
         <h1 class="page__title">{{ tournament()!.name }}</h1>
         <div class="page__meta">
           <app-status-badge [status]="tournament()!.status" />
-          <span class="meta-tag">{{ tournament()!.sport?.name ?? 'Deporte #' + tournament()!.sportId }}</span>
-          <span class="meta-tag">{{ tournament()!.season }}</span>
-          <span class="meta-tag">{{ tournament()!.category }}</span>
+          <span class="meta-tag">Temporada: {{ tournament()!.season ?? '—' }}</span>
         </div>
       </div>
       <div class="page__header-actions">
@@ -36,60 +27,27 @@
       </div>
     </div>
 
-    <!-- Info cards -->
-    <div class="info-grid">
-      <div class="info-card">
-        <span class="info-card__label">Formato</span>
-        <span class="info-card__value">{{ formatLabel(tournament()!.format) }}</span>
-      </div>
-      <div class="info-card">
-        <span class="info-card__label">Equipos máximos</span>
-        <span class="info-card__value">{{ tournament()!.maxTeams }}</span>
-      </div>
-      <div class="info-card">
-        <span class="info-card__label">Fecha de inicio</span>
-        <span class="info-card__value">{{ formatDate(tournament()!.startDate) }}</span>
-      </div>
-      <div class="info-card">
-        <span class="info-card__label">Fecha de fin</span>
-        <span class="info-card__value">{{ formatDate(tournament()!.endDate) }}</span>
-      </div>
-    </div>
-
     <!-- Tabs -->
     <div class="tab-panel">
-      <div class="tab-nav" role="tablist" aria-label="Secciones del torneo">
+      <div class="tab-nav" role="tablist">
         <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'standings'"
-          [attr.aria-selected]="activeTab() === 'standings'"
-          (click)="onTabChange('standings')">
-          🏅 Posiciones
-        </button>
+          (click)="onTabChange('standings')">🏅 Posiciones</button>
         <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'matches'"
-          [attr.aria-selected]="activeTab() === 'matches'"
-          (click)="onTabChange('matches')">
-          ⚽ Partidos
-        </button>
+          (click)="onTabChange('matches')">⚽ Partidos</button>
         <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'stats'"
-          [attr.aria-selected]="activeTab() === 'stats'"
-          (click)="onTabChange('stats')">
-          📊 Estadísticas
-        </button>
+          (click)="onTabChange('stats')">📊 Estadísticas</button>
         @if (auth.canEdit()) {
           <button type="button" role="tab" class="tab-btn tab-btn--generate"
             [class.tab-btn--active]="activeTab() === 'fixture'"
-            [attr.aria-selected]="activeTab() === 'fixture'"
-            (click)="onTabChange('fixture')">
-            ⚙️ Generar fixture
-          </button>
+            (click)="onTabChange('fixture')">⚙️ Generar fixture</button>
         }
       </div>
 
       <div class="tab-content" role="tabpanel" [attr.aria-label]="tabLabel()">
 
-        <!-- Tab: Standings -->
         @if (activeTab() === 'standings') {
           @if (isLoadingStandings()) {
             <app-loading-spinner label="Calculando posiciones..." />
@@ -98,7 +56,6 @@
           }
         }
 
-        <!-- Tab: Matches -->
         @if (activeTab() === 'matches') {
           @if (auth.canEdit()) {
             <div class="tab-content__actions">
@@ -119,7 +76,6 @@
           />
         }
 
-        <!-- Tab: Stats -->
         @if (activeTab() === 'stats') {
           @if (isLoadingStats()) {
             <app-loading-spinner label="Cargando estadísticas..." />
@@ -128,11 +84,10 @@
           }
         }
 
-        <!-- Tab: Fixture Generator -->
         @if (activeTab() === 'fixture') {
           <app-fixture-generator
             [tournamentId]="tournament()!.id"
-            [tournamentFormat]="tournament()!.format"
+            [tournamentFormat]="tournamentFormat()"
             [tournamentName]="tournament()!.name"
             (saved)="onFixtureSaved($event)"
             (cancelled)="onFixtureCancelled()"
@@ -147,7 +102,7 @@
 @if (showDeleteDialog()) {
   <app-confirm-dialog
     title="Eliminar torneo"
-    [message]="'¿Estás seguro de que quieres eliminar «' + tournament()!.name + '»? Esta acción no se puede deshacer.'"
+    [message]="'¿Estás seguro de que quieres eliminar «' + tournament()!.name + '»?'"
     confirmLabel="Eliminar"
     [isDanger]="true"
     (confirmed)="onDeleteConfirmed()"

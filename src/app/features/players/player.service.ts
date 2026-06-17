@@ -2,53 +2,54 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
-import type { Player, PlayerCreateRequest } from '../../core/models';
+import type { Player, PlayerCreateRequest, PlayerUpdateRequest } from '../../core/models';
 import type { PaginatedResponse } from '../../core/models';
 
 export interface PlayerFilters {
-  teamId?: number;
-  search?: string;
+  teamId?:   string;
+  search?:   string;
   isActive?: boolean;
-  page?: number;
+  page?:     number;
   pageSize?: number;
 }
 
-/**
- * Domain service for player management.
- */
 @Injectable({ providedIn: 'root' })
 export class PlayerService {
   private readonly api = inject(ApiService);
-  private readonly basePath = '/players';
 
-  /** Returns a paginated list of players with optional filters. */
-  getAll(filters?: PlayerFilters): Observable<PaginatedResponse<Player>> {
+  /** Players are nested under teams — /teams/:teamId/players */
+  getAllByTeam(teamId: string, filters?: PlayerFilters): Observable<PaginatedResponse<Player>> {
     const params: Record<string, string | number> = {};
-    if (filters?.teamId) params['teamId'] = filters.teamId;
-    if (filters?.search) params['search'] = filters.search;
-    if (filters?.isActive !== undefined) params['isActive'] = String(filters.isActive);
-    if (filters?.page) params['page'] = filters.page;
-    if (filters?.pageSize) params['pageSize'] = filters.pageSize ?? 10;
-    return this.api.getPaginated<Player>(this.basePath, params);
+    if (filters?.search)                   params['search']   = filters.search;
+    if (filters?.isActive !== undefined)   params['isActive'] = String(filters.isActive);
+    if (filters?.page)                     params['page']     = filters.page;
+    if (filters?.pageSize)                 params['pageSize'] = filters.pageSize ?? 10;
+    return this.api.getPaginated<Player>(`/teams/${teamId}/players`, params);
   }
 
-  /** Returns a single player by ID. */
-  getById(id: number): Observable<Player> {
-    return this.api.get<Player>(`${this.basePath}/${id}`).pipe(map((r) => r.data));
+  /** Fallback for list pages that don't scope to a team. */
+  getAll(filters?: PlayerFilters): Observable<PaginatedResponse<Player>> {
+    if (filters?.teamId) return this.getAllByTeam(filters.teamId, filters);
+    // Backend doesn't expose /players directly — return empty when no teamId
+    return new Observable((obs) => {
+      obs.next({ data: [], total: 0, page: 1, pageSize: 10, totalPages: 0, success: true, message: '' });
+      obs.complete();
+    });
   }
 
-  /** Creates a new player. */
-  create(payload: PlayerCreateRequest): Observable<Player> {
-    return this.api.post<Player>(this.basePath, payload).pipe(map((r) => r.data));
+  getById(teamId: string, playerId: string): Observable<Player> {
+    return this.api.get<Player>(`/teams/${teamId}/players/${playerId}`).pipe(map((r) => r.data));
   }
 
-  /** Updates an existing player. */
-  update(id: number, payload: Partial<PlayerCreateRequest>): Observable<Player> {
-    return this.api.put<Player>(`${this.basePath}/${id}`, payload).pipe(map((r) => r.data));
+  create(teamId: string, payload: PlayerCreateRequest): Observable<Player> {
+    return this.api.post<Player>(`/teams/${teamId}/players`, payload).pipe(map((r) => r.data));
   }
 
-  /** Deletes a player by ID. */
-  delete(id: number): Observable<void> {
-    return this.api.delete<void>(`${this.basePath}/${id}`).pipe(map(() => undefined));
+  update(teamId: string, playerId: string, payload: PlayerUpdateRequest): Observable<Player> {
+    return this.api.put<Player>(`/teams/${teamId}/players/${playerId}`, payload).pipe(map((r) => r.data));
+  }
+
+  delete(teamId: string, playerId: string): Observable<void> {
+    return this.api.delete<void>(`/teams/${teamId}/players/${playerId}`).pipe(map(() => undefined));
   }
 }

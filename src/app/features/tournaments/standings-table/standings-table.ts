@@ -4,7 +4,6 @@ import type { StandingsEntry } from '../../../core/models';
 /**
  * Reusable standings table component.
  * Renders a sorted table of team positions with full stats.
- * Highlights the top 3 positions visually.
  */
 @Component({
   selector: 'app-standings-table',
@@ -14,9 +13,9 @@ import type { StandingsEntry } from '../../../core/models';
 })
 export class StandingsTable {
   readonly entries = input.required<StandingsEntry[]>();
-  readonly highlightTeamId = input<number | null>(null);
+  /** UUID of the team to highlight, or null. */
+  readonly highlightTeamId = input<string | null>(null);
 
-  /** True when the table has no data yet. */
   readonly isEmpty = computed(() => this.entries().length === 0);
 
   positionClass(pos: number): string {

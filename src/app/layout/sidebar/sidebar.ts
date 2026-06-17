@@ -18,6 +18,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Jugadores',  route: '/players',       icon: '🏃' },
   { label: 'Partidos',   route: '/matches',       icon: '⚽' },
   { label: 'Deportes',   route: '/sports',        icon: '🎯', minRole: 'admin' },
+  { label: 'Usuarios',   route: '/users',         icon: '🔐', minRole: 'organizer' },
 ];
 
 /**

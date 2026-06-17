@@ -1,0 +1,155 @@
+
+
+/* ═══════ Shared list styles ═══════ */
+
+.page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.items-grid,
+.matches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.item-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg-primary, #fff);
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.item-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+.item-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.item-card__body {
+  flex: 1;
+  min-width: 0;
+}
+.item-card__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.item-card__sub {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, #64748b);
+}
+.item-card__badge {
+  flex-shrink: 0;
+}
+.item-card__actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Match card */
+.match-card-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg-primary, #fff);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.match-card-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.match-card-item__teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.match-card-item__team {
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+  text-align: center;
+}
+.match-card-item__vs {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #64748b);
+  flex-shrink: 0;
+}
+.match-card-item__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.match-card-item__date {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary, #64748b);
+}
+.match-card-item__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-secondary, #64748b);
+}
+
+/* ── Default card image ────────────────────────────────────────────────────── */
+.item-card__img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+}
+
+.tournament-card__placeholder {
+  font-size: 3rem;
+  opacity: 0.6;
+}
+
+/* ── Match card with team images ───────────────────────────────────────────── */
+.match-card-item__team-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  text-align: center;
+}
+
+.match-card-item__team-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+}
