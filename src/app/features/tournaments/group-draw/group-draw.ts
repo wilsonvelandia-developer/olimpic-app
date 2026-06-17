@@ -176,12 +176,14 @@ export class GroupDraw implements OnInit {
     matchDurationMinutes: number;
     matchesPerDay: number;
     firstMatchTime: string;
+    numVenues: number;
     randomOrder: boolean;
   }>({
     startDate: new Date().toISOString().slice(0, 10),
     matchDurationMinutes: 90,
     matchesPerDay: 6,
     firstMatchTime: '08:00',
+    numVenues: 1,
     randomOrder: false,
   });
 
