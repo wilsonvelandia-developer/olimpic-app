@@ -43,11 +43,23 @@
           @for (team of teams(); track team.id) {
             <article class="item-card" (click)="onViewDetail(team.id)">
               <img class="item-card__img"
-                [src]="'https://img.icons8.com/3d-fluency/256/shield.png'"
+                [src]="team.imageUrl || 'https://img.icons8.com/3d-fluency/256/shield.png'"
                 [alt]="team.name" width="48" height="48" loading="lazy" />
               <div class="item-card__body">
-                <h3 class="item-card__name">{{ team.name }}</h3>
+                <h3 class="item-card__name">
+                  {{ team.name }}
+                  @if (team.variant) { <span class="item-card__variant">{{ team.variant }}</span> }
+                </h3>
                 @if (team.shortName) { <code class="item-card__sub">{{ team.shortName }}</code> }
+                @if (team.phone || team.email) {
+                  <span class="item-card__sub">{{ team.phone ?? '' }} {{ team.email ?? '' }}</span>
+                }
+              </div>
+              @if (team.colorPrimary) {
+                <span class="team-color-dot" [style.background]="team.colorPrimary" aria-hidden="true"></span>
+              }
+              <div class="item-card__badge">
+                <span class="badge" [class.badge--success]="team.status === 'active'" [class.badge--warning]="team.status === 'suspended'" [class.badge--muted]="team.status === 'inactive'">{{ team.status }}</span>
               </div>
               <div class="item-card__actions" (click)="$event.stopPropagation()">
                 @if (auth.canEdit()) {
@@ -66,12 +78,18 @@
       @if (viewMode() === 'list') {
         <div class="table-wrapper">
           <table class="table" aria-label="Lista de equipos">
-            <thead><tr><th>Nombre</th><th>Abreviatura</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Nombre</th><th>Variante</th><th>Contacto</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody>
               @for (team of teams(); track team.id) {
                 <tr>
-                  <td><button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(team.id)">{{ team.name }}</button></td>
-                  <td><code>{{ team.shortName ?? '—' }}</code></td>
+                  <td>
+                    <button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(team.id)">
+                      {{ team.name }} @if (team.shortName) { ({{ team.shortName }}) }
+                    </button>
+                  </td>
+                  <td>{{ team.variant ?? '—' }}</td>
+                  <td>{{ team.phone ?? team.email ?? '—' }}</td>
+                  <td><span class="badge" [class.badge--success]="team.status === 'active'" [class.badge--warning]="team.status === 'suspended'" [class.badge--muted]="team.status === 'inactive'">{{ team.status }}</span></td>
                   <td>
                     <div class="table__actions">
                       @if (auth.canEdit()) { <button type="button" class="btn btn--secondary btn--sm" (click)="onEditTeam(team.id)">✏️</button> }

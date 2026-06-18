@@ -1,72 +1,154 @@
 <section class="page">
   <div class="page__header">
-    <h1 class="page__title">Nuevo usuario</h1>
+    <h1 class="page__title">{{ isEditMode() ? 'Editar usuario' : 'Nuevo usuario' }}</h1>
   </div>
 
-  <div class="form-card">
-    @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
-    @if (successMsg())   { <div class="alert alert--success" role="status">{{ successMsg() }}</div> }
+  @if (isLoading()) { <app-loading-spinner label="Cargando usuario..." /> }
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-      <div class="form-grid">
+  @if (!isLoading()) {
+    <div class="form-card">
+      @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+      @if (successMsg())   { <div class="alert alert--success" role="status">{{ successMsg() }}</div> }
 
-        <div class="form-group form-group--full">
-          <label class="form-label form-label--required" for="name">Nombre completo</label>
-          <input id="name" type="text" class="form-control"
-            [class.form-control--error]="isFieldInvalid('name')"
-            formControlName="name" placeholder="Ej: Carlos Gómez" maxlength="200" />
-          @if (isFieldInvalid('name')) { <span class="form-error">{{ getFieldError('name') }}</span> }
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ═══════ SECCIÓN: Datos personales ═══════ -->
+        <h2 class="form-section-title">👤 Datos personales</h2>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label form-label--required" for="firstName">Primer nombre</label>
+            <input id="firstName" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('firstName')"
+              formControlName="firstName" placeholder="Ej: Carlos" maxlength="100" />
+            @if (isFieldInvalid('firstName')) { <span class="form-error">{{ getFieldError('firstName') }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="secondName">Segundo nombre</label>
+            <input id="secondName" type="text" class="form-control"
+              formControlName="secondName" placeholder="Ej: Andrés" maxlength="100" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label--required" for="firstLastName">Primer apellido</label>
+            <input id="firstLastName" type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('firstLastName')"
+              formControlName="firstLastName" placeholder="Ej: Gómez" maxlength="100" />
+            @if (isFieldInvalid('firstLastName')) { <span class="form-error">{{ getFieldError('firstLastName') }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="secondLastName">Segundo apellido</label>
+            <input id="secondLastName" type="text" class="form-control"
+              formControlName="secondLastName" placeholder="Ej: Rodríguez" maxlength="100" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="birthDate">Fecha de nacimiento</label>
+            <input id="birthDate" type="date" class="form-control" formControlName="birthDate" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="photoUrl">Foto de perfil (URL)</label>
+            <input id="photoUrl" type="url" class="form-control"
+              formControlName="photoUrl" placeholder="https://ejemplo.com/foto.jpg" />
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label form-label--required" for="email">Email</label>
-          <input id="email" type="email" class="form-control"
-            [class.form-control--error]="isFieldInvalid('email')"
-            formControlName="email" placeholder="correo@ejemplo.com" />
-          @if (isFieldInvalid('email')) { <span class="form-error">{{ getFieldError('email') }}</span> }
+        <!-- ═══════ SECCIÓN: Documento de identidad ═══════ -->
+        <h2 class="form-section-title">🪪 Documento de identidad</h2>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label" for="documentType">Tipo de documento</label>
+            <select id="documentType" class="form-control" formControlName="documentType">
+              @for (dt of documentTypes; track dt.value) {
+                <option [value]="dt.value">{{ dt.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="documentNumber">Número de documento</label>
+            <input id="documentNumber" type="text" class="form-control"
+              formControlName="documentNumber" placeholder="Ej: 1234567890" maxlength="30" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="documentFrontUrl">Foto documento (frente)</label>
+            <input id="documentFrontUrl" type="url" class="form-control"
+              formControlName="documentFrontUrl" placeholder="https://ejemplo.com/doc-frente.jpg" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="documentBackUrl">Foto documento (reverso)</label>
+            <input id="documentBackUrl" type="url" class="form-control"
+              formControlName="documentBackUrl" placeholder="https://ejemplo.com/doc-reverso.jpg" />
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label form-label--required" for="password">Contraseña</label>
-          <input id="password" type="password" class="form-control"
-            [class.form-control--error]="isFieldInvalid('password')"
-            formControlName="password" placeholder="Mínimo 6 caracteres" />
-          @if (isFieldInvalid('password')) { <span class="form-error">{{ getFieldError('password') }}</span> }
+        <!-- ═══════ SECCIÓN: Contacto y acceso ═══════ -->
+        <h2 class="form-section-title">📞 Contacto y acceso</h2>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label class="form-label form-label--required" for="email">Email</label>
+            <input id="email" type="email" class="form-control"
+              [class.form-control--error]="isFieldInvalid('email')"
+              formControlName="email" placeholder="correo@ejemplo.com" />
+            @if (isFieldInvalid('email')) { <span class="form-error">{{ getFieldError('email') }}</span> }
+          </div>
+
+          @if (!isEditMode()) {
+            <div class="form-group">
+              <label class="form-label form-label--required" for="password">Contraseña</label>
+              <input id="password" type="password" class="form-control"
+                [class.form-control--error]="isFieldInvalid('password')"
+                formControlName="password" placeholder="Mínimo 6 caracteres" />
+              @if (isFieldInvalid('password')) { <span class="form-error">{{ getFieldError('password') }}</span> }
+            </div>
+          }
+
+          <div class="form-group">
+            <label class="form-label" for="phone">Teléfono</label>
+            <input id="phone" type="tel" class="form-control"
+              formControlName="phone" placeholder="+57 300 123 4567" maxlength="30" />
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="documentNumber">Documento de identidad</label>
-          <input id="documentNumber" type="text" class="form-control"
-            formControlName="documentNumber" placeholder="Ej: 1234567890" maxlength="30" />
+        <!-- ═══════ SECCIÓN: Salud ═══════ -->
+        <h2 class="form-section-title">🏥 Seguridad social</h2>
+        <div class="form-grid">
+          <div class="form-group form-group--full">
+            <label class="form-label" for="epsFileUrl">EPS (foto o PDF - URL)</label>
+            <input id="epsFileUrl" type="url" class="form-control"
+              formControlName="epsFileUrl" placeholder="https://ejemplo.com/eps.pdf" />
+            <span class="form-hint">Sube la foto o PDF del carnet de EPS vigente.</span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="phone">Teléfono</label>
-          <input id="phone" type="tel" class="form-control"
-            formControlName="phone" placeholder="+57 300 123 4567" maxlength="30" />
+        <!-- ═══════ SECCIÓN: Roles ═══════ -->
+        <h2 class="form-section-title">🔑 Roles del usuario</h2>
+        <p class="form-hint">Selecciona uno o más roles. El usuario tendrá los permisos combinados de todos los roles asignados.</p>
+
+        <div class="roles-grid">
+          @for (role of roleOptions(); track role.id; let i = $index) {
+            <label class="role-checkbox">
+              <input type="checkbox" [checked]="role.checked" (change)="onToggleRole(i)" />
+              <span class="role-checkbox__label">{{ role.label }}</span>
+            </label>
+          }
         </div>
 
-      </div>
-
-      <!-- Roles -->
-      <h2 class="form-section-title">👤 Roles del usuario</h2>
-      <p class="form-hint">Selecciona uno o más roles. El usuario tendrá los permisos combinados de todos los roles asignados.</p>
-
-      <div class="roles-grid">
-        @for (role of roleOptions(); track role.id; let i = $index) {
-          <label class="role-checkbox">
-            <input type="checkbox" [checked]="role.checked" (change)="onToggleRole(i)" />
-            <span class="role-checkbox__label">{{ role.label }}</span>
-          </label>
-        }
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
-        <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
-          {{ isSaving() ? 'Creando...' : 'Crear usuario' }}
-        </button>
-      </div>
-    </form>
-  </div>
+        <!-- ═══════ ACCIONES ═══════ -->
+        <div class="form-actions">
+          <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
+          <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
+            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Crear usuario') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
 </section>

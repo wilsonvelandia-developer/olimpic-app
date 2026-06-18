@@ -15,5 +15,12 @@
 
 .form-group--full { grid-column: 1 / -1; }
 
+.form-control--color {
+  width: 60px;
+  height: 40px;
+  padding: 2px;
+  cursor: pointer;
+}
+
 .alert { padding: 0.875rem 1rem; border-radius: var(--radius-md); font-size: 0.9rem; }
 .alert--error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }

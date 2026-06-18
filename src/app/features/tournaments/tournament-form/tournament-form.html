@@ -278,6 +278,96 @@
           </div>
         </div>
 
+        <!-- ═══════ SECCIÓN: Copas del torneo ═══════ -->
+        <h2 class="form-section-title">🏆 Copas del torneo</h2>
+        <p class="form-hint">Define las copas a disputar y qué posiciones del grupo van a cada una.</p>
+
+        @for (cup of cups(); track $index; let i = $index) {
+          <div class="inline-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nombre de la copa</label>
+                <input type="text" class="form-control" [value]="cup.name" placeholder="Ej: Copa Oro"
+                  (change)="onCupChange(i, 'name', $any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Posición desde</label>
+                <input type="number" class="form-control" [value]="cup.posFrom" min="1"
+                  (change)="onCupChange(i, 'posFrom', +$any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Posición hasta</label>
+                <input type="number" class="form-control" [value]="cup.posTo" min="1"
+                  (change)="onCupChange(i, 'posTo', +$any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" [checked]="cup.hasSemifinals"
+                    (change)="onCupChange(i, 'hasSemifinals', $any($event.target).checked)" />
+                  <span>Semifinales</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" [checked]="cup.hasThirdPlace"
+                    (change)="onCupChange(i, 'hasThirdPlace', $any($event.target).checked)" />
+                  <span>3er puesto</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn--danger btn--sm" (click)="onRemoveCup(i)">🗑️ Eliminar</button>
+              </div>
+            </div>
+          </div>
+        }
+        <button type="button" class="btn btn--secondary" (click)="onAddCup()">+ Agregar copa</button>
+
+        <!-- ═══════ SECCIÓN: Tipos de sanción ═══════ -->
+        <h2 class="form-section-title">🟡 Tipos de sanción / Fair Play</h2>
+        <p class="form-hint">Define las sanciones del torneo con su efecto en puntos de Fair Play y valor monetario.</p>
+
+        @for (sanction of sanctions(); track $index; let i = $index) {
+          <div class="inline-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input type="text" class="form-control" [value]="sanction.name" placeholder="Ej: Tarjeta Amarilla"
+                  (change)="onSanctionChange(i, 'name', $any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Código</label>
+                <input type="text" class="form-control" [value]="sanction.code" placeholder="Ej: YELLOW"
+                  (change)="onSanctionChange(i, 'code', $any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Efecto puntos</label>
+                <input type="number" class="form-control" [value]="sanction.pointsEffect"
+                  (change)="onSanctionChange(i, 'pointsEffect', +$any($event.target).value)" />
+                <span class="form-hint">Negativo resta, positivo suma.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Valor monetario</label>
+                <input type="number" class="form-control" [value]="sanction.monetaryValue" min="0"
+                  (change)="onSanctionChange(i, 'monetaryValue', +$any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Color</label>
+                <input type="color" class="form-control" [value]="sanction.color"
+                  (change)="onSanctionChange(i, 'color', $any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Icono</label>
+                <input type="text" class="form-control" [value]="sanction.icon" maxlength="5"
+                  (change)="onSanctionChange(i, 'icon', $any($event.target).value)" />
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn--danger btn--sm" (click)="onRemoveSanction(i)">🗑️ Eliminar</button>
+              </div>
+            </div>
+          </div>
+        }
+        <button type="button" class="btn btn--secondary" (click)="onAddSanction()">+ Agregar sanción</button>
+
         <!-- ═══════ SECCIÓN: Criterios de desempate ═══════ -->
         <h2 class="form-section-title">⚖️ Criterios de desempate (orden de prioridad)</h2>
         <p class="form-hint">Arrastra o usa las flechas para cambiar el orden. El primer criterio tiene mayor prioridad.</p>

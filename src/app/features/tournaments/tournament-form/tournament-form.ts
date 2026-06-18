@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { TournamentService } from '../tournament.service';
 import { SportService }      from '../../sports/sport.service';
 import { LoadingSpinner }    from '../../../shared/components/loading-spinner/loading-spinner';
@@ -36,6 +37,39 @@ export class TournamentForm implements OnInit {
 
   /** Sanction types catalog */
   readonly sanctions = signal<Array<{ name: string; code: string; pointsEffect: number; monetaryValue: number; color: string; icon: string }>>([]);
+
+  // ── Cup management ────────────────────────────────────────────────────────
+
+  onAddCup(): void {
+    const list = this.cups();
+    this.cups.set([...list, { name: '', orderIndex: list.length + 1, posFrom: 1, posTo: 2, hasSemifinals: true, hasThirdPlace: true }]);
+  }
+
+  onRemoveCup(index: number): void {
+    this.cups.set(this.cups().filter((_, i) => i !== index));
+  }
+
+  onCupChange(index: number, field: string, value: unknown): void {
+    const list = [...this.cups()];
+    list[index] = { ...list[index], [field]: value };
+    this.cups.set(list);
+  }
+
+  // ── Sanction management ───────────────────────────────────────────────────
+
+  onAddSanction(): void {
+    this.sanctions.set([...this.sanctions(), { name: '', code: '', pointsEffect: -100, monetaryValue: 0, color: '#FFFF00', icon: '🟡' }]);
+  }
+
+  onRemoveSanction(index: number): void {
+    this.sanctions.set(this.sanctions().filter((_, i) => i !== index));
+  }
+
+  onSanctionChange(index: number, field: string, value: unknown): void {
+    const list = [...this.sanctions()];
+    list[index] = { ...list[index], [field]: value };
+    this.sanctions.set(list);
+  }
 
   /** Tiebreaker criteria order */
   readonly tiebreakerCriteria = signal<string[]>(['points', 'goal_difference', 'goals_for', 'head_to_head', 'fair_play', 'draw']);
@@ -170,7 +204,33 @@ export class TournamentForm implements OnInit {
         if (t.tiebreakerCriteria) this.tiebreakerCriteria.set(t.tiebreakerCriteria);
 
         this.isLocked.set(t.status !== 'draft');
-        this.isLoading.set(false);
+
+        // Load cups and sanction types
+        forkJoin({
+          cups:      this.tournamentService.getCups(id),
+          sanctions: this.tournamentService.getSanctionTypes(id),
+        }).subscribe({
+          next: ({ cups, sanctions }) => {
+            this.cups.set(cups.map((c) => ({
+              name: c.name,
+              orderIndex: c.orderIndex,
+              posFrom: c.groupPositionsFrom,
+              posTo: c.groupPositionsTo,
+              hasSemifinals: c.hasSemifinals,
+              hasThirdPlace: c.hasThirdPlace,
+            })));
+            this.sanctions.set(sanctions.map((s) => ({
+              name: s.name,
+              code: s.code,
+              pointsEffect: s.pointsEffect,
+              monetaryValue: s.monetaryValue,
+              color: s.color,
+              icon: s.icon,
+            })));
+            this.isLoading.set(false);
+          },
+          error: () => { this.isLoading.set(false); },
+        });
       },
       error: () => { this.errorMessage.set('No se pudo cargar el torneo.'); this.isLoading.set(false); },
     });
@@ -227,8 +287,58 @@ export class TournamentForm implements OnInit {
       : this.tournamentService.create(payload as unknown as import('../../../core/models').TournamentCreateRequest);
 
     req$.subscribe({
-      next:  () => { this.isSaving.set(false); this.router.navigate(['/tournaments']); },
+      next: (saved) => {
+        const tournamentId = id ?? saved.id;
+        this.saveCupsAndSanctions(tournamentId);
+      },
       error: () => { this.errorMessage.set('No se pudo guardar el torneo.'); this.isSaving.set(false); },
+    });
+  }
+
+  /**
+   * Saves cups and sanction types for the tournament after the main save.
+   * Uses forkJoin to send both requests in parallel.
+   */
+  private saveCupsAndSanctions(tournamentId: string): void {
+    const cupsPayload = this.cups().map((c, idx) => ({
+      name: c.name,
+      orderIndex: c.orderIndex || idx + 1,
+      groupPositionsFrom: c.posFrom,
+      groupPositionsTo: c.posTo,
+      hasSemifinals: c.hasSemifinals,
+      hasThirdPlace: c.hasThirdPlace,
+    }));
+
+    const sanctionsPayload = this.sanctions().map((s) => ({
+      name: s.name,
+      code: s.code,
+      pointsEffect: s.pointsEffect,
+      monetaryValue: s.monetaryValue,
+      color: s.color,
+      icon: s.icon,
+    }));
+
+    // If no cups or sanctions, just navigate
+    if (cupsPayload.length === 0 && sanctionsPayload.length === 0) {
+      this.isSaving.set(false);
+      this.router.navigate(['/tournaments']);
+      return;
+    }
+
+    const requests: Record<string, import('rxjs').Observable<unknown>> = {};
+    if (cupsPayload.length > 0) {
+      requests['cups'] = this.tournamentService.saveCups(tournamentId, cupsPayload);
+    }
+    if (sanctionsPayload.length > 0) {
+      requests['sanctions'] = this.tournamentService.saveSanctionTypes(tournamentId, sanctionsPayload);
+    }
+
+    forkJoin(requests).subscribe({
+      next: () => { this.isSaving.set(false); this.router.navigate(['/tournaments']); },
+      error: () => {
+        this.errorMessage.set('Torneo guardado, pero hubo un error al guardar copas/sanciones.');
+        this.isSaving.set(false);
+      },
     });
   }
 

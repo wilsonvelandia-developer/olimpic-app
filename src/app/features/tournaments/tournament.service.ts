@@ -5,6 +5,44 @@ import { ApiService } from '../../core/services/api.service';
 import type { Tournament, TournamentCreateRequest, TournamentUpdateRequest } from '../../core/models';
 import type { PaginatedResponse } from '../../core/models';
 
+export interface TournamentCup {
+  id: string;
+  name: string;
+  orderIndex: number;
+  groupPositionsFrom: number;
+  groupPositionsTo: number;
+  hasSemifinals: boolean;
+  hasThirdPlace: boolean;
+}
+
+export interface TournamentCupPayload {
+  name: string;
+  orderIndex: number;
+  groupPositionsFrom: number;
+  groupPositionsTo: number;
+  hasSemifinals: boolean;
+  hasThirdPlace: boolean;
+}
+
+export interface SanctionType {
+  id: string;
+  name: string;
+  code: string;
+  pointsEffect: number;
+  monetaryValue: number;
+  color: string;
+  icon: string;
+}
+
+export interface SanctionTypePayload {
+  name: string;
+  code: string;
+  pointsEffect: number;
+  monetaryValue: number;
+  color: string;
+  icon: string;
+}
+
 export interface TournamentFilters {
   sportId?:  string;
   status?:   string;
@@ -48,5 +86,29 @@ export class TournamentService {
 
   delete(id: string): Observable<void> {
     return this.api.delete<void>(`${this.basePath}/${id}`).pipe(map(() => undefined));
+  }
+
+  // ── Cups ──────────────────────────────────────────────────────────────────
+
+  getCups(tournamentId: string): Observable<TournamentCup[]> {
+    return this.api.get<TournamentCup[]>(`${this.basePath}/${tournamentId}/cups`)
+      .pipe(map((r) => r.data));
+  }
+
+  saveCups(tournamentId: string, cups: TournamentCupPayload[]): Observable<TournamentCup[]> {
+    return this.api.post<TournamentCup[]>(`${this.basePath}/${tournamentId}/cups`, cups)
+      .pipe(map((r) => r.data));
+  }
+
+  // ── Sanction Types ────────────────────────────────────────────────────────
+
+  getSanctionTypes(tournamentId: string): Observable<SanctionType[]> {
+    return this.api.get<SanctionType[]>(`${this.basePath}/${tournamentId}/sanction-types`)
+      .pipe(map((r) => r.data));
+  }
+
+  saveSanctionTypes(tournamentId: string, types: SanctionTypePayload[]): Observable<SanctionType[]> {
+    return this.api.post<SanctionType[]>(`${this.basePath}/${tournamentId}/sanction-types`, types)
+      .pipe(map((r) => r.data));
   }
 }

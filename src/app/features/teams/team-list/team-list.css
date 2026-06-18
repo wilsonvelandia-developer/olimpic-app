@@ -66,3 +66,33 @@
   gap: 0.375rem;
   flex-wrap: wrap;
 }
+
+/* Team color dot */
+.team-color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border, #e2e8f0);
+  flex-shrink: 0;
+}
+
+/* Variant label */
+.item-card__variant {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #64748b);
+  font-weight: 400;
+  margin-left: 0.5rem;
+  background: var(--color-bg-secondary, #f1f5f9);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Badge variants */
+.badge--warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+.badge--muted {
+  background-color: #f1f5f9;
+  color: #64748b;
+}

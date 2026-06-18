@@ -1,8 +1,6 @@
 <section class="page">
   <div class="page__header">
-    <div>
-      <h1 class="page__title">{{ isEditMode() ? 'Editar equipo' : 'Nuevo equipo' }}</h1>
-    </div>
+    <h1 class="page__title">{{ isEditMode() ? 'Editar equipo' : 'Nuevo equipo' }}</h1>
   </div>
 
   @if (isLoading()) { <app-loading-spinner label="Cargando equipo..." /> }
@@ -12,34 +10,120 @@
       @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ═══════ SECCIÓN: Datos del equipo ═══════ -->
+        <h2 class="form-section-title">⚽ Datos del equipo</h2>
         <div class="form-grid">
 
-          @if (!isEditMode()) {
           <div class="form-group form-group--full">
-            <label class="form-label form-label--required" for="tournamentId">UUID del torneo</label>
-            <input id="tournamentId" type="text" class="form-control"
-              [class.form-control--error]="isFieldInvalid('tournamentId')"
-              formControlName="tournamentId" placeholder="UUID del torneo" autocomplete="off" />
-            @if (isFieldInvalid('tournamentId')) { <span class="form-error" role="alert">{{ getFieldError('tournamentId') }}</span> }
-          </div>
-          }
-
-          <div class="form-group form-group--full">
-            <label class="form-label form-label--required" for="teamName">Nombre del equipo</label>
-            <input id="teamName" type="text" class="form-control"
+            <label class="form-label form-label--required" for="name">Nombre del equipo / club</label>
+            <input id="name" type="text" class="form-control"
               [class.form-control--error]="isFieldInvalid('name')"
-              formControlName="name" placeholder="Ej: Equipo Águila" maxlength="200" autocomplete="off" />
-            @if (isFieldInvalid('name')) { <span class="form-error" role="alert">{{ getFieldError('name') }}</span> }
+              formControlName="name" placeholder="Ej: Club Deportivo La Estrella" maxlength="200" />
+            @if (isFieldInvalid('name')) { <span class="form-error">{{ getFieldError('name') }}</span> }
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="shortName">Abreviatura (máx. 10)</label>
+            <label class="form-label" for="shortName">Abreviatura</label>
             <input id="shortName" type="text" class="form-control"
-              formControlName="shortName" placeholder="Ej: AGU" maxlength="10" autocomplete="off" />
+              formControlName="shortName" placeholder="Ej: CDE" maxlength="10" />
+            <span class="form-hint">Se muestra en tablas de posiciones.</span>
           </div>
 
+          <div class="form-group">
+            <label class="form-label" for="variant">Variante / Categoría</label>
+            <input id="variant" type="text" class="form-control"
+              formControlName="variant" placeholder="Ej: Sub-12, Equipo B, Femenino" maxlength="50" />
+            <span class="form-hint">Diferencia equipos del mismo club en un torneo.</span>
+          </div>
+
+          <div class="form-group form-group--full">
+            <label class="form-label" for="imageUrl">Logo / Escudo (URL)</label>
+            <input id="imageUrl" type="url" class="form-control"
+              formControlName="imageUrl" placeholder="https://ejemplo.com/logo.png" />
+          </div>
+
+          @if (isEditMode()) {
+            <div class="form-group">
+              <label class="form-label" for="status">Estado</label>
+              <select id="status" class="form-control" formControlName="status">
+                @for (opt of statusOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+          }
         </div>
 
+        <!-- ═══════ SECCIÓN: Colores ═══════ -->
+        <h2 class="form-section-title">🎨 Colores del equipo</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="colorPrimary">Color principal</label>
+            <input id="colorPrimary" type="color" class="form-control form-control--color"
+              formControlName="colorPrimary" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="colorSecondary">Color secundario</label>
+            <input id="colorSecondary" type="color" class="form-control form-control--color"
+              formControlName="colorSecondary" />
+          </div>
+        </div>
+
+        <!-- ═══════ SECCIÓN: Contacto ═══════ -->
+        <h2 class="form-section-title">📞 Contacto</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="phone">Teléfono</label>
+            <input id="phone" type="tel" class="form-control"
+              formControlName="phone" placeholder="+57 300 123 4567" maxlength="30" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input id="email" type="email" class="form-control"
+              formControlName="email" placeholder="equipo@ejemplo.com" />
+          </div>
+        </div>
+
+        <!-- ═══════ SECCIÓN: Redes sociales ═══════ -->
+        <h2 class="form-section-title">📱 Redes sociales</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="instagramUrl">Instagram</label>
+            <input id="instagramUrl" type="url" class="form-control"
+              formControlName="instagramUrl" placeholder="https://instagram.com/..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="facebookUrl">Facebook</label>
+            <input id="facebookUrl" type="url" class="form-control"
+              formControlName="facebookUrl" placeholder="https://facebook.com/..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tiktokUrl">TikTok</label>
+            <input id="tiktokUrl" type="url" class="form-control"
+              formControlName="tiktokUrl" placeholder="https://tiktok.com/..." />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="youtubeUrl">YouTube</label>
+            <input id="youtubeUrl" type="url" class="form-control"
+              formControlName="youtubeUrl" placeholder="https://youtube.com/..." />
+          </div>
+        </div>
+
+        <!-- ═══════ SECCIÓN: Torneo (opcional) ═══════ -->
+        @if (!isEditMode()) {
+          <h2 class="form-section-title">🏆 Inscripción a torneo (opcional)</h2>
+          <div class="form-grid">
+            <div class="form-group form-group--full">
+              <label class="form-label" for="tournamentId">ID del torneo</label>
+              <input id="tournamentId" type="text" class="form-control"
+                formControlName="tournamentId" placeholder="UUID del torneo (dejar vacío para equipo independiente)" />
+              <span class="form-hint">Si no se asigna un torneo, el equipo queda como club reutilizable.</span>
+            </div>
+          </div>
+        }
+
+        <!-- ═══════ ACCIONES ═══════ -->
         <div class="form-actions">
           <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
           <button type="submit" class="btn btn--primary" [disabled]="isSaving()">

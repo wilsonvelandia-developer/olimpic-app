@@ -12,4 +12,10 @@ export const USER_ROUTES: Routes = [
     data: { requiredRole: 'organizer' },
     loadComponent: () => import('./user-form/user-form').then((m) => m.UserForm),
   },
+  {
+    path: ':id/edit',
+    canActivate: [roleGuard],
+    data: { requiredRole: 'organizer' },
+    loadComponent: () => import('./user-form/user-form').then((m) => m.UserForm),
+  },
 ];

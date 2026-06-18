@@ -25,17 +25,29 @@
           @for (user of users(); track user.id) {
             <article class="item-card">
               <img class="item-card__img"
-                [src]="user.avatarUrl || 'https://img.icons8.com/3d-fluency/256/user-male-circle.png'"
+                [src]="user.photoUrl || user.avatarUrl || 'https://img.icons8.com/3d-fluency/256/user-male-circle.png'"
                 [alt]="user.name" width="48" height="48" loading="lazy" />
               <div class="item-card__body">
                 <h3 class="item-card__name">{{ user.name }}</h3>
                 <span class="item-card__sub">{{ user.email }}</span>
+                @if (user.documentNumber) {
+                  <span class="item-card__sub">{{ user.documentType ?? 'Doc' }}: {{ user.documentNumber }}</span>
+                }
+                @if (user.phone) {
+                  <span class="item-card__sub">📞 {{ user.phone }}</span>
+                }
               </div>
               <div class="item-card__badge">
                 @for (role of user.roles; track role) {
                   <span class="badge badge--success">{{ roleLabel(role) }}</span>
                 }
               </div>
+              @if (auth.canEdit()) {
+                <div class="item-card__actions">
+                  <button type="button" class="btn btn--secondary btn--sm" (click)="onEditUser(user.id)">✏️ Editar</button>
+                  <button type="button" class="btn btn--danger btn--sm" (click)="onDeleteUser(user)">🗑️</button>
+                </div>
+              }
             </article>
           }
         </div>
@@ -44,11 +56,21 @@
       @if (viewMode() === 'list') {
         <div class="table-wrapper">
           <table class="table" aria-label="Lista de usuarios">
-            <thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Roles</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Documento</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Roles</th>
+                @if (auth.canEdit()) { <th>Acciones</th> }
+              </tr>
+            </thead>
             <tbody>
               @for (user of users(); track user.id) {
                 <tr>
                   <td>{{ user.name }}</td>
+                  <td>{{ user.documentType ? user.documentType + ' ' + (user.documentNumber ?? '') : '—' }}</td>
                   <td>{{ user.email }}</td>
                   <td>{{ user.phone ?? '—' }}</td>
                   <td>
@@ -56,6 +78,12 @@
                       <span class="badge badge--success">{{ roleLabel(role) }}</span>
                     }
                   </td>
+                  @if (auth.canEdit()) {
+                    <td>
+                      <button type="button" class="btn btn--secondary btn--sm" (click)="onEditUser(user.id)">✏️</button>
+                      <button type="button" class="btn btn--danger btn--sm" (click)="onDeleteUser(user)">🗑️</button>
+                    </td>
+                  }
                 </tr>
               }
             </tbody>

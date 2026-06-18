@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { TeamService }   from '../team.service';
+import { TeamService }    from '../team.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 
 @Component({
@@ -25,10 +25,27 @@ export class TeamForm implements OnInit {
   readonly isSaving     = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
 
+  readonly statusOptions = [
+    { value: 'active',    label: 'Activo' },
+    { value: 'inactive',  label: 'Inactivo' },
+    { value: 'suspended', label: 'Suspendido' },
+  ];
+
   readonly form = this.fb.group({
-    tournamentId: ['', [Validators.required]],
-    name:         ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
-    shortName:    ['' as string | null],
+    tournamentId:   ['' as string | null],
+    name:           ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
+    shortName:      [''],
+    variant:        [''],
+    imageUrl:       [''],
+    phone:          [''],
+    email:          [''],
+    instagramUrl:   [''],
+    facebookUrl:    [''],
+    tiktokUrl:      [''],
+    youtubeUrl:     [''],
+    colorPrimary:   ['#1e40af'],
+    colorSecondary: ['#ffffff'],
+    status:         ['active'],
   });
 
   ngOnInit(): void {
@@ -46,7 +63,22 @@ export class TeamForm implements OnInit {
     this.isLoading.set(true);
     this.teamService.getById(id).subscribe({
       next: (t) => {
-        this.form.patchValue({ tournamentId: t.tournamentId, name: t.name, shortName: t.shortName });
+        this.form.patchValue({
+          tournamentId:   t.tournamentId ?? '',
+          name:           t.name,
+          shortName:      t.shortName ?? '',
+          variant:        t.variant ?? '',
+          imageUrl:       t.imageUrl ?? '',
+          phone:          t.phone ?? '',
+          email:          t.email ?? '',
+          instagramUrl:   t.instagramUrl ?? '',
+          facebookUrl:    t.facebookUrl ?? '',
+          tiktokUrl:      t.tiktokUrl ?? '',
+          youtubeUrl:     t.youtubeUrl ?? '',
+          colorPrimary:   t.colorPrimary ?? '#1e40af',
+          colorSecondary: t.colorSecondary ?? '#ffffff',
+          status:         t.status ?? 'active',
+        });
         this.isLoading.set(false);
       },
       error: () => { this.errorMessage.set('No se pudo cargar el equipo.'); this.isLoading.set(false); },
@@ -61,14 +93,45 @@ export class TeamForm implements OnInit {
     const v = this.form.value;
     const id = this.teamId();
 
-    const req$ = id
-      ? this.teamService.update(id, { name: v.name!, shortName: v.shortName || null })
-      : this.teamService.create({ tournamentId: v.tournamentId!, name: v.name!, shortName: v.shortName || null });
-
-    req$.subscribe({
-      next:  () => { this.isSaving.set(false); this.router.navigate(['/teams']); },
-      error: () => { this.errorMessage.set('No se pudo guardar el equipo.'); this.isSaving.set(false); },
-    });
+    if (id) {
+      this.teamService.update(id, {
+        name:           v.name!,
+        shortName:      v.shortName || null,
+        variant:        v.variant || null,
+        imageUrl:       v.imageUrl || null,
+        phone:          v.phone || null,
+        email:          v.email || null,
+        instagramUrl:   v.instagramUrl || null,
+        facebookUrl:    v.facebookUrl || null,
+        tiktokUrl:      v.tiktokUrl || null,
+        youtubeUrl:     v.youtubeUrl || null,
+        colorPrimary:   v.colorPrimary || null,
+        colorSecondary: v.colorSecondary || null,
+        status:         (v.status as 'active' | 'inactive' | 'suspended') || 'active',
+      }).subscribe({
+        next:  () => { this.isSaving.set(false); this.router.navigate(['/teams']); },
+        error: () => { this.errorMessage.set('No se pudo guardar el equipo.'); this.isSaving.set(false); },
+      });
+    } else {
+      this.teamService.create({
+        tournamentId:   v.tournamentId || null,
+        name:           v.name!,
+        shortName:      v.shortName || null,
+        variant:        v.variant || null,
+        imageUrl:       v.imageUrl || null,
+        phone:          v.phone || null,
+        email:          v.email || null,
+        instagramUrl:   v.instagramUrl || null,
+        facebookUrl:    v.facebookUrl || null,
+        tiktokUrl:      v.tiktokUrl || null,
+        youtubeUrl:     v.youtubeUrl || null,
+        colorPrimary:   v.colorPrimary || null,
+        colorSecondary: v.colorSecondary || null,
+      }).subscribe({
+        next:  () => { this.isSaving.set(false); this.router.navigate(['/teams']); },
+        error: () => { this.errorMessage.set('No se pudo guardar el equipo.'); this.isSaving.set(false); },
+      });
+    }
   }
 
   onCancel(): void { this.router.navigate(['/teams']); }
