@@ -1,20 +1,23 @@
 <section class="page">
-  @if (isLoading()) { <app-loading-spinner label="Cargando torneo..." /> }
+  @if (isLoading())    { <app-loading-spinner label="Cargando torneo..." /> }
   @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
 
   @if (!isLoading() && tournament()) {
+    <!-- Breadcrumb -->
     <nav class="breadcrumb" aria-label="Ruta de navegación">
       <a routerLink="/tournaments" class="breadcrumb__link">Torneos</a>
       <span class="breadcrumb__sep" aria-hidden="true">›</span>
       <span>{{ tournament()!.name }}</span>
     </nav>
 
+    <!-- Header -->
     <div class="page__header">
       <div class="page__header-info">
         <h1 class="page__title">{{ tournament()!.name }}</h1>
         <div class="page__meta">
           <app-status-badge [status]="tournament()!.status" />
-          <span class="meta-tag">Temporada: {{ tournament()!.season ?? '—' }}</span>
+          @if (tournament()!.category) { <span class="meta-tag">{{ tournament()!.category }}</span> }
+          @if (tournament()!.season)   { <span class="meta-tag">{{ tournament()!.season }}</span> }
         </div>
       </div>
       <div class="page__header-actions">
@@ -27,44 +30,140 @@
       </div>
     </div>
 
-    <!-- Tabs -->
+    <!-- ═══════ TABS ═══════ -->
     <div class="tab-panel">
       <div class="tab-nav" role="tablist">
         <button type="button" role="tab" class="tab-btn"
-          [class.tab-btn--active]="activeTab() === 'standings'"
-          (click)="onTabChange('standings')">🏅 Posiciones</button>
+          [class.tab-btn--active]="activeTab() === 'info'"
+          (click)="onTabChange('info')">📋 Información</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'groups'"
+          (click)="onTabChange('groups')">🎲 Grupos</button>
         <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'matches'"
           (click)="onTabChange('matches')">⚽ Partidos</button>
         <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'standings'"
+          (click)="onTabChange('standings')">🏅 Posiciones</button>
+        <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'stats'"
           (click)="onTabChange('stats')">📊 Estadísticas</button>
-        @if (auth.canEdit()) {
-          <button type="button" role="tab" class="tab-btn"
-            [class.tab-btn--active]="activeTab() === 'groups'"
-            (click)="onTabChange('groups')">🎲 Grupos</button>
-          <button type="button" role="tab" class="tab-btn tab-btn--generate"
-            [class.tab-btn--active]="activeTab() === 'fixture'"
-            (click)="onTabChange('fixture')">⚙️ Generar fixture</button>
-        }
       </div>
 
       <div class="tab-content" role="tabpanel" [attr.aria-label]="tabLabel()">
 
-        @if (activeTab() === 'standings') {
-          @if (isLoadingStandings()) {
-            <app-loading-spinner label="Calculando posiciones..." />
-          } @else {
-            <app-standings-table [entries]="standings()" />
-          }
+        <!-- ═══════ TAB 1: Información General ═══════ -->
+        @if (activeTab() === 'info') {
+          <div class="info-section">
+            <!-- Image + main info -->
+            <div class="info-hero">
+              @if (tournament()!.imageUrl) {
+                <img [src]="tournament()!.imageUrl" [alt]="tournament()!.name"
+                  class="info-hero__image" loading="lazy" />
+              } @else {
+                <div class="info-hero__placeholder">
+                  <img src="https://img.icons8.com/3d-fluency/256/trophy.png" alt="" width="80" height="80" />
+                </div>
+              }
+              <div class="info-hero__details">
+                @if (tournament()!.description) {
+                  <p class="info-hero__description">{{ tournament()!.description }}</p>
+                }
+                @if (tournament()!.entryFee) {
+                  <div class="info-badge info-badge--fee">💰 {{ tournament()!.entryFee }}</div>
+                }
+              </div>
+            </div>
+
+            <!-- Info grid -->
+            <div class="info-grid">
+              <div class="info-card">
+                <span class="info-card__icon">📅</span>
+                <span class="info-card__label">Fecha de inicio</span>
+                <span class="info-card__value">{{ tournament()!.startDate ? (tournament()!.startDate!.slice(0,10)) : 'Por definir' }}</span>
+              </div>
+              <div class="info-card">
+                <span class="info-card__icon">📝</span>
+                <span class="info-card__label">Cierre inscripciones</span>
+                <span class="info-card__value">{{ tournament()!.registrationDeadline ? (tournament()!.registrationDeadline!.slice(0,10)) : 'Por definir' }}</span>
+              </div>
+              <div class="info-card">
+                <span class="info-card__icon">👥</span>
+                <span class="info-card__label">Equipos esperados</span>
+                <span class="info-card__value">{{ tournament()!.expectedTeams ?? 'Sin definir' }}</span>
+              </div>
+              <div class="info-card">
+                <span class="info-card__icon">🏟️</span>
+                <span class="info-card__label">Grupos</span>
+                <span class="info-card__value">{{ tournament()!.numGroups ?? 'Sin definir' }}</span>
+              </div>
+              <div class="info-card">
+                <span class="info-card__icon">🏷️</span>
+                <span class="info-card__label">Categoría</span>
+                <span class="info-card__value">{{ tournament()!.category ?? '—' }}</span>
+              </div>
+              <div class="info-card">
+                <span class="info-card__icon">📞</span>
+                <span class="info-card__label">Teléfono</span>
+                <span class="info-card__value">{{ tournament()!.contactPhone ?? '—' }}</span>
+              </div>
+              <div class="info-card info-card--full">
+                <span class="info-card__icon">📍</span>
+                <span class="info-card__label">Dirección</span>
+                <span class="info-card__value">{{ tournament()!.address ?? '—' }}</span>
+              </div>
+            </div>
+
+            <!-- Map -->
+            @if (tournament()!.locationUrl) {
+              <div class="info-map">
+                <h3 class="info-map__title">📍 Ubicación</h3>
+                <a [href]="tournament()!.locationUrl" target="_blank" rel="noopener" class="info-map__link">
+                  Ver en Google Maps →
+                </a>
+              </div>
+            }
+
+            <!-- Social & Documents -->
+            <div class="info-links">
+              @if (tournament()!.instagramUrl) {
+                <a [href]="tournament()!.instagramUrl" target="_blank" rel="noopener" class="social-link social-link--ig">📸 Instagram</a>
+              }
+              @if (tournament()!.facebookUrl) {
+                <a [href]="tournament()!.facebookUrl" target="_blank" rel="noopener" class="social-link social-link--fb">📘 Facebook</a>
+              }
+              @if (tournament()!.tiktokUrl) {
+                <a [href]="tournament()!.tiktokUrl" target="_blank" rel="noopener" class="social-link social-link--tt">🎵 TikTok</a>
+              }
+              @if (tournament()!.youtubeUrl) {
+                <a [href]="tournament()!.youtubeUrl" target="_blank" rel="noopener" class="social-link social-link--yt">▶️ YouTube</a>
+              }
+              @if (tournament()!.rulesFileUrl) {
+                <a [href]="tournament()!.rulesFileUrl" target="_blank" rel="noopener" class="social-link social-link--doc">📄 Reglamento</a>
+              }
+              @if (tournament()!.invitationFileUrl) {
+                <a [href]="tournament()!.invitationFileUrl" target="_blank" rel="noopener" class="social-link social-link--doc">📨 Invitación</a>
+              }
+            </div>
+          </div>
         }
 
+        <!-- ═══════ TAB 2: Grupos ═══════ -->
+        @if (activeTab() === 'groups') {
+          <app-group-draw
+            [tournamentId]="tournament()!.id"
+            [numGroups]="tournament()!.numGroups ?? 2"
+            [status]="tournament()!.status"
+          />
+        }
+
+        <!-- ═══════ TAB 3: Partidos ═══════ -->
         @if (activeTab() === 'matches') {
           @if (auth.canEdit()) {
             <div class="tab-content__actions">
               <button type="button" class="btn btn--primary btn--sm"
                 [routerLink]="['/matches', 'new']"
-                [queryParams]="{ tournamentId: tournament()!.id }">
+                [queryParams]="{ phaseId: tournament()!.id }">
                 + Programar partido
               </button>
             </div>
@@ -79,30 +178,22 @@
           />
         }
 
+        <!-- ═══════ TAB 4: Posiciones ═══════ -->
+        @if (activeTab() === 'standings') {
+          @if (isLoadingStandings()) {
+            <app-loading-spinner label="Calculando posiciones..." />
+          } @else {
+            <app-standings-table [entries]="standings()" />
+          }
+        }
+
+        <!-- ═══════ TAB 5: Estadísticas ═══════ -->
         @if (activeTab() === 'stats') {
           @if (isLoadingStats()) {
             <app-loading-spinner label="Cargando estadísticas..." />
           } @else if (stats()) {
             <app-tournament-stats [stats]="stats()!" />
           }
-        }
-
-        @if (activeTab() === 'groups') {
-          <app-group-draw
-            [tournamentId]="tournament()!.id"
-            [numGroups]="tournament()!.numGroups ?? 2"
-            [status]="tournament()!.status"
-          />
-        }
-
-        @if (activeTab() === 'fixture') {
-          <app-fixture-generator
-            [tournamentId]="tournament()!.id"
-            [tournamentFormat]="tournamentFormat()"
-            [tournamentName]="tournament()!.name"
-            (saved)="onFixtureSaved($event)"
-            (cancelled)="onFixtureCancelled()"
-          />
         }
 
       </div>
@@ -113,10 +204,7 @@
 @if (showDeleteDialog()) {
   <app-confirm-dialog
     title="Eliminar torneo"
-    [message]="'¿Estás seguro de que quieres eliminar «' + tournament()!.name + '»?'"
-    confirmLabel="Eliminar"
-    [isDanger]="true"
-    (confirmed)="onDeleteConfirmed()"
-    (cancelled)="onDeleteCancelled()"
-  />
+    [message]="'¿Eliminar «' + tournament()!.name + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
 }

@@ -15,20 +15,19 @@ import { ConfirmDialog }      from '../../../shared/components/confirm-dialog/co
 import { StandingsTable }     from '../standings-table/standings-table';
 import { TournamentStats }    from '../tournament-stats/tournament-stats';
 import { MatchHistory }       from '../match-history/match-history';
-import { FixtureGenerator }   from '../fixture-generator/fixture-generator';
 import { GroupDraw }          from '../group-draw/group-draw';
 import { AuthService }        from '../../../core/services/auth.service';
 import type {
-  Tournament, StandingsEntry, TournamentStatsData, Match, TournamentFormat,
+  Tournament, StandingsEntry, TournamentStatsData, Match,
 } from '../../../core/models';
 
-type ActiveTab = 'standings' | 'matches' | 'stats' | 'groups' | 'fixture';
+type ActiveTab = 'info' | 'groups' | 'matches' | 'standings' | 'stats';
 
 @Component({
   selector: 'app-tournament-detail',
   imports: [
     RouterLink, StatusBadge, LoadingSpinner, ConfirmDialog,
-    StandingsTable, TournamentStats, MatchHistory, FixtureGenerator, GroupDraw,
+    StandingsTable, TournamentStats, MatchHistory, GroupDraw,
   ],
   templateUrl: './tournament-detail.html',
   styleUrl:    './tournament-detail.css',
@@ -53,20 +52,16 @@ export class TournamentDetail implements OnInit {
   readonly isLoadingMatches   = signal<boolean>(false);
   readonly errorMessage       = signal<string | null>(null);
   readonly showDeleteDialog   = signal<boolean>(false);
-  readonly activeTab          = signal<ActiveTab>('standings');
+  readonly activeTab          = signal<ActiveTab>('info');
 
   readonly tabLabel = computed(() => {
     const t = this.activeTab();
-    if (t === 'standings') return 'Tabla de posiciones';
+    if (t === 'info')      return 'Información general';
+    if (t === 'groups')    return 'Grupos';
     if (t === 'matches')   return 'Partidos';
-    if (t === 'fixture')   return 'Generar fixture';
+    if (t === 'standings') return 'Posiciones';
     return 'Estadísticas';
   });
-
-  /** Safe format accessor — returns 'round_robin' as default. */
-  readonly tournamentFormat = computed<TournamentFormat>(
-    () => this.tournament()?.format ?? 'round_robin',
-  );
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -132,19 +127,6 @@ export class TournamentDetail implements OnInit {
     this.matchPage.set(page);
     this.loadMatches(id, page);
   }
-
-  onFixtureSaved(count: number): void {
-    const id = this.tournament()?.id;
-    if (id) {
-      this.loadMatches(id, 1);
-      this.loadStandings(id);
-      this.loadStats(id);
-    }
-    void count;
-    this.activeTab.set('matches');
-  }
-
-  onFixtureCancelled(): void { this.activeTab.set('standings'); }
 
   onMatchClick(matchId: string): void { this.router.navigate(['/matches', matchId]); }
 
