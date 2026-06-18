@@ -159,22 +159,9 @@
 
         <!-- ═══════ TAB 3: Partidos ═══════ -->
         @if (activeTab() === 'matches') {
-          @if (auth.canEdit()) {
-            <div class="tab-content__actions">
-              <button type="button" class="btn btn--primary btn--sm"
-                [routerLink]="['/matches', 'new']"
-                [queryParams]="{ phaseId: tournament()!.id }">
-                + Programar partido
-              </button>
-            </div>
-          }
-          <app-match-history
-            [matches]="matches()"
-            [totalMatches]="totalMatches()"
-            [currentPage]="matchPage()"
-            [isLoading]="isLoadingMatches()"
-            (pageChange)="onMatchPageChange($event)"
-            (matchClick)="onMatchClick($event)"
+          <app-fixture-matches
+            [tournamentId]="tournament()!.id"
+            [status]="tournament()!.status"
           />
         }
 

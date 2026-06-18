@@ -1,0 +1,114 @@
+<div class="fixture-section">
+  @if (errorMsg())   { <div class="alert alert--error" role="alert">{{ errorMsg() }}</div> }
+  @if (successMsg()) { <div class="alert alert--success" role="status">{{ successMsg() }}</div> }
+
+  <!-- Config form -->
+  @if (canEditFixture()) {
+    <div class="fixture-config">
+      <h3 class="fixture-config__title">⚙️ Configuración de partidos</h3>
+      <div class="fixture-config__form">
+        <div class="form-group">
+          <label class="form-label">Fecha primer partido</label>
+          <input type="date" class="form-control"
+            [value]="fixtureConfig().startDate"
+            (change)="onUpdateConfig('startDate', $any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duración (min)</label>
+          <input type="number" class="form-control" min="30" max="300"
+            [value]="fixtureConfig().matchDurationMinutes"
+            (change)="onUpdateConfig('matchDurationMinutes', +$any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Partidos/día/cancha</label>
+          <input type="number" class="form-control" min="1" max="20"
+            [value]="fixtureConfig().matchesPerDay"
+            (change)="onUpdateConfig('matchesPerDay', +$any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Escenarios</label>
+          <input type="number" class="form-control" min="1" max="10"
+            [value]="fixtureConfig().numVenues"
+            (change)="onUpdateConfig('numVenues', +$any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora inicio</label>
+          <input type="time" class="form-control"
+            [value]="fixtureConfig().firstMatchTime"
+            (change)="onUpdateConfig('firstMatchTime', $any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [checked]="fixtureConfig().randomOrder"
+              (change)="onUpdateConfig('randomOrder', $any($event.target).checked)" />
+            <span>Orden aleatorio</span>
+          </label>
+        </div>
+      </div>
+      <button type="button" class="btn btn--primary"
+        [disabled]="isGenerating()"
+        (click)="onGenerateFixture()">
+        {{ isGenerating() ? 'Generando...' : (fixtureGenerated() ? '🔄 Re-generar partidos' : '⚽ Generar partidos') }}
+      </button>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) { <p class="loading-text">Cargando partidos...</p> }
+
+  <!-- Match list -->
+  @if (fixtureGenerated() && sortedMatches().length > 0) {
+    <div class="fixture-result">
+      <h3 class="fixture-result__title">📋 Partidos ({{ sortedMatches().length }})</h3>
+
+      <div class="fixture-result__table">
+        <div class="fixture-header">
+          <span class="fixture-col fixture-col--num">#</span>
+          <span class="fixture-col fixture-col--teams">Enfrentamiento</span>
+          <span class="fixture-col fixture-col--venue">Escenario</span>
+          <span class="fixture-col fixture-col--date">Fecha</span>
+          <span class="fixture-col fixture-col--time">Hora</span>
+        </div>
+
+        @for (match of sortedMatches(); track $index) {
+          <div class="fixture-row">
+            <span class="fixture-col fixture-col--num">
+              <span class="match-num-badge">{{ $index + 1 }}</span>
+            </span>
+            <span class="fixture-col fixture-col--teams">
+              <strong>{{ getMatchTeamName(match, 'home') }}</strong>
+              <span class="vs-label">vs</span>
+              <strong>{{ getMatchTeamName(match, 'away') }}</strong>
+            </span>
+            <span class="fixture-col fixture-col--venue">
+              @if (canEditFixture()) {
+                <input type="text" class="inline-input inline-input--venue"
+                  [value]="getMatchVenue(match)"
+                  (blur)="onEditMatchVenue(match, $any($event.target).value)"
+                  (keyup.enter)="$any($event.target).blur()" />
+              } @else {
+                <span class="venue-badge">{{ getMatchVenue(match) }}</span>
+              }
+            </span>
+            <span class="fixture-col fixture-col--date">
+              <input type="date" class="inline-input"
+                [value]="getMatchDateOnly(match)"
+                [disabled]="!canEditFixture()"
+                (change)="onEditMatchDate(match, $any($event.target).value)" />
+            </span>
+            <span class="fixture-col fixture-col--time">
+              <input type="time" class="inline-input"
+                [value]="getMatchTimeOnly(match)"
+                [disabled]="!canEditFixture()"
+                (change)="onEditMatchTime(match, $any($event.target).value)" />
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  } @else if (!isLoading() && !fixtureGenerated()) {
+    <div class="empty-state">
+      <p>No hay partidos generados. Confirma el sorteo de grupos primero y luego genera los partidos.</p>
+    </div>
+  }
+</div>

@@ -64,7 +64,6 @@ export class GroupDraw implements OnInit {
   ngOnInit(): void {
     this.loadTeams();
     this.loadExistingDraw();
-    this.loadExistingFixture();
   }
 
   private loadTeams(): void {
