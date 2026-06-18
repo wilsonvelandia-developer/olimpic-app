@@ -139,12 +139,12 @@
       <div class="fixture-result__list">
         @for (match of fixtureMatches(); track $index) {
           <div class="fixture-match">
-            <span class="fixture-match__group">{{ $any(match).groupName }}</span>
+            <span class="fixture-match__num">{{ $index + 1 }}</span>
             <span class="fixture-match__teams">
-              {{ teamName($any(match).home_team_id) }} vs {{ teamName($any(match).away_team_id) }}
+              {{ getMatchTeamName(match, 'home') }} vs {{ getMatchTeamName(match, 'away') }}
             </span>
-            <span class="fixture-match__venue">{{ $any(match).venue ?? 'Cancha' }}</span>
-            <span class="fixture-match__date">{{ $any(match).scheduled_at | slice:0:16 }}</span>
+            <span class="fixture-match__venue">{{ getMatchVenue(match) }}</span>
+            <span class="fixture-match__date">{{ getMatchDate(match) }}</span>
           </div>
         }
       </div>

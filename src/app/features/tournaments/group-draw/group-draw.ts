@@ -1,7 +1,6 @@
 import {
   Component, ChangeDetectionStrategy, inject, signal, input, OnInit, computed,
 } from '@angular/core';
-import { SlicePipe } from '@angular/common';
 import { ApiService } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import type { Team } from '../../../core/models';
@@ -20,7 +19,7 @@ interface GroupAssignment {
  */
 @Component({
   selector: 'app-group-draw',
-  imports: [SlicePipe],
+  imports: [],
   templateUrl: './group-draw.html',
   styleUrl: './group-draw.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -248,6 +247,29 @@ export class GroupDraw implements OnInit {
   teamName(id: string): string {
     const team = this.teams().find((t) => t.id === id);
     return team ? (team.shortName ?? team.name) : id.slice(0, 8);
+  }
+
+  /** Get home/away team name from a match object (handles both camelCase and snake_case) */
+  getMatchTeamName(match: unknown, side: 'home' | 'away'): string {
+    const m = match as Record<string, unknown>;
+    const id = (side === 'home'
+      ? (m['home_team_id'] ?? m['homeTeamId'])
+      : (m['away_team_id'] ?? m['awayTeamId'])) as string;
+    return id ? this.teamName(id) : '?';
+  }
+
+  /** Get venue label from a match object */
+  getMatchVenue(match: unknown): string {
+    const m = match as Record<string, unknown>;
+    return (m['venue'] as string) ?? 'Cancha';
+  }
+
+  /** Get formatted date from a match object */
+  getMatchDate(match: unknown): string {
+    const m = match as Record<string, unknown>;
+    const dt = (m['scheduled_at'] ?? m['scheduledAt']) as string | null;
+    if (!dt) return '—';
+    return dt.slice(0, 16).replace('T', ' ');
   }
 
   private groupByName(data: GroupAssignment[]): Record<string, GroupAssignment[]> {

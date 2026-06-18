@@ -256,13 +256,31 @@
 
 .fixture-match {
   display: grid;
-  grid-template-columns: 60px 1fr 100px 150px;
+  grid-template-columns: 40px 1fr auto auto;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   background: var(--color-bg-secondary, #f8fafc);
   border: 1px solid var(--color-border, #e2e8f0);
+  transition: background 0.15s;
+}
+
+.fixture-match:hover {
+  background: #eef2ff;
+}
+
+.fixture-match__num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary, #4f46e5);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fixture-match__group {
@@ -276,8 +294,11 @@
 }
 
 .fixture-match__teams {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fixture-match__date {
