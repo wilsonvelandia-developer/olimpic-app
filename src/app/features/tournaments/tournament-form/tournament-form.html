@@ -216,6 +216,84 @@
           </div>
         </div>
 
+        <!-- ═══════ SECCIÓN: Configuración de partidos ═══════ -->
+        <h2 class="form-section-title">⚽ Configuración de partidos</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="matchDurationMinutes">Duración por partido (min)</label>
+            <input id="matchDurationMinutes" type="number" class="form-control"
+              formControlName="matchDurationMinutes" min="30" max="300" />
+            <span class="form-hint">Incluye tiempo de descanso entre partidos.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="matchesPerDay">Partidos por día (por cancha)</label>
+            <input id="matchesPerDay" type="number" class="form-control"
+              formControlName="matchesPerDay" min="1" max="20" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="firstMatchTime">Hora primer partido</label>
+            <input id="firstMatchTime" type="time" class="form-control"
+              formControlName="firstMatchTime" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="numVenues">Cantidad de escenarios</label>
+            <input id="numVenues" type="number" class="form-control"
+              formControlName="numVenues" min="1" max="10" />
+          </div>
+          <div class="form-group form-group--full">
+            <label class="form-label" for="venueName">Nombre del escenario principal</label>
+            <input id="venueName" type="text" class="form-control"
+              formControlName="venueName" placeholder="Ej: Coliseo Municipal" maxlength="200" />
+          </div>
+        </div>
+
+        <!-- ═══════ SECCIÓN: Puntuación y clasificación ═══════ -->
+        <h2 class="form-section-title">🏆 Puntuación y clasificación</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="pointsWin">Puntos por victoria</label>
+            <input id="pointsWin" type="number" class="form-control"
+              formControlName="pointsWin" min="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pointsDraw">Puntos por empate</label>
+            <input id="pointsDraw" type="number" class="form-control"
+              formControlName="pointsDraw" min="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pointsLoss">Puntos por derrota</label>
+            <input id="pointsLoss" type="number" class="form-control"
+              formControlName="pointsLoss" min="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="initialFairPlayScore">Puntaje inicial Fair Play</label>
+            <input id="initialFairPlayScore" type="number" class="form-control"
+              formControlName="initialFairPlayScore" />
+            <span class="form-hint">Se resta con sanciones negativas, se suma con positivas.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="teamsPerGroupQualify">Equipos clasificados por grupo</label>
+            <input id="teamsPerGroupQualify" type="number" class="form-control"
+              formControlName="teamsPerGroupQualify" min="1" max="10" />
+          </div>
+        </div>
+
+        <!-- ═══════ SECCIÓN: Criterios de desempate ═══════ -->
+        <h2 class="form-section-title">⚖️ Criterios de desempate (orden de prioridad)</h2>
+        <p class="form-hint">Arrastra o usa las flechas para cambiar el orden. El primer criterio tiene mayor prioridad.</p>
+        <div class="tiebreaker-list">
+          @for (criterion of tiebreakerCriteria(); track criterion; let i = $index) {
+            <div class="tiebreaker-item">
+              <span class="tiebreaker-item__pos">{{ i + 1 }}°</span>
+              <span class="tiebreaker-item__label">{{ getCriterionLabel(criterion) }}</span>
+              <div class="tiebreaker-item__actions">
+                <button type="button" class="btn btn--secondary btn--sm" [disabled]="i === 0" (click)="onMoveCriterionUp(i)">↑</button>
+                <button type="button" class="btn btn--secondary btn--sm" [disabled]="i === tiebreakerCriteria().length - 1" (click)="onMoveCriterionDown(i)">↓</button>
+              </div>
+            </div>
+          }
+        </div>
+
         <!-- ═══════ ACCIONES ═══════ -->
         <div class="form-actions">
           <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>

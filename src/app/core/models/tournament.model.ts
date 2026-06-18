@@ -47,6 +47,17 @@ export interface Tournament {
   facebookUrl:           string | null;
   tiktokUrl:             string | null;
   youtubeUrl:            string | null;
+  // Fixture config
+  matchDurationMinutes?: number;
+  matchesPerDay?:        number;
+  firstMatchTime?:       string;
+  numVenues?:            number;
+  venueName?:            string | null;
+  // Standings config
+  pointsConfig?:          { win: number; draw: number; loss: number };
+  tiebreakerCriteria?:    string[];
+  initialFairPlayScore?:  number;
+  teamsPerGroupQualify?:  number;
   createdAt:             string;
   updatedAt:             string;
   // UI-only optional fields (not returned by backend)
