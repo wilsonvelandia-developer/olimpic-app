@@ -258,10 +258,27 @@ export class GroupDraw implements OnInit {
     return id ? this.teamName(id) : '?';
   }
 
-  /** Get venue label from a match object */
+  /** Get venue label from a match object. If null, derive from index. */
   getMatchVenue(match: unknown): string {
     const m = match as Record<string, unknown>;
-    return (m['venue'] as string) ?? 'Cancha';
+    const venue = (m['venue'] as string | null);
+    if (venue) return venue;
+
+    // Derive venue from position in same time slot
+    const dt = ((m['scheduled_at'] ?? m['scheduledAt']) as string) ?? '';
+    const timeSlot = dt.slice(0, 16); // YYYY-MM-DDTHH:MM
+
+    // Count how many matches share the same time slot before this one
+    const all = this.sortedMatches();
+    const sameSlot = all.filter((other) => {
+      const o = other as Record<string, unknown>;
+      const oDt = ((o['scheduled_at'] ?? o['scheduledAt']) as string) ?? '';
+      return oDt.slice(0, 16) === timeSlot;
+    });
+    const indexInSlot = sameSlot.indexOf(match);
+    const venueNum = indexInSlot >= 0 ? indexInSlot + 1 : 1;
+
+    return `Cancha ${venueNum}`;
   }
 
   /** Get formatted date from a match object */
