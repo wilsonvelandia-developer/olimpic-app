@@ -167,11 +167,7 @@
 
         <!-- ═══════ TAB 4: Posiciones ═══════ -->
         @if (activeTab() === 'standings') {
-          @if (isLoadingStandings()) {
-            <app-loading-spinner label="Calculando posiciones..." />
-          } @else {
-            <app-standings-table [entries]="standings()" />
-          }
+          <app-group-standings [tournamentId]="tournament()!.id" />
         }
 
         <!-- ═══════ TAB 5: Estadísticas ═══════ -->

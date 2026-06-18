@@ -1,0 +1,66 @@
+@if (isLoading()) { <app-loading-spinner label="Calculando posiciones..." /> }
+@if (errorMsg())  { <div class="alert alert--error">{{ errorMsg() }}</div> }
+
+@if (!isLoading() && groups().length === 0) {
+  <div class="empty-state">
+    <p>No hay grupos definidos. Realiza el sorteo de grupos primero.</p>
+  </div>
+}
+
+@if (groups().length > 0) {
+  <div class="standings-groups">
+    @for (group of groups(); track group.groupName) {
+      <div class="standings-group">
+        <div class="standings-group__header">
+          <span class="standings-group__letter">{{ group.groupName }}</span>
+          <span class="standings-group__label">Grupo {{ group.groupName }}</span>
+        </div>
+
+        <div class="standings-table-wrap">
+          <table class="standings-table" [attr.aria-label]="'Posiciones Grupo ' + group.groupName">
+            <thead>
+              <tr>
+                <th class="col-pos">#</th>
+                <th class="col-team">Equipo</th>
+                <th class="col-num">PJ</th>
+                <th class="col-num">PG</th>
+                <th class="col-num">PE</th>
+                <th class="col-num">PP</th>
+                <th class="col-num">GF</th>
+                <th class="col-num">GC</th>
+                <th class="col-num">DIF</th>
+                <th class="col-num col-pts">PTS</th>
+                <th class="col-num">FP</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of group.standings; track entry.teamId; let i = $index) {
+                <tr [class.row--qualify]="i < 2" [class.row--first]="i === 0">
+                  <td class="col-pos">
+                    <span class="pos-badge">{{ positionIcon(i + 1) }}</span>
+                  </td>
+                  <td class="col-team">
+                    <span class="team-name">{{ entry.teamShort ?? entry.teamName }}</span>
+                  </td>
+                  <td class="col-num">{{ entry.played }}</td>
+                  <td class="col-num">{{ entry.wins }}</td>
+                  <td class="col-num">{{ entry.draws }}</td>
+                  <td class="col-num">{{ entry.losses }}</td>
+                  <td class="col-num">{{ entry.scoreFor }}</td>
+                  <td class="col-num">{{ entry.scoreAgainst }}</td>
+                  <td class="col-num" [class.diff-pos]="entry.scoreDiff > 0" [class.diff-neg]="entry.scoreDiff < 0">
+                    {{ entry.scoreDiff > 0 ? '+' : '' }}{{ entry.scoreDiff }}
+                  </td>
+                  <td class="col-num col-pts">
+                    <strong>{{ entry.points }}</strong>
+                  </td>
+                  <td class="col-num col-fp">{{ entry.fairPlayScore }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
+}

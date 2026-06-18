@@ -17,6 +17,7 @@ import { TournamentStats }    from '../tournament-stats/tournament-stats';
 import { MatchHistory }       from '../match-history/match-history';
 import { GroupDraw }          from '../group-draw/group-draw';
 import { FixtureMatches }    from '../fixture-matches/fixture-matches';
+import { GroupStandings }    from '../group-standings/group-standings';
 import { AuthService }        from '../../../core/services/auth.service';
 import type {
   Tournament, StandingsEntry, TournamentStatsData, Match,
@@ -28,7 +29,7 @@ type ActiveTab = 'info' | 'groups' | 'matches' | 'standings' | 'stats';
   selector: 'app-tournament-detail',
   imports: [
     RouterLink, StatusBadge, LoadingSpinner, ConfirmDialog,
-    StandingsTable, TournamentStats, MatchHistory, GroupDraw, FixtureMatches,
+    StandingsTable, TournamentStats, MatchHistory, GroupDraw, FixtureMatches, GroupStandings,
   ],
   templateUrl: './tournament-detail.html',
   styleUrl:    './tournament-detail.css',
