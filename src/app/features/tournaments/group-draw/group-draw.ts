@@ -272,6 +272,68 @@ export class GroupDraw implements OnInit {
     return dt.slice(0, 16).replace('T', ' ');
   }
 
+  /** Get date-only (YYYY-MM-DD) */
+  getMatchDateOnly(match: unknown): string {
+    const m = match as Record<string, unknown>;
+    const dt = (m['scheduled_at'] ?? m['scheduledAt']) as string | null;
+    if (!dt) return '';
+    return dt.slice(0, 10);
+  }
+
+  /** Get time-only (HH:MM) */
+  getMatchTimeOnly(match: unknown): string {
+    const m = match as Record<string, unknown>;
+    const dt = (m['scheduled_at'] ?? m['scheduledAt']) as string | null;
+    if (!dt) return '08:00';
+    return dt.slice(11, 16);
+  }
+
+  /** Returns matches sorted by scheduledAt ascending */
+  sortedMatches(): unknown[] {
+    return [...this.fixtureMatches()].sort((a, b) => {
+      const ma = a as Record<string, unknown>;
+      const mb = b as Record<string, unknown>;
+      const da = ((ma['scheduled_at'] ?? ma['scheduledAt']) as string) ?? '';
+      const db = ((mb['scheduled_at'] ?? mb['scheduledAt']) as string) ?? '';
+      return da.localeCompare(db);
+    });
+  }
+
+  /** Edit match date inline */
+  onEditMatchDate(match: unknown, newDate: string): void {
+    const m = match as Record<string, unknown>;
+    const id = m['id'] as string;
+    const oldDt = ((m['scheduled_at'] ?? m['scheduledAt']) as string) ?? '';
+    const time = oldDt.slice(11, 19) || '08:00:00';
+    const newScheduledAt = `${newDate}T${time}`;
+
+    this.api.patch<unknown>(`/matches/${id}/schedule`, { scheduledAt: newScheduledAt }).subscribe({
+      next: () => {
+        // Update local state
+        m['scheduled_at'] = newScheduledAt;
+        m['scheduledAt']  = newScheduledAt;
+        this.fixtureMatches.set([...this.fixtureMatches()]);
+      },
+    });
+  }
+
+  /** Edit match time inline */
+  onEditMatchTime(match: unknown, newTime: string): void {
+    const m = match as Record<string, unknown>;
+    const id = m['id'] as string;
+    const oldDt = ((m['scheduled_at'] ?? m['scheduledAt']) as string) ?? '';
+    const date = oldDt.slice(0, 10) || new Date().toISOString().slice(0, 10);
+    const newScheduledAt = `${date}T${newTime}:00`;
+
+    this.api.patch<unknown>(`/matches/${id}/schedule`, { scheduledAt: newScheduledAt }).subscribe({
+      next: () => {
+        m['scheduled_at'] = newScheduledAt;
+        m['scheduledAt']  = newScheduledAt;
+        this.fixtureMatches.set([...this.fixtureMatches()]);
+      },
+    });
+  }
+
   private groupByName(data: GroupAssignment[]): Record<string, GroupAssignment[]> {
     const result: Record<string, GroupAssignment[]> = {};
     data.forEach((a) => {

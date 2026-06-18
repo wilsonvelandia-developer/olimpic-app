@@ -136,15 +136,40 @@
   @if (fixtureGenerated() && fixtureMatches().length > 0) {
     <div class="fixture-result">
       <h3 class="fixture-result__title">📋 Partidos generados ({{ fixtureMatches().length }})</h3>
-      <div class="fixture-result__list">
-        @for (match of fixtureMatches(); track $index) {
-          <div class="fixture-match">
-            <span class="fixture-match__num">{{ $index + 1 }}</span>
-            <span class="fixture-match__teams">
-              {{ getMatchTeamName(match, 'home') }} vs {{ getMatchTeamName(match, 'away') }}
+      <p class="fixture-result__hint">Haz clic en la fecha u hora para editarla. Los partidos están ordenados cronológicamente.</p>
+
+      <div class="fixture-result__table">
+        <div class="fixture-header">
+          <span class="fixture-col fixture-col--num">#</span>
+          <span class="fixture-col fixture-col--teams">Enfrentamiento</span>
+          <span class="fixture-col fixture-col--venue">Escenario</span>
+          <span class="fixture-col fixture-col--date">Fecha</span>
+          <span class="fixture-col fixture-col--time">Hora</span>
+        </div>
+
+        @for (match of sortedMatches(); track $index) {
+          <div class="fixture-row">
+            <span class="fixture-col fixture-col--num">
+              <span class="match-num-badge">{{ $index + 1 }}</span>
             </span>
-            <span class="fixture-match__venue">{{ getMatchVenue(match) }}</span>
-            <span class="fixture-match__date">{{ getMatchDate(match) }}</span>
+            <span class="fixture-col fixture-col--teams">
+              <strong>{{ getMatchTeamName(match, 'home') }}</strong>
+              <span class="vs-label">vs</span>
+              <strong>{{ getMatchTeamName(match, 'away') }}</strong>
+            </span>
+            <span class="fixture-col fixture-col--venue">
+              <span class="venue-badge">{{ getMatchVenue(match) }}</span>
+            </span>
+            <span class="fixture-col fixture-col--date">
+              <input type="date" class="inline-input"
+                [value]="getMatchDateOnly(match)"
+                (change)="onEditMatchDate(match, $any($event.target).value)" />
+            </span>
+            <span class="fixture-col fixture-col--time">
+              <input type="time" class="inline-input"
+                [value]="getMatchTimeOnly(match)"
+                (change)="onEditMatchTime(match, $any($event.target).value)" />
+            </span>
           </div>
         }
       </div>

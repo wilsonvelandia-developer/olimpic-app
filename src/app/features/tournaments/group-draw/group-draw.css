@@ -254,6 +254,117 @@
   overflow-y: auto;
 }
 
+/* ── Fixture table layout ──────────────────────────────────────────────────── */
+
+.fixture-result__hint {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #64748b);
+  margin: 0 0 1rem;
+}
+
+.fixture-result__table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.fixture-header {
+  display: grid;
+  grid-template-columns: 50px 1fr 120px 130px 100px;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.fixture-row {
+  display: grid;
+  grid-template-columns: 50px 1fr 120px 130px 100px;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border, #f1f5f9);
+  transition: background 0.1s;
+}
+
+.fixture-row:hover {
+  background: #f0f4ff;
+}
+
+.fixture-row:last-child {
+  border-bottom: none;
+}
+
+.fixture-col { display: flex; align-items: center; }
+.fixture-col--num { justify-content: center; }
+.fixture-col--teams { gap: 0.4rem; font-size: 0.85rem; }
+.fixture-col--venue { justify-content: center; }
+.fixture-col--date, .fixture-col--time { justify-content: center; }
+
+.match-num-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-primary, #4f46e5);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-label {
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.venue-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary, #4f46e5);
+  background: #eef2ff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  white-space: nowrap;
+}
+
+.inline-input {
+  border: 1px solid transparent;
+  border-radius: 0.3rem;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.8rem;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+
+.inline-input:hover {
+  border-color: var(--color-border, #cbd5e1);
+  background: white;
+}
+
+.inline-input:focus {
+  border-color: var(--color-primary, #4f46e5);
+  background: white;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
 .fixture-match {
   display: grid;
   grid-template-columns: 40px 1fr auto auto;
