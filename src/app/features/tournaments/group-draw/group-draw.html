@@ -79,9 +79,9 @@
   }
 
   <!-- ═══════ FIXTURE GENERATION (after groups confirmed) ═══════ -->
-  @if (isConfirmed() && !fixtureGenerated()) {
+  @if (isConfirmed()) {
     <div class="fixture-config">
-      <h3 class="fixture-config__title">⚽ Generar partidos de fase de grupos</h3>
+      <h3 class="fixture-config__title">⚽ {{ fixtureGenerated() ? 'Partidos de fase de grupos' : 'Generar partidos de fase de grupos' }}</h3>
       <div class="fixture-config__form">
         <div class="form-group">
           <label class="form-label">Fecha primer partido</label>
@@ -123,11 +123,13 @@
           </label>
         </div>
       </div>
-      <button type="button" class="btn btn--primary btn--lg"
-        [disabled]="isGenerating()"
-        (click)="onGenerateFixture()">
-        {{ isGenerating() ? 'Generando...' : '⚽ Generar partidos' }}
-      </button>
+      @if (canDraw()) {
+        <button type="button" class="btn btn--primary btn--lg"
+          [disabled]="isGenerating()"
+          (click)="onGenerateFixture()">
+          {{ isGenerating() ? 'Generando...' : (fixtureGenerated() ? '🔄 Re-generar partidos' : '⚽ Generar partidos') }}
+        </button>
+      }
     </div>
   }
 

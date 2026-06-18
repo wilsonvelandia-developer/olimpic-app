@@ -60,6 +60,7 @@ export class GroupDraw implements OnInit {
   ngOnInit(): void {
     this.loadTeams();
     this.loadExistingDraw();
+    this.loadExistingFixture();
   }
 
   private loadTeams(): void {
@@ -81,6 +82,38 @@ export class GroupDraw implements OnInit {
           }
         },
       });
+  }
+
+  /** Load previously generated matches for the group phase */
+  private loadExistingFixture(): void {
+    this.api.getPaginated<Record<string, unknown>>('/matches', { phaseId: this.tournamentId(), pageSize: 200 })
+      .subscribe({
+        next: (r) => {
+          if (r.data && r.data.length > 0) {
+            this.fixtureMatches.set(r.data as typeof this.fixtureMatches extends () => infer T ? T : never);
+            this.fixtureGenerated.set(true);
+          }
+        },
+      });
+    // Also try loading by phase name
+    this.api.get<Array<{ id: string; name: string }>>(
+      `/tournaments/${this.tournamentId()}/phases`,
+    ).subscribe({
+      next: (r) => {
+        const gruposPhase = (r.data ?? []).find((p) => p.name === 'Fase de Grupos');
+        if (gruposPhase) {
+          this.api.getPaginated<Record<string, unknown>>('/matches', { phaseId: gruposPhase.id, pageSize: 200 })
+            .subscribe({
+              next: (matchesRes) => {
+                if (matchesRes.data && matchesRes.data.length > 0) {
+                  this.fixtureMatches.set(matchesRes.data as typeof this.fixtureMatches extends () => infer T ? T : never);
+                  this.fixtureGenerated.set(true);
+                }
+              },
+            });
+        }
+      },
+    });
   }
 
   /** Performs a random draw — shuffles teams and distributes into groups */
