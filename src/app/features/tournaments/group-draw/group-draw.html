@@ -123,7 +123,7 @@
           </label>
         </div>
       </div>
-      @if (canDraw()) {
+      @if (canEditFixture()) {
         <button type="button" class="btn btn--primary btn--lg"
           [disabled]="isGenerating()"
           (click)="onGenerateFixture()">
@@ -158,7 +158,14 @@
               <strong>{{ getMatchTeamName(match, 'away') }}</strong>
             </span>
             <span class="fixture-col fixture-col--venue">
-              <span class="venue-badge">{{ getMatchVenue(match) }}</span>
+              @if (canEditFixture()) {
+                <input type="text" class="inline-input inline-input--venue"
+                  [value]="getMatchVenue(match)"
+                  (blur)="onEditMatchVenue(match, $any($event.target).value)"
+                  (keyup.enter)="$any($event.target).blur()" />
+              } @else {
+                <span class="venue-badge">{{ getMatchVenue(match) }}</span>
+              }
             </span>
             <span class="fixture-col fixture-col--date">
               <input type="date" class="inline-input"

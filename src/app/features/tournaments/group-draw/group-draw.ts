@@ -46,6 +46,11 @@ export class GroupDraw implements OnInit {
     this.status() === 'draft' && !this.isConfirmed() && this.auth.canEdit(),
   );
 
+  /** True when fixtures can be modified (draft status). */
+  readonly canEditFixture = computed(() =>
+    this.status() === 'draft' && this.auth.canEdit(),
+  );
+
   /** Expose Math.ceil for template use. */
   readonly Math = Math;
   readonly Object = Object;
@@ -346,6 +351,19 @@ export class GroupDraw implements OnInit {
       next: () => {
         m['scheduled_at'] = newScheduledAt;
         m['scheduledAt']  = newScheduledAt;
+        this.fixtureMatches.set([...this.fixtureMatches()]);
+      },
+    });
+  }
+
+  /** Edit match venue inline */
+  onEditMatchVenue(match: unknown, newVenue: string): void {
+    const m = match as Record<string, unknown>;
+    const id = m['id'] as string;
+
+    this.api.patch<unknown>(`/matches/${id}/schedule`, { venue: newVenue }).subscribe({
+      next: () => {
+        m['venue'] = newVenue;
         this.fixtureMatches.set([...this.fixtureMatches()]);
       },
     });

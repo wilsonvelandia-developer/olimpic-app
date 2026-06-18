@@ -427,3 +427,10 @@
   border-radius: 0.25rem;
   text-align: center;
 }
+
+.inline-input--venue {
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-primary, #4f46e5);
+  max-width: 110px;
+}
