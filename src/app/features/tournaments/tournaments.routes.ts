@@ -11,7 +11,7 @@ export const TOURNAMENT_ROUTES: Routes = [
     // editor+ can create tournaments
     path: 'new',
     canActivate: [roleGuard],
-    data: { requiredRole: 'editor' },
+    data: { requiredRole: 'organizer' },
     loadComponent: () =>
       import('./tournament-form/tournament-form').then((m) => m.TournamentForm),
   },
@@ -19,7 +19,7 @@ export const TOURNAMENT_ROUTES: Routes = [
     // editor+ can edit tournaments
     path: ':id/edit',
     canActivate: [roleGuard],
-    data: { requiredRole: 'editor' },
+    data: { requiredRole: 'organizer' },
     loadComponent: () =>
       import('./tournament-form/tournament-form').then((m) => m.TournamentForm),
   },

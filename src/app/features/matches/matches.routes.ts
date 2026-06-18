@@ -9,20 +9,20 @@ export const MATCH_ROUTES: Routes = [
   {
     path: 'new',
     canActivate: [roleGuard],
-    data: { requiredRole: 'editor' },
+    data: { requiredRole: 'organizer' },
     loadComponent: () => import('./match-form/match-form').then((m) => m.MatchForm),
   },
   {
     path: ':id/edit',
     canActivate: [roleGuard],
-    data: { requiredRole: 'editor' },
+    data: { requiredRole: 'organizer' },
     loadComponent: () => import('./match-form/match-form').then((m) => m.MatchForm),
   },
   {
     // Registering results requires at least editor role
     path: ':id/result',
     canActivate: [roleGuard],
-    data: { requiredRole: 'editor' },
+    data: { requiredRole: 'organizer' },
     loadComponent: () => import('./match-result/match-result').then((m) => m.MatchResult),
   },
 ];

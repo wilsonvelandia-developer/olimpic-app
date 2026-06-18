@@ -9,13 +9,13 @@ export const TEAM_ROUTES: Routes = [
   {
     path: 'new',
     canActivate: [roleGuard],
-    data: { requiredRole: 'editor' },
+    data: { requiredRole: 'organizer' },
     loadComponent: () => import('./team-form/team-form').then((m) => m.TeamForm),
   },
   {
     path: ':id/edit',
     canActivate: [roleGuard],
-    data: { requiredRole: 'editor' },
+    data: { requiredRole: 'organizer' },
     loadComponent: () => import('./team-form/team-form').then((m) => m.TeamForm),
   },
   {
