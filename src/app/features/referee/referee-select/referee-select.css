@@ -1,0 +1,124 @@
+.referee-select {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 1.5rem;
+  background: var(--color-bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.referee-select__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.referee-select__back-btn {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--color-border);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.referee-select__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.referee-select__subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.referee-select__loading,
+.referee-select__empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-secondary);
+}
+
+.referee-select__hint {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.referee-select__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.referee-select__match-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  text-align: left;
+}
+
+.referee-select__match-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.referee-select__match-card:active {
+  transform: scale(0.99);
+}
+
+.referee-select__teams {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.referee-select__vs {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.referee-select__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.referee-select__date {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+/* ═══ Mobile ═══ */
+@media (max-width: 480px) {
+  .referee-select {
+    padding: 1rem;
+  }
+
+  .referee-select__match-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .referee-select__teams {
+    font-size: 0.9rem;
+  }
+}

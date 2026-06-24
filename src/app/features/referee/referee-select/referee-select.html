@@ -1,0 +1,43 @@
+<div class="referee-select">
+  <header class="referee-select__header">
+    <button type="button" class="referee-select__back-btn" (click)="goBack()">← Volver</button>
+    <h1 class="referee-select__title">Modo Árbitro</h1>
+    <p class="referee-select__subtitle">Selecciona un partido para arbitrar</p>
+  </header>
+
+  @if (isLoading()) {
+    <div class="referee-select__loading">Cargando partidos...</div>
+  } @else if (matches().length === 0) {
+    <div class="referee-select__empty">
+      <p>No hay partidos disponibles para arbitrar.</p>
+      <p class="referee-select__hint">Los partidos deben estar programados o en curso.</p>
+    </div>
+  } @else {
+    <ul class="referee-select__list" role="list">
+      @for (match of matches(); track match.id) {
+        <li>
+          <button
+            type="button"
+            class="referee-select__match-card"
+            (click)="selectMatch(match.id)"
+          >
+            <div class="referee-select__teams">
+              <span class="referee-select__team">{{ match.homeTeamName ?? 'Local' }}</span>
+              <span class="referee-select__vs">vs</span>
+              <span class="referee-select__team">{{ match.awayTeamName ?? 'Visitante' }}</span>
+            </div>
+            <div class="referee-select__meta">
+              <span class="badge"
+                [class.badge--success]="match.status === 'in_progress'"
+                [class.badge--neutral]="match.status === 'scheduled'"
+              >{{ statusLabel(match.status) }}</span>
+              @if (match.scheduledAt) {
+                <span class="referee-select__date">{{ match.scheduledAt | date:'short' }}</span>
+              }
+            </div>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

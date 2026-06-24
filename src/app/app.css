@@ -153,3 +153,64 @@
   object-fit: cover;
   background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
 }
+
+/* ═══ Tablet: adjust card grids ═══ */
+@media (max-width: 768px) {
+  .items-grid,
+  .matches-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .page__header-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+/* ═══ Mobile: single column card grids ═══ */
+@media (max-width: 480px) {
+  .items-grid,
+  .matches-grid {
+    grid-template-columns: 1fr;
+    gap: 0.625rem;
+  }
+
+  .item-card {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .item-card__avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.75rem;
+  }
+
+  .item-card__img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .item-card__name {
+    font-size: 0.875rem;
+  }
+
+  .match-card-item {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .match-card-item__team {
+    font-size: 0.8rem;
+  }
+
+  .match-card-item__team-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .empty-state {
+    padding: 2rem 0.75rem;
+  }
+}

@@ -85,3 +85,49 @@
 .navbar__logout-btn:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
+
+/* ═══ Tablet: reduce spacing ═══ */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 1rem;
+  }
+
+  .navbar__right {
+    gap: 0.5rem;
+  }
+
+  .navbar__user-name {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ═══ Mobile: hide user name and role badge, compact logout ═══ */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 0.75rem;
+  }
+
+  .navbar__left {
+    gap: 0.5rem;
+  }
+
+  .navbar__logo {
+    font-size: 1rem;
+  }
+
+  .navbar__user-name {
+    display: none;
+  }
+
+  .navbar__role-badge {
+    display: none;
+  }
+
+  .navbar__logout-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}

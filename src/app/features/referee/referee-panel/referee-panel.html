@@ -1,0 +1,94 @@
+@if (ref.isLoading()) {
+  <div class="referee-panel referee-panel--loading">
+    <app-loading-spinner />
+  </div>
+} @else if (ref.error()) {
+  <div class="referee-panel referee-panel--error">
+    <p class="referee-panel__error">{{ ref.error() }}</p>
+    <button type="button" class="btn btn--secondary" (click)="goBack()">← Volver</button>
+  </div>
+} @else {
+  <div class="referee-panel">
+    <!-- Header bar -->
+    <header class="referee-panel__header">
+      <button type="button" class="referee-panel__back-btn" (click)="goBack()" aria-label="Volver">
+        ←
+      </button>
+      <div class="referee-panel__header-info">
+        <span class="referee-panel__match-status badge"
+          [class.badge--success]="ref.matchStatus() === 'in_progress'"
+          [class.badge--neutral]="ref.matchStatus() === 'scheduled'"
+          [class.badge--info]="ref.matchStatus() === 'finished'"
+        >{{ ref.matchStatus() }}</span>
+      </div>
+      <app-timer
+        #timerRef
+        [mode]="timerMode()"
+        [countdownTarget]="countdownTarget()"
+        [disabled]="ref.matchStatus() !== 'in_progress'"
+        (paused)="onTimerPaused($event)"
+        (finished)="onTimerFinished()"
+      />
+      <button
+        type="button"
+        class="referee-panel__mode-btn"
+        (click)="toggleTimerMode()"
+        [title]="timerMode() === 'progressive' ? 'Cambiar a cuenta regresiva' : 'Cambiar a progresivo'"
+      >
+        {{ timerMode() === 'progressive' ? '⏱↑' : '⏱↓' }}
+      </button>
+    </header>
+
+    <!-- Scoreboard (main content area) -->
+    <main class="referee-panel__main">
+      @if (ref.matchStatus() === 'scheduled') {
+        <div class="referee-panel__start-section">
+          <p>El partido aún no ha comenzado</p>
+          <button type="button" class="btn btn--primary btn--lg" (click)="onStartMatch()">
+            ▶ Iniciar Partido
+          </button>
+        </div>
+      } @else {
+        <app-scoreboard
+          [homeTeamName]="ref.homeTeamName()"
+          [awayTeamName]="ref.awayTeamName()"
+          [homeScore]="ref.currentPeriodHomeScore()"
+          [awayScore]="ref.currentPeriodAwayScore()"
+          [homeSetsWon]="ref.homeSetsWon()"
+          [awaySetsWon]="ref.awaySetsWon()"
+          [periodLabel]="ref.currentPeriodLabel()"
+          [hasSets]="ref.hasSets()"
+          [disabled]="ref.matchStatus() !== 'in_progress'"
+          (homeScoreUp)="onHomeScoreUp()"
+          (homeScoreDown)="onHomeScoreDown()"
+          (awayScoreUp)="onAwayScoreUp()"
+          (awayScoreDown)="onAwayScoreDown()"
+        />
+      }
+    </main>
+
+    <!-- Action bar -->
+    @if (ref.matchStatus() === 'in_progress') {
+      <footer class="referee-panel__actions">
+        <button type="button" class="referee-panel__action-btn" (click)="toggleEventsLog()">
+          <span class="referee-panel__action-icon">📋</span>
+          <span class="referee-panel__action-label">Eventos</span>
+        </button>
+        <button type="button" class="referee-panel__action-btn" (click)="onEndPeriod()">
+          <span class="referee-panel__action-icon">⏭</span>
+          <span class="referee-panel__action-label">Fin Período</span>
+        </button>
+        <button type="button" class="referee-panel__action-btn referee-panel__action-btn--danger" (click)="onFinishMatch()">
+          <span class="referee-panel__action-icon">🏁</span>
+          <span class="referee-panel__action-label">Finalizar</span>
+        </button>
+      </footer>
+    }
+
+    <!-- Events log panel (slide up from bottom) -->
+    <app-match-events-log
+      [events]="ref.events()"
+      [visible]="showEventsLog()"
+    />
+  </div>
+}

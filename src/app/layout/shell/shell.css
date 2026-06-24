@@ -8,6 +8,7 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
 .shell__content {
@@ -15,4 +16,33 @@
   padding: 1.5rem;
   overflow-y: auto;
   background-color: var(--color-bg-secondary);
+}
+
+/* ═══ Backdrop (visible on mobile when sidebar is open) ═══ */
+.shell__backdrop {
+  display: none;
+}
+
+/* ═══ Mobile breakpoint: sidebar as overlay ═══ */
+@media (max-width: 768px) {
+  .shell__content {
+    padding: 1rem;
+  }
+
+  .shell__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    top: 60px;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: calc(var(--z-sidebar) - 1);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .shell__backdrop--visible {
+    opacity: 1;
+    visibility: visible;
+  }
 }

@@ -2,7 +2,15 @@
   <app-navbar (menuToggle)="toggleSidebar()" />
 
   <div class="shell__body">
-    <app-sidebar [isOpen]="isSidebarOpen()" />
+    <app-sidebar [isOpen]="isSidebarOpen()" (linkClicked)="closeSidebarOnMobile()" />
+
+    <!-- Backdrop for mobile overlay -->
+    <div
+      class="shell__backdrop"
+      [class.shell__backdrop--visible]="isSidebarOpen()"
+      (click)="closeSidebarOnMobile()"
+      aria-hidden="true"
+    ></div>
 
     <main class="shell__content" role="main">
       <router-outlet />

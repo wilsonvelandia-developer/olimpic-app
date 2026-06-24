@@ -1,0 +1,146 @@
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.scoreboard__period {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  padding: 0.25rem 1rem;
+  border-radius: var(--radius-full);
+}
+
+.scoreboard__teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.scoreboard__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 280px;
+}
+
+.scoreboard__team-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.scoreboard__sets {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.scoreboard__score {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-text-primary);
+  min-width: 80px;
+  text-align: center;
+}
+
+.scoreboard__team--home .scoreboard__score {
+  color: var(--color-primary);
+}
+
+.scoreboard__team--away .scoreboard__score {
+  color: var(--color-error);
+}
+
+.scoreboard__vs {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.scoreboard__controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.scoreboard__btn {
+  min-width: 64px;
+  min-height: 56px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scoreboard__btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.scoreboard__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.scoreboard__btn--plus {
+  background-color: var(--color-success);
+  color: white;
+  border-color: var(--color-success);
+}
+
+.scoreboard__btn--plus:active:not(:disabled) {
+  background-color: #059669;
+}
+
+.scoreboard__btn--minus {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.scoreboard__btn--minus:active:not(:disabled) {
+  background-color: var(--color-bg-secondary);
+}
+
+/* ═══ Mobile adjustments ═══ */
+@media (max-width: 480px) {
+  .scoreboard__score {
+    font-size: 3rem;
+    min-width: 60px;
+  }
+
+  .scoreboard__btn {
+    min-width: 56px;
+    min-height: 48px;
+    font-size: 1.1rem;
+  }
+
+  .scoreboard__teams {
+    gap: 1rem;
+  }
+
+  .scoreboard__team-name {
+    font-size: 0.875rem;
+  }
+}

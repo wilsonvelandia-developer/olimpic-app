@@ -1,0 +1,38 @@
+<div class="timer" [class.timer--running]="isRunning()" [class.timer--paused]="!isRunning() && elapsed() > 0">
+  <!-- Time display -->
+  <div class="timer__display">
+    <span class="timer__time">{{ display() }}</span>
+    @if (mode() === 'countdown' && countdownTarget() > 0) {
+      <div class="timer__progress-bar">
+        <div class="timer__progress-fill" [style.width.%]="progress()"></div>
+      </div>
+    }
+  </div>
+
+  <!-- Controls -->
+  <div class="timer__controls">
+    @if (!isRunning()) {
+      <button
+        type="button"
+        class="timer__btn timer__btn--play"
+        [disabled]="disabled()"
+        (click)="start()"
+        aria-label="Start timer"
+      >▶</button>
+    } @else {
+      <button
+        type="button"
+        class="timer__btn timer__btn--pause"
+        (click)="pause()"
+        aria-label="Pause timer"
+      >⏸</button>
+    }
+    <button
+      type="button"
+      class="timer__btn timer__btn--reset"
+      [disabled]="disabled() || elapsed() === 0"
+      (click)="reset()"
+      aria-label="Reset timer"
+    >↺</button>
+  </div>
+</div>

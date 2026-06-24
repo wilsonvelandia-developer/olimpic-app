@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, inject, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import type { AppRole } from '../../core/models/role.model';
@@ -17,6 +17,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Equipos',    route: '/teams',         icon: '👥' },
   { label: 'Jugadores',  route: '/players',       icon: '🏃' },
   { label: 'Partidos',   route: '/matches',       icon: '⚽' },
+  { label: 'Árbitro',    route: '/referee',        icon: '🏁', minRole: 'referee' },
   { label: 'Deportes',   route: '/sports',        icon: '🎯', minRole: 'admin' },
   { label: 'Usuarios',   route: '/users',         icon: '🔐', minRole: 'organizer' },
 ];
@@ -24,6 +25,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
 /**
  * Sidebar navigation. Filters nav items based on the current user's role.
  * Items with minRole are hidden from users with insufficient privileges.
+ * Emits linkClicked when a navigation link is tapped (used to close sidebar on mobile).
  */
 @Component({
   selector: 'app-sidebar',
@@ -35,7 +37,8 @@ const ALL_NAV_ITEMS: NavItem[] = [
 export class Sidebar {
   private readonly auth = inject(AuthService);
 
-  readonly isOpen = input<boolean>(true);
+  readonly isOpen = input<boolean>(false);
+  readonly linkClicked = output<void>();
 
   /** Only include items the current user can access. */
   readonly visibleNavItems = computed<NavItem[]>(() =>
@@ -43,4 +46,8 @@ export class Sidebar {
       (item) => !item.minRole || this.auth.hasRole(item.minRole),
     ),
   );
+
+  onLinkClick(): void {
+    this.linkClicked.emit();
+  }
 }

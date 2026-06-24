@@ -1,0 +1,59 @@
+<div class="scoreboard">
+  <!-- Period indicator -->
+  <div class="scoreboard__period">{{ periodLabel() }}</div>
+
+  <div class="scoreboard__teams">
+    <!-- Home Team -->
+    <div class="scoreboard__team scoreboard__team--home">
+      <span class="scoreboard__team-name">{{ homeTeamName() }}</span>
+      @if (hasSets()) {
+        <span class="scoreboard__sets">Sets: {{ homeSetsWon() }}</span>
+      }
+      <span class="scoreboard__score">{{ homeScore() }}</span>
+      <div class="scoreboard__controls">
+        <button
+          type="button"
+          class="scoreboard__btn scoreboard__btn--plus"
+          [disabled]="disabled()"
+          (click)="homeScoreUp.emit()"
+          aria-label="Add point home team"
+        >+1</button>
+        <button
+          type="button"
+          class="scoreboard__btn scoreboard__btn--minus"
+          [disabled]="disabled() || homeScore() === 0"
+          (click)="homeScoreDown.emit()"
+          aria-label="Remove point home team"
+        >-1</button>
+      </div>
+    </div>
+
+    <!-- VS divider -->
+    <div class="scoreboard__vs">VS</div>
+
+    <!-- Away Team -->
+    <div class="scoreboard__team scoreboard__team--away">
+      <span class="scoreboard__team-name">{{ awayTeamName() }}</span>
+      @if (hasSets()) {
+        <span class="scoreboard__sets">Sets: {{ awaySetsWon() }}</span>
+      }
+      <span class="scoreboard__score">{{ awayScore() }}</span>
+      <div class="scoreboard__controls">
+        <button
+          type="button"
+          class="scoreboard__btn scoreboard__btn--plus"
+          [disabled]="disabled()"
+          (click)="awayScoreUp.emit()"
+          aria-label="Add point away team"
+        >+1</button>
+        <button
+          type="button"
+          class="scoreboard__btn scoreboard__btn--minus"
+          [disabled]="disabled() || awayScore() === 0"
+          (click)="awayScoreDown.emit()"
+          aria-label="Remove point away team"
+        >-1</button>
+      </div>
+    </div>
+  </div>
+</div>

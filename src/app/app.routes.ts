@@ -23,6 +23,14 @@ export const routes: Routes = [
     ],
   },
 
+  // ── Referee panel (full-screen, no shell — optimized for tablet) ─
+  {
+    path: 'referee',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/referee/referee.routes').then((m) => m.REFEREE_ROUTES),
+  },
+
   // ── Protected routes ───────────────────────────────────────────
   {
     path: '',
