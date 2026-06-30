@@ -1,0 +1,65 @@
+@if (visible()) {
+  <div class="sub-overlay" (click)="close()" role="dialog" aria-label="Registrar sustitución">
+    <div class="sub-dialog" (click)="$event.stopPropagation()">
+      <header class="sub-dialog__header">
+        <h3 class="sub-dialog__title">Sustitución</h3>
+        <span class="sub-dialog__team">{{ teamName() }}</span>
+        @if (subsMax() !== null) {
+          <span class="sub-dialog__counter"
+            [class.sub-dialog__counter--warning]="subsLimitReached()"
+          >{{ subsUsed() }}/{{ subsMax() }}</span>
+        }
+      </header>
+
+      @if (subsLimitReached()) {
+        <div class="sub-dialog__alert">
+          ⚠️ Límite de sustituciones alcanzado
+        </div>
+      } @else {
+        <!-- Step 1: Select player going OUT -->
+        @if (step() === 1) {
+          <div class="sub-dialog__step-label">Paso 1: ¿Quién SALE?</div>
+          <div class="sub-dialog__players">
+            @for (player of playersOnCourt(); track player.id) {
+              <button
+                type="button"
+                class="sub-dialog__player-btn sub-dialog__player-btn--out"
+                (click)="selectPlayerOut(player)"
+              >
+                <span class="sub-dialog__jersey">#{{ player.jerseyNumber }}</span>
+                <span class="sub-dialog__name">{{ player.name }}</span>
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Step 2: Select player coming IN -->
+        @if (step() === 2) {
+          <div class="sub-dialog__step-info">
+            <button type="button" class="sub-dialog__back-btn" (click)="goBackToStep1()">←</button>
+            <span class="sub-dialog__step-label">Paso 2: ¿Quién ENTRA?</span>
+            <span class="sub-dialog__selected-out">Sale: #{{ selectedOut()?.jerseyNumber }} {{ selectedOut()?.name }}</span>
+          </div>
+          <div class="sub-dialog__players">
+            @for (player of playersOnBench(); track player.id) {
+              <button
+                type="button"
+                class="sub-dialog__player-btn sub-dialog__player-btn--in"
+                (click)="selectPlayerIn(player)"
+              >
+                <span class="sub-dialog__jersey">#{{ player.jerseyNumber }}</span>
+                <span class="sub-dialog__name">{{ player.name }}</span>
+              </button>
+            } @empty {
+              <p class="sub-dialog__empty">No hay suplentes disponibles</p>
+            }
+          </div>
+        }
+      }
+
+      <footer class="sub-dialog__footer">
+        <button type="button" class="btn btn--secondary" (click)="close()">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+}

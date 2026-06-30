@@ -1,0 +1,62 @@
+@if (visible()) {
+  <div class="sanction-overlay" (click)="close()" role="dialog" aria-label="Registrar sanción">
+    <div class="sanction-dialog" (click)="$event.stopPropagation()">
+      <header class="sanction-dialog__header">
+        <h3 class="sanction-dialog__title">Sanción</h3>
+        <span class="sanction-dialog__team">{{ teamName() }}</span>
+      </header>
+
+      <!-- Step 1: Select sanction type -->
+      @if (step() === 1) {
+        <div class="sanction-dialog__step-label">Tipo de sanción</div>
+        <div class="sanction-dialog__types">
+          @for (type of sanctionTypes(); track type.id) {
+            <button
+              type="button"
+              class="sanction-dialog__type-btn"
+              [style.border-color]="type.color || 'var(--color-border)'"
+              (click)="selectSanctionType(type)"
+            >
+              <span class="sanction-dialog__type-icon">{{ type.icon || '⚠️' }}</span>
+              <span class="sanction-dialog__type-name">{{ type.name }}</span>
+            </button>
+          } @empty {
+            <p class="sanction-dialog__empty">No hay tipos de sanción configurados</p>
+          }
+        </div>
+      }
+
+      <!-- Step 2: Select player -->
+      @if (step() === 2) {
+        <div class="sanction-dialog__step-info">
+          <button type="button" class="sanction-dialog__back-btn" (click)="goBackToStep1()">←</button>
+          <span class="sanction-dialog__step-label">¿A quién?</span>
+          <span class="sanction-dialog__selected-type">
+            {{ selectedType()?.icon }} {{ selectedType()?.name }}
+          </span>
+        </div>
+        <div class="sanction-dialog__players">
+          @for (player of players(); track player.id) {
+            <button
+              type="button"
+              class="sanction-dialog__player-btn"
+              (click)="selectPlayer(player)"
+            >
+              <span class="sanction-dialog__jersey">#{{ player.jerseyNumber }}</span>
+              <span class="sanction-dialog__name">{{ player.name }}</span>
+            </button>
+          }
+        </div>
+        <div class="sanction-dialog__team-option">
+          <button type="button" class="btn btn--secondary btn--sm" (click)="applyToTeam()">
+            Aplicar al equipo (sin jugador específico)
+          </button>
+        </div>
+      }
+
+      <footer class="sanction-dialog__footer">
+        <button type="button" class="btn btn--secondary" (click)="close()">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+}

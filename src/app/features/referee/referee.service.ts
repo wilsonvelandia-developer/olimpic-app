@@ -2,8 +2,19 @@ import { inject, Injectable, signal, computed } from '@angular/core';
 import { ApiService } from '../../core/services/api.service';
 import type { MatchDetail, MatchPeriod, Match } from '../../core/models/match.model';
 import type { MatchEventItem } from './match-events-log/match-events-log';
+import type { PlayerOption } from './scorer-select/scorer-select';
+import type { SanctionType } from './sanction-dialog/sanction-dialog';
+import type { MatchSetupResult } from './match-setup/match-setup';
 
 type MatchStatus = 'scheduled' | 'in_progress' | 'finished';
+
+interface PlayerInfo {
+  id: string;
+  name: string;
+  jerseyNumber: number;
+  position?: string;
+  isStarter?: boolean;
+}
 
 /**
  * Manages the local state of a match being controlled by the referee.
@@ -22,10 +33,34 @@ export class RefereeService {
   private readonly _periods = signal<MatchPeriod[]>([]);
   readonly events = signal<MatchEventItem[]>([]);
 
+  /** Players loaded from teams API. */
+  readonly homePlayers = signal<PlayerOption[]>([]);
+  readonly awayPlayers = signal<PlayerOption[]>([]);
+
+  /** Players currently on court (starters minus subbed out + subbed in). */
+  private readonly _homeOnCourt = signal<PlayerOption[]>([]);
+  private readonly _awayOnCourt = signal<PlayerOption[]>([]);
+  private readonly _homeOnBench = signal<PlayerOption[]>([]);
+  private readonly _awayOnBench = signal<PlayerOption[]>([]);
+
+  /** Sanction types for the tournament. */
+  readonly sanctionTypes = signal<SanctionType[]>([]);
+
+  /** Sport info. */
+  readonly sportSlug = signal<string>('football');
+  readonly playersPerTeam = signal<number>(11);
+
+  /** Substitution tracking. */
+  private readonly _homeSubsUsed = signal<number>(0);
+  private readonly _awaySubsUsed = signal<number>(0);
+  readonly subsMax = signal<number | null>(null);
+
   // ── Computed ──────────────────────────────────────────────────────────────
   readonly matchStatus = computed<MatchStatus>(() => this._match()?.status ?? 'scheduled');
   readonly homeTeamName = computed(() => this._match()?.homeTeamName ?? 'Local');
   readonly awayTeamName = computed(() => this._match()?.awayTeamName ?? 'Visitante');
+  readonly homeTeamId = computed(() => this._match()?.homeTeamId ?? '');
+  readonly awayTeamId = computed(() => this._match()?.awayTeamId ?? '');
 
   readonly hasSets = computed(() => {
     const periods = this._periods();
@@ -40,30 +75,38 @@ export class RefereeService {
   readonly currentPeriodLabel = computed(() => {
     const period = this.currentPeriod();
     if (!period) return 'P1';
-    const hasSets = this.hasSets();
-    return hasSets ? `SET ${period.periodNumber}` : `P${period.periodNumber}`;
+    return this.hasSets() ? `SET ${period.periodNumber}` : `P${period.periodNumber}`;
   });
 
   readonly currentPeriodHomeScore = computed(() => this.currentPeriod()?.homeScore ?? 0);
   readonly currentPeriodAwayScore = computed(() => this.currentPeriod()?.awayScore ?? 0);
 
-  readonly homeSetsWon = computed(() => {
-    return this._periods().filter(
-      (p) => p.status === 'finished' && p.homeScore > p.awayScore,
-    ).length;
-  });
+  readonly homeSetsWon = computed(() =>
+    this._periods().filter((p) => p.status === 'finished' && p.homeScore > p.awayScore).length,
+  );
 
-  readonly awaySetsWon = computed(() => {
-    return this._periods().filter(
-      (p) => p.status === 'finished' && p.awayScore > p.homeScore,
-    ).length;
-  });
+  readonly awaySetsWon = computed(() =>
+    this._periods().filter((p) => p.status === 'finished' && p.awayScore > p.homeScore).length,
+  );
 
   private matchId = '';
 
+  // ── Public getters for dialogs ────────────────────────────────────────────
+
+  getPlayersOnCourt(side: 'home' | 'away'): PlayerOption[] {
+    return side === 'home' ? this._homeOnCourt() : this._awayOnCourt();
+  }
+
+  getPlayersOnBench(side: 'home' | 'away'): PlayerOption[] {
+    return side === 'home' ? this._homeOnBench() : this._awayOnBench();
+  }
+
+  getSubsUsed(side: 'home' | 'away'): number {
+    return side === 'home' ? this._homeSubsUsed() : this._awaySubsUsed();
+  }
+
   // ── Load Match ────────────────────────────────────────────────────────────
 
-  /** Loads match data from the API. */
   loadMatch(matchId: string): void {
     this.matchId = matchId;
     this.isLoading.set(true);
@@ -75,6 +118,8 @@ export class RefereeService {
           this._match.set(res.data.match);
           this._periods.set(res.data.periods);
           this.loadEvents();
+          this.loadPlayers();
+          this.loadSubstitutionCount();
         } else {
           this.error.set('No se pudo cargar el partido');
         }
@@ -87,7 +132,6 @@ export class RefereeService {
     });
   }
 
-  /** Loads match events timeline. */
   private loadEvents(): void {
     this.api.get<MatchEventItem[]>(`/matches/${this.matchId}/events`).subscribe({
       next: (res) => {
@@ -98,9 +142,63 @@ export class RefereeService {
     });
   }
 
+  private loadPlayers(): void {
+    const match = this._match();
+    if (!match) return;
+
+    // Load home team players
+    this.api.get<PlayerInfo[]>(`/teams/${match.homeTeamId}/players`).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const players = res.data.map((p) => ({
+            id: p.id,
+            name: p.name,
+            jerseyNumber: p.jerseyNumber,
+            position: p.position,
+          }));
+          this.homePlayers.set(players);
+          // Initially all players are "on court" (until lineup is loaded)
+          this._homeOnCourt.set(players);
+          this._homeOnBench.set([]);
+        }
+      },
+    });
+
+    // Load away team players
+    this.api.get<PlayerInfo[]>(`/teams/${match.awayTeamId}/players`).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const players = res.data.map((p) => ({
+            id: p.id,
+            name: p.name,
+            jerseyNumber: p.jerseyNumber,
+            position: p.position,
+          }));
+          this.awayPlayers.set(players);
+          this._awayOnCourt.set(players);
+          this._awayOnBench.set([]);
+        }
+      },
+    });
+  }
+
+  private loadSubstitutionCount(): void {
+    this.api.get<unknown[]>(`/matches/${this.matchId}/substitutions`).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const subs = res.data as Array<{ teamId: string }>;
+          const match = this._match();
+          if (match) {
+            this._homeSubsUsed.set(subs.filter((s) => s.teamId === match.homeTeamId).length);
+            this._awaySubsUsed.set(subs.filter((s) => s.teamId === match.awayTeamId).length);
+          }
+        }
+      },
+    });
+  }
+
   // ── Match Lifecycle ───────────────────────────────────────────────────────
 
-  /** Start the match (changes status to in_progress, creates periods). */
   startMatch(): void {
     this.api.put<MatchDetail>(`/matches/${this.matchId}/start`, {}).subscribe({
       next: (res) => {
@@ -113,7 +211,6 @@ export class RefereeService {
     });
   }
 
-  /** Finish the match (computes winner). */
   finishMatch(): void {
     this.api.put<MatchDetail>(`/matches/${this.matchId}/finish`, {}).subscribe({
       next: (res) => {
@@ -128,25 +225,21 @@ export class RefereeService {
 
   // ── Scoring ───────────────────────────────────────────────────────────────
 
-  /** Add a point to the specified side. */
   addPoint(side: 'home' | 'away'): void {
     const period = this.currentPeriod();
     if (!period) return;
 
     const homeScore = side === 'home' ? period.homeScore + 1 : period.homeScore;
     const awayScore = side === 'away' ? period.awayScore + 1 : period.awayScore;
-
     this.updateScore(period.periodNumber, homeScore, awayScore);
   }
 
-  /** Remove a point from the specified side. */
   removePoint(side: 'home' | 'away'): void {
     const period = this.currentPeriod();
     if (!period) return;
 
     const homeScore = side === 'home' ? Math.max(0, period.homeScore - 1) : period.homeScore;
     const awayScore = side === 'away' ? Math.max(0, period.awayScore - 1) : period.awayScore;
-
     this.updateScore(period.periodNumber, homeScore, awayScore);
   }
 
@@ -165,21 +258,124 @@ export class RefereeService {
     });
   }
 
+  // ── Register Scorer ───────────────────────────────────────────────────────
+
+  registerScorer(dto: {
+    teamId: string;
+    playerId: string;
+    periodNumber: number;
+    matchMinute: number | null;
+    points: number;
+  }): void {
+    this.api.post(`/matches/${this.matchId}/scorers`, dto).subscribe({
+      next: () => this.loadEvents(),
+    });
+  }
+
+  // ── Register Substitution ─────────────────────────────────────────────────
+
+  registerSubstitution(dto: {
+    teamId: string;
+    periodNumber: number;
+    playerOutId: string;
+    playerInId: string;
+    minute: number | null;
+  }): void {
+    this.api.post(`/matches/${this.matchId}/substitutions`, dto).subscribe({
+      next: () => {
+        this.loadEvents();
+        this.loadSubstitutionCount();
+        // Update on-court/bench state
+        this.swapPlayer(dto.teamId, dto.playerOutId, dto.playerInId);
+      },
+      error: (err) => {
+        const msg = err?.error?.message ?? 'Error al registrar sustitución';
+        this.error.set(msg);
+      },
+    });
+  }
+
+  private swapPlayer(teamId: string, playerOutId: string, playerInId: string): void {
+    const match = this._match();
+    if (!match) return;
+
+    const isHome = teamId === match.homeTeamId;
+    const onCourt = isHome ? [...this._homeOnCourt()] : [...this._awayOnCourt()];
+    const onBench = isHome ? [...this._homeOnBench()] : [...this._awayOnBench()];
+
+    const outIdx = onCourt.findIndex((p) => p.id === playerOutId);
+    const inIdx = onBench.findIndex((p) => p.id === playerInId);
+
+    if (outIdx >= 0 && inIdx >= 0) {
+      const outPlayer = onCourt[outIdx];
+      const inPlayer = onBench[inIdx];
+      onCourt[outIdx] = inPlayer;
+      onBench[inIdx] = outPlayer;
+    }
+
+    if (isHome) {
+      this._homeOnCourt.set(onCourt);
+      this._homeOnBench.set(onBench);
+    } else {
+      this._awayOnCourt.set(onCourt);
+      this._awayOnBench.set(onBench);
+    }
+  }
+
+  // ── Register Sanction ─────────────────────────────────────────────────────
+
+  registerSanction(dto: {
+    sanctionTypeId: string;
+    teamId: string;
+    playerId: string | null;
+    periodNumber: number;
+    minute: number | null;
+  }): void {
+    this.api.post(`/matches/${this.matchId}/sanctions`, dto).subscribe({
+      next: () => this.loadEvents(),
+      error: () => this.error.set('Error al registrar sanción'),
+    });
+  }
+
+  // ── Match Setup ───────────────────────────────────────────────────────────
+
+  saveMatchSetup(result: MatchSetupResult): void {
+    // Save coin toss / field sides
+    this.api.put(`/matches/${this.matchId}/setup`, {
+      coinTossWinnerTeamId: result.coinTossWinnerTeamId,
+      fieldSideHome: result.fieldSideHome,
+      fieldSideAway: result.fieldSideAway,
+      firstServeTeamId: result.firstServeTeamId,
+    }).subscribe();
+
+    // Save home lineup
+    const match = this._match();
+    if (match && result.homeLineup.length > 0) {
+      this.api.post(`/matches/${this.matchId}/match-lineups`, {
+        teamId: match.homeTeamId,
+        periodNumber: 1,
+        players: result.homeLineup,
+      }).subscribe();
+    }
+
+    // Save away lineup
+    if (match && result.awayLineup.length > 0) {
+      this.api.post(`/matches/${this.matchId}/match-lineups`, {
+        teamId: match.awayTeamId,
+        periodNumber: 1,
+        players: result.awayLineup,
+      }).subscribe();
+    }
+  }
+
   // ── Period Management ─────────────────────────────────────────────────────
 
-  /** End the current period — the backend handles activating the next. */
   endCurrentPeriod(): void {
-    const period = this.currentPeriod();
-    if (!period) return;
-
-    // The score update endpoint auto-finishes periods when rules are met.
-    // For non-set sports, we just reload to get the latest state.
     this.loadMatch(this.matchId);
   }
 
   // ── Timer Events ──────────────────────────────────────────────────────────
 
-  /** Record timer pause event for timeline. */
   recordTimerPause(elapsed: number): void {
     const period = this.currentPeriod();
     if (!period) return;
@@ -192,8 +388,7 @@ export class RefereeService {
     }).subscribe();
   }
 
-  /** Called when countdown timer reaches zero. */
   onTimerExpired(): void {
-    // Could auto-end period in the future
+    // Could auto-end period
   }
 }

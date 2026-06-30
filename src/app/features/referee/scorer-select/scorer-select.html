@@ -1,0 +1,45 @@
+@if (visible()) {
+  <div class="scorer-overlay" (click)="skip()" role="dialog" aria-label="Seleccionar anotador">
+    <div class="scorer-dialog" (click)="$event.stopPropagation()">
+      <header class="scorer-dialog__header">
+        <h3 class="scorer-dialog__title">¿Quién anotó?</h3>
+        <span class="scorer-dialog__team">{{ teamName() }}</span>
+      </header>
+
+      <!-- Search -->
+      <div class="scorer-dialog__search">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar por nombre o dorsal..."
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Player grid -->
+      <div class="scorer-dialog__players">
+        @for (player of filteredPlayers; track player.id) {
+          <button
+            type="button"
+            class="scorer-dialog__player-btn"
+            (click)="selectPlayer(player)"
+          >
+            <span class="scorer-dialog__jersey">#{{ player.jerseyNumber }}</span>
+            <span class="scorer-dialog__name">{{ player.name }}</span>
+          </button>
+        } @empty {
+          <p class="scorer-dialog__empty">No se encontraron jugadores</p>
+        }
+      </div>
+
+      <!-- Footer -->
+      <footer class="scorer-dialog__footer">
+        <button type="button" class="btn btn--secondary" (click)="skip()">
+          Omitir
+        </button>
+      </footer>
+    </div>
+  </div>
+}

@@ -1,0 +1,68 @@
+@if (visible()) {
+  <div class="rotation-overlay" (click)="onClose()" role="dialog" aria-label="Rotación de equipo">
+    <div class="rotation-dialog" (click)="$event.stopPropagation()">
+      <header class="rotation-dialog__header">
+        <h3 class="rotation-dialog__title">Rotación — {{ teamName() }}</h3>
+        <span class="rotation-dialog__counter">Rotación {{ rotationCount() }}/5</span>
+      </header>
+
+      <!-- Visual court representation -->
+      <div class="rotation-court">
+        <!-- Net indicator -->
+        <div class="rotation-court__net">RED</div>
+
+        <!-- Front row: zones 4, 3, 2 (left to right) -->
+        <div class="rotation-court__row rotation-court__row--front">
+          <div class="rotation-court__zone rotation-court__zone--4">
+            <span class="rotation-court__zone-label">Z4</span>
+            <span class="rotation-court__jersey">{{ getJersey(4) }}</span>
+            <span class="rotation-court__name">{{ getName(4) }}</span>
+          </div>
+          <div class="rotation-court__zone rotation-court__zone--3">
+            <span class="rotation-court__zone-label">Z3</span>
+            <span class="rotation-court__jersey">{{ getJersey(3) }}</span>
+            <span class="rotation-court__name">{{ getName(3) }}</span>
+          </div>
+          <div class="rotation-court__zone rotation-court__zone--2">
+            <span class="rotation-court__zone-label">Z2</span>
+            <span class="rotation-court__jersey">{{ getJersey(2) }}</span>
+            <span class="rotation-court__name">{{ getName(2) }}</span>
+          </div>
+        </div>
+
+        <!-- Back row: zones 5, 6, 1 (left to right) -->
+        <div class="rotation-court__row rotation-court__row--back">
+          <div class="rotation-court__zone rotation-court__zone--5">
+            <span class="rotation-court__zone-label">Z5</span>
+            <span class="rotation-court__jersey">{{ getJersey(5) }}</span>
+            <span class="rotation-court__name">{{ getName(5) }}</span>
+          </div>
+          <div class="rotation-court__zone rotation-court__zone--6">
+            <span class="rotation-court__zone-label">Z6</span>
+            <span class="rotation-court__jersey">{{ getJersey(6) }}</span>
+            <span class="rotation-court__name">{{ getName(6) }}</span>
+          </div>
+          <div class="rotation-court__zone rotation-court__zone--1">
+            <span class="rotation-court__zone-label">Z1 🏐</span>
+            <span class="rotation-court__jersey">{{ getJersey(1) }}</span>
+            <span class="rotation-court__name">{{ getName(1) }}</span>
+          </div>
+        </div>
+
+        <!-- Rotation arrow -->
+        <div class="rotation-court__arrow" aria-hidden="true">↻</div>
+      </div>
+
+      <!-- Actions -->
+      <footer class="rotation-dialog__footer">
+        <button
+          type="button"
+          class="btn btn--primary"
+          [disabled]="!canRotate()"
+          (click)="onRotate()"
+        >🔄 Aplicar Rotación</button>
+        <button type="button" class="btn btn--secondary" (click)="onClose()">Cerrar</button>
+      </footer>
+    </div>
+  </div>
+}

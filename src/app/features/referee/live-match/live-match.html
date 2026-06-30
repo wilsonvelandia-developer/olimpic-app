@@ -1,0 +1,42 @@
+@if (isLoading()) {
+  <div class="live-match live-match--loading">Cargando...</div>
+} @else if (!match()) {
+  <div class="live-match live-match--error">Partido no encontrado</div>
+} @else {
+  <div class="live-match">
+    <!-- Header -->
+    <header class="live-match__header">
+      <span class="live-match__status badge badge--success">🔴 EN VIVO</span>
+      <span class="live-match__timer" [class.live-match__timer--running]="timerRunning()">
+        ⏱ {{ formatTimer() }}
+      </span>
+    </header>
+
+    <!-- Scoreboard -->
+    <div class="live-match__scoreboard">
+      <div class="live-match__team">
+        <span class="live-match__team-name">{{ match()!.homeTeamName ?? 'Local' }}</span>
+        <span class="live-match__score live-match__score--home">
+          {{ currentPeriod?.homeScore ?? 0 }}
+        </span>
+      </div>
+      <span class="live-match__vs">—</span>
+      <div class="live-match__team">
+        <span class="live-match__score live-match__score--away">
+          {{ currentPeriod?.awayScore ?? 0 }}
+        </span>
+        <span class="live-match__team-name">{{ match()!.awayTeamName ?? 'Visitante' }}</span>
+      </div>
+    </div>
+
+    <!-- Events timeline -->
+    <app-match-events-log [events]="events()" [visible]="true" />
+
+    <!-- Standings update notification -->
+    @if (standingsUpdated()) {
+      <div class="live-match__standings-banner">
+        ✅ Tabla de posiciones actualizada
+      </div>
+    }
+  </div>
+}

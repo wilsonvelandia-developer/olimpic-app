@@ -44,6 +44,9 @@
       @if (ref.matchStatus() === 'scheduled') {
         <div class="referee-panel__start-section">
           <p>El partido aún no ha comenzado</p>
+          <button type="button" class="btn btn--secondary btn--lg" (click)="openSetup()">
+            ⚙️ Configurar Partido
+          </button>
           <button type="button" class="btn btn--primary btn--lg" (click)="onStartMatch()">
             ▶ Iniciar Partido
           </button>
@@ -70,13 +73,29 @@
     <!-- Action bar -->
     @if (ref.matchStatus() === 'in_progress') {
       <footer class="referee-panel__actions">
+        <button type="button" class="referee-panel__action-btn" (click)="openSubstitution('home')">
+          <span class="referee-panel__action-icon">🔀</span>
+          <span class="referee-panel__action-label">Cambio L</span>
+        </button>
+        <button type="button" class="referee-panel__action-btn" (click)="openSubstitution('away')">
+          <span class="referee-panel__action-icon">🔀</span>
+          <span class="referee-panel__action-label">Cambio V</span>
+        </button>
+        <button type="button" class="referee-panel__action-btn" (click)="openSanction('home')">
+          <span class="referee-panel__action-icon">🟨</span>
+          <span class="referee-panel__action-label">Sanción L</span>
+        </button>
+        <button type="button" class="referee-panel__action-btn" (click)="openSanction('away')">
+          <span class="referee-panel__action-icon">🟨</span>
+          <span class="referee-panel__action-label">Sanción V</span>
+        </button>
         <button type="button" class="referee-panel__action-btn" (click)="toggleEventsLog()">
           <span class="referee-panel__action-icon">📋</span>
           <span class="referee-panel__action-label">Eventos</span>
         </button>
         <button type="button" class="referee-panel__action-btn" (click)="onEndPeriod()">
           <span class="referee-panel__action-icon">⏭</span>
-          <span class="referee-panel__action-label">Fin Período</span>
+          <span class="referee-panel__action-label">Fin Per.</span>
         </button>
         <button type="button" class="referee-panel__action-btn referee-panel__action-btn--danger" (click)="onFinishMatch()">
           <span class="referee-panel__action-icon">🏁</span>
@@ -85,10 +104,61 @@
       </footer>
     }
 
-    <!-- Events log panel (slide up from bottom) -->
+    <!-- Events log panel -->
     <app-match-events-log
       [events]="ref.events()"
       [visible]="showEventsLog()"
     />
   </div>
+
+  <!-- ═══ Dialogs ═══ -->
+
+  <!-- Scorer Select -->
+  <app-scorer-select
+    [visible]="showScorerSelect()"
+    [players]="ref.getPlayersOnCourt(scoringTeamSide())"
+    [teamName]="scoringTeamName()"
+    (playerSelected)="onScorerSelected($event)"
+    (skipped)="onScorerSkipped()"
+    (closed)="onScorerSkipped()"
+  />
+
+  <!-- Substitution Dialog -->
+  <app-substitution-dialog
+    [visible]="showSubstitution()"
+    [playersOnCourt]="ref.getPlayersOnCourt(activeTeamSide())"
+    [playersOnBench]="ref.getPlayersOnBench(activeTeamSide())"
+    [teamName]="activeTeamName()"
+    [teamId]="activeTeamId()"
+    [currentMinute]="currentMinute()"
+    [subsUsed]="ref.getSubsUsed(activeTeamSide())"
+    [subsMax]="ref.subsMax()"
+    (confirmed)="onSubstitutionConfirmed($event)"
+    (closed)="onSubstitutionClosed()"
+  />
+
+  <!-- Sanction Dialog -->
+  <app-sanction-dialog
+    [visible]="showSanction()"
+    [sanctionTypes]="ref.sanctionTypes()"
+    [players]="ref.getPlayersOnCourt(activeTeamSide())"
+    [teamName]="activeTeamName()"
+    [teamId]="activeTeamId()"
+    [currentMinute]="currentMinute()"
+    (confirmed)="onSanctionConfirmed($event)"
+    (closed)="onSanctionClosed()"
+  />
+
+  <!-- Match Setup Wizard -->
+  <app-match-setup
+    [visible]="showSetup()"
+    [matchId]="id()"
+    [homeTeam]="homeTeamPlayers()"
+    [awayTeam]="awayTeamPlayers()"
+    [hasSets]="ref.hasSets()"
+    [sportSlug]="ref.sportSlug()"
+    [playersPerTeam]="ref.playersPerTeam()"
+    (completed)="onSetupCompleted($event)"
+    (closed)="onSetupClosed()"
+  />
 }

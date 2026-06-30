@@ -16,4 +16,10 @@ export const REFEREE_ROUTES: Routes = [
     loadComponent: () =>
       import('./referee-panel/referee-panel').then((m) => m.RefereePanel),
   },
+  {
+    // Spectator view — any authenticated user can watch a live match
+    path: 'live/:id',
+    loadComponent: () =>
+      import('./live-match/live-match').then((m) => m.LiveMatch),
+  },
 ];

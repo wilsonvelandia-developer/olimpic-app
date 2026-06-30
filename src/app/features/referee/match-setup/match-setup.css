@@ -1,0 +1,258 @@
+.setup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.setup-dialog {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.setup-dialog__header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.setup-dialog__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.setup-dialog__steps {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.setup-dialog__step {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.setup-dialog__step--active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.setup-dialog__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ═══ Sections (Step 1) ═══ */
+.setup-section {
+  margin-bottom: 1.5rem;
+}
+
+.setup-section__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.setup-section__options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.setup-option-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  touch-action: manipulation;
+  text-align: center;
+}
+
+.setup-option-btn--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* ═══ Lineup section (Steps 2 & 3) ═══ */
+.lineup-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.lineup-section__title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.lineup-section__counter {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.lineup-section__counter--complete {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.lineup-section__players {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lineup-player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+}
+
+.lineup-player--selected {
+  background: var(--color-primary-light);
+}
+
+.lineup-player__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  padding: 0.625rem 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+  min-height: 44px;
+}
+
+.lineup-player__toggle--active {
+  border-color: var(--color-primary);
+  background: white;
+}
+
+.lineup-player__jersey {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  min-width: 32px;
+}
+
+.lineup-player__name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lineup-player__roles {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.lineup-role-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.lineup-role-btn--active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.lineup-zone-select {
+  width: 52px;
+  height: 32px;
+  padding: 0 0.25rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+}
+
+/* ═══ Footer ═══ */
+.setup-dialog__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.setup-dialog__footer .btn--ghost {
+  margin-left: auto;
+}
+
+/* ═══ Mobile ═══ */
+@media (max-width: 480px) {
+  .setup-dialog {
+    max-height: 95vh;
+    max-width: 100%;
+    border-radius: var(--radius-md);
+  }
+
+  .setup-dialog__body {
+    padding: 1rem;
+  }
+
+  .setup-dialog__steps {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .setup-option-btn {
+    min-width: 100px;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .lineup-player__roles {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,26 @@
+<section class="live-feed" aria-label="Partidos en vivo">
+  <header class="live-feed__header">
+    <h3 class="live-feed__title">🔴 Partidos en Vivo</h3>
+    <button type="button" class="live-feed__refresh" (click)="refresh()" aria-label="Actualizar">↻</button>
+  </header>
+
+  @if (isLoading()) {
+    <div class="live-feed__loading">Cargando...</div>
+  } @else if (liveMatches().length === 0) {
+    <p class="live-feed__empty">No hay partidos en curso</p>
+  } @else {
+    <ul class="live-feed__list" role="list">
+      @for (match of liveMatches(); track match.id) {
+        <li>
+          <button type="button" class="live-feed__match" (click)="watchMatch(match.id)">
+            <span class="live-feed__team">{{ match.homeTeamName ?? 'Local' }}</span>
+            <span class="live-feed__score">
+              {{ match.homeScore ?? 0 }} - {{ match.awayScore ?? 0 }}
+            </span>
+            <span class="live-feed__team">{{ match.awayTeamName ?? 'Visitante' }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>

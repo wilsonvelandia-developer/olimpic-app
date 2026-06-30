@@ -1,0 +1,186 @@
+@if (visible()) {
+  <div class="setup-overlay" role="dialog" aria-label="Configuración pre-partido">
+    <div class="setup-dialog">
+      <!-- Header with steps indicator -->
+      <header class="setup-dialog__header">
+        <h2 class="setup-dialog__title">Configuración del Partido</h2>
+        <div class="setup-dialog__steps">
+          <span class="setup-dialog__step" [class.setup-dialog__step--active]="currentStep() === 1">1. Sorteo</span>
+          <span class="setup-dialog__step" [class.setup-dialog__step--active]="currentStep() === 2">2. {{ homeTeam().teamName }}</span>
+          <span class="setup-dialog__step" [class.setup-dialog__step--active]="currentStep() === 3">3. {{ awayTeam().teamName }}</span>
+        </div>
+      </header>
+
+      <div class="setup-dialog__body">
+        <!-- ═══ Step 1: Coin Toss ═══ -->
+        @if (currentStep() === 1) {
+          <section class="setup-section">
+            <h3 class="setup-section__title">¿Quién ganó el sorteo?</h3>
+            <div class="setup-section__options">
+              <button type="button"
+                class="setup-option-btn"
+                [class.setup-option-btn--selected]="coinTossWinner() === homeTeam().teamId"
+                (click)="setCoinTossWinner(homeTeam().teamId)"
+              >{{ homeTeam().teamName }}</button>
+              <button type="button"
+                class="setup-option-btn"
+                [class.setup-option-btn--selected]="coinTossWinner() === awayTeam().teamId"
+                (click)="setCoinTossWinner(awayTeam().teamId)"
+              >{{ awayTeam().teamName }}</button>
+            </div>
+          </section>
+
+          <section class="setup-section">
+            <h3 class="setup-section__title">Lado del campo (Local)</h3>
+            <div class="setup-section__options">
+              <button type="button"
+                class="setup-option-btn"
+                [class.setup-option-btn--selected]="fieldSideHome() === 'A'"
+                (click)="setFieldSideHome('A')"
+              >Lado A</button>
+              <button type="button"
+                class="setup-option-btn"
+                [class.setup-option-btn--selected]="fieldSideHome() === 'B'"
+                (click)="setFieldSideHome('B')"
+              >Lado B</button>
+            </div>
+          </section>
+
+          <section class="setup-section">
+            <h3 class="setup-section__title">
+              {{ isVolleyball() ? '¿Quién inicia con el saque?' : '¿Quién inicia con el balón?' }}
+            </h3>
+            <div class="setup-section__options">
+              <button type="button"
+                class="setup-option-btn"
+                [class.setup-option-btn--selected]="firstServeTeamId() === homeTeam().teamId"
+                (click)="setFirstServe(homeTeam().teamId)"
+              >{{ homeTeam().teamName }}</button>
+              <button type="button"
+                class="setup-option-btn"
+                [class.setup-option-btn--selected]="firstServeTeamId() === awayTeam().teamId"
+                (click)="setFirstServe(awayTeam().teamId)"
+              >{{ awayTeam().teamName }}</button>
+            </div>
+          </section>
+        }
+
+        <!-- ═══ Step 2: Home Team Lineup ═══ -->
+        @if (currentStep() === 2) {
+          <ng-container
+            *ngTemplateOutlet="lineupTpl; context: {
+              $implicit: homeTeam(),
+              side: 'home',
+              starters: homeStarters(),
+              captain: homeCaptain(),
+              goalkeeper: homeGoalkeeper(),
+              libero: homeLibero(),
+              starterCount: homeStarterCount()
+            }"
+          />
+        }
+
+        <!-- ═══ Step 3: Away Team Lineup ═══ -->
+        @if (currentStep() === 3) {
+          <ng-container
+            *ngTemplateOutlet="lineupTpl; context: {
+              $implicit: awayTeam(),
+              side: 'away',
+              starters: awayStarters(),
+              captain: awayCaptain(),
+              goalkeeper: awayGoalkeeper(),
+              libero: awayLibero(),
+              starterCount: awayStarterCount()
+            }"
+          />
+        }
+      </div>
+
+      <!-- Footer navigation -->
+      <footer class="setup-dialog__footer">
+        @if (currentStep() > 1) {
+          <button type="button" class="btn btn--secondary" (click)="prevStep()">← Anterior</button>
+        }
+        @if (currentStep() < 3) {
+          <button type="button" class="btn btn--primary"
+            [disabled]="currentStep() === 2 && !canGoToStep3()"
+            (click)="nextStep()"
+          >Siguiente →</button>
+        }
+        @if (currentStep() === 3) {
+          <button type="button" class="btn btn--primary"
+            [disabled]="!canFinish()"
+            (click)="finish()"
+          >✓ Confirmar y Comenzar</button>
+        }
+        <button type="button" class="btn btn--ghost" (click)="closed.emit()">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+}
+
+<!-- ═══ Lineup Template (reused for home and away) ═══ -->
+<ng-template #lineupTpl let-team let-side="side" let-starters="starters" let-captain="captain"
+  let-goalkeeper="goalkeeper" let-libero="libero" let-starterCount="starterCount">
+  <div class="lineup-section">
+    <div class="lineup-section__header">
+      <h3 class="lineup-section__title">{{ team.teamName }} — Titulares</h3>
+      <span class="lineup-section__counter"
+        [class.lineup-section__counter--complete]="starterCount === requiredStarters()"
+      >{{ starterCount }}/{{ requiredStarters() }}</span>
+    </div>
+
+    <div class="lineup-section__players">
+      @for (player of team.players; track player.id) {
+        <div class="lineup-player" [class.lineup-player--selected]="isStarter(side, player.id)">
+          <button type="button"
+            class="lineup-player__toggle"
+            [class.lineup-player__toggle--active]="isStarter(side, player.id)"
+            (click)="toggleStarter(side, player.id)"
+          >
+            <span class="lineup-player__jersey">#{{ player.jerseyNumber }}</span>
+            <span class="lineup-player__name">{{ player.name }}</span>
+          </button>
+
+          <!-- Roles (shown only for starters) -->
+          @if (isStarter(side, player.id)) {
+            <div class="lineup-player__roles">
+              <button type="button" class="lineup-role-btn"
+                [class.lineup-role-btn--active]="captain === player.id"
+                (click)="setCaptain(side, player.id)" title="Capitán"
+              >©</button>
+
+              @if (isFootball()) {
+                <button type="button" class="lineup-role-btn"
+                  [class.lineup-role-btn--active]="goalkeeper === player.id"
+                  (click)="setGoalkeeper(side, player.id)" title="Portero"
+                >🧤</button>
+              }
+
+              @if (isVolleyball()) {
+                <button type="button" class="lineup-role-btn"
+                  [class.lineup-role-btn--active]="libero === player.id"
+                  (click)="setLibero(side, player.id)" title="Líbero"
+                >L</button>
+
+                <!-- Zone selector -->
+                <select class="lineup-zone-select"
+                  [value]="getZone(side, player.id) ?? ''"
+                  (change)="setZone(side, player.id, +$any($event.target).value)"
+                >
+                  <option value="">Zona</option>
+                  <option value="1">Z1</option>
+                  <option value="2">Z2</option>
+                  <option value="3">Z3</option>
+                  <option value="4">Z4</option>
+                  <option value="5">Z5</option>
+                  <option value="6">Z6</option>
+                </select>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>
