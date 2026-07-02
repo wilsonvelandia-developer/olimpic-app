@@ -23,12 +23,15 @@ import { TournamentVenues }        from '../tournament-venues/tournament-venues'
 import { TournamentPayments }      from '../tournament-payments/tournament-payments';
 import { TournamentAnnouncements } from '../tournament-announcements/tournament-announcements';
 import { TournamentGallery }       from '../tournament-gallery/tournament-gallery';
+import { TournamentBracket }      from '../tournament-bracket/tournament-bracket';
+import { TournamentSanctions }    from '../tournament-sanctions/tournament-sanctions';
+import { TournamentScorers }      from '../tournament-scorers/tournament-scorers';
 import { AuthService }        from '../../../core/services/auth.service';
 import type {
   Tournament, StandingsEntry, TournamentStatsData, Match,
 } from '../../../core/models';
 
-type ActiveTab = 'info' | 'groups' | 'matches' | 'standings' | 'stats' | 'enrollments' | 'venues' | 'payments' | 'announcements' | 'gallery';
+type ActiveTab = 'info' | 'groups' | 'matches' | 'bracket' | 'standings' | 'stats' | 'scorers' | 'sanctions' | 'enrollments' | 'venues' | 'payments' | 'announcements' | 'gallery';
 
 @Component({
   selector: 'app-tournament-detail',
@@ -36,6 +39,8 @@ type ActiveTab = 'info' | 'groups' | 'matches' | 'standings' | 'stats' | 'enroll
     RouterLink, StatusBadge, LoadingSpinner, ConfirmDialog,
     StandingsTable, TournamentStats, MatchHistory, GroupDraw, FixtureMatches, GroupStandings,
     EnrollmentManager, TournamentVenues, TournamentPayments, TournamentAnnouncements, TournamentGallery,
+    TournamentBracket,
+    TournamentSanctions, TournamentScorers,
   ],
   templateUrl: './tournament-detail.html',
   styleUrl:    './tournament-detail.css',
@@ -67,8 +72,11 @@ export class TournamentDetail implements OnInit {
     if (t === 'info')          return 'Información general';
     if (t === 'groups')        return 'Grupos';
     if (t === 'matches')       return 'Partidos';
+    if (t === 'bracket')       return 'Llaves';
     if (t === 'standings')     return 'Posiciones';
     if (t === 'stats')         return 'Estadísticas';
+    if (t === 'scorers')       return 'Goleadores';
+    if (t === 'sanctions')     return 'Sanciones';
     if (t === 'enrollments')   return 'Inscripciones';
     if (t === 'venues')        return 'Sedes';
     if (t === 'payments')      return 'Pagos';

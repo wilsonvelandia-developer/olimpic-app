@@ -11,6 +11,7 @@ import { DashboardService } from './dashboard.service';
 import { StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
 import { AuthService } from '../../core/services/auth.service';
+import { OnboardingService } from '../../core/services/onboarding.service';
 import type { DashboardStats, RecentTournament, RecentMatch } from './dashboard.service';
 
 interface StatCard {
@@ -35,6 +36,7 @@ export class Dashboard implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly router = inject(Router);
   readonly auth = inject(AuthService);
+  private readonly onboarding = inject(OnboardingService);
 
   readonly isLoading = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -46,6 +48,8 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboard();
+    // Start onboarding tour for first-time users
+    this.onboarding.startIfNew();
   }
 
   loadDashboard(): void {

@@ -1,0 +1,35 @@
+<div class="bell-wrapper">
+  <button type="button" class="bell-btn" (click)="toggle()" aria-label="Notificaciones">
+    <span class="bell-icon" aria-hidden="true">🔔</span>
+    @if (unreadCount() > 0) {
+      <span class="bell-badge">{{ unreadCount() > 9 ? '9+' : unreadCount() }}</span>
+    }
+  </button>
+
+  @if (isOpen()) {
+    <div class="bell-dropdown">
+      <div class="bell-dropdown__header">
+        <h4 class="bell-dropdown__title">Notificaciones</h4>
+        @if (unreadCount() > 0) {
+          <button type="button" class="btn btn--ghost btn--sm" (click)="onMarkAllRead()">Marcar leídas</button>
+        }
+      </div>
+
+      <div class="bell-dropdown__list">
+        @if (notifications().length === 0) {
+          <p class="bell-dropdown__empty">Sin notificaciones</p>
+        }
+        @for (n of notifications(); track n.id) {
+          <div class="notification-item" [class.notification-item--unread]="!n.isRead" (click)="onClickNotification(n)">
+            <span class="notification-item__icon">{{ getTypeIcon(n.type) }}</span>
+            <div class="notification-item__content">
+              <span class="notification-item__title">{{ n.title }}</span>
+              <span class="notification-item__body">{{ n.body }}</span>
+              <span class="notification-item__date">{{ n.createdAt | date:'short' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

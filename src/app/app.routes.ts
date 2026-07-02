@@ -28,14 +28,6 @@ export const routes: Routes = [
     ],
   },
 
-  // ── Referee panel (full-screen, no shell — optimized for tablet) ─
-  {
-    path: 'referee',
-    canActivate: [authGuard],
-    loadChildren: () =>
-      import('./features/referee/referee.routes').then((m) => m.REFEREE_ROUTES),
-  },
-
   // ── Protected routes ───────────────────────────────────────────
   {
     path: '',
@@ -120,6 +112,24 @@ export const routes: Routes = [
         data: { requiredRole: 'organizer' },
         loadComponent: () =>
           import('./features/referee/referee-history/referee-history').then((m) => m.RefereeHistory),
+      },
+
+      // referee+ — referee panel (match selection and scoring)
+      {
+        path: 'referee',
+        canActivate: [roleGuard],
+        data: { requiredRole: 'referee' },
+        loadChildren: () =>
+          import('./features/referee/referee.routes').then((m) => m.REFEREE_ROUTES),
+      },
+
+      // organizer+ — real-time chat
+      {
+        path: 'chat',
+        canActivate: [roleGuard],
+        data: { requiredRole: 'organizer' },
+        loadComponent: () =>
+          import('./shared/components/chat-panel/chat-panel').then((m) => m.ChatPanel),
       },
 
       // admin only — sport catalog is master data

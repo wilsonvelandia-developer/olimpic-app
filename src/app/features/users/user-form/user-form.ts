@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { UserService } from '../user.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ImageUpload } from '../../../shared/components/image-upload/image-upload';
 import type { AppRole } from '../../../core/models/role.model';
 
 interface RoleOption {
@@ -15,7 +16,7 @@ interface RoleOption {
 
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, LoadingSpinner],
+  imports: [ReactiveFormsModule, LoadingSpinner, ImageUpload],
   templateUrl: './user-form.html',
   styleUrl: './user-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -196,6 +197,11 @@ export class UserForm implements OnInit {
       });
     }
   }
+
+  onPhotoUploaded(url: string): void { this.form.patchValue({ photoUrl: url }); }
+  onDocFrontUploaded(url: string): void { this.form.patchValue({ documentFrontUrl: url }); }
+  onDocBackUploaded(url: string): void { this.form.patchValue({ documentBackUrl: url }); }
+  onEpsUploaded(url: string): void { this.form.patchValue({ epsFileUrl: url }); }
 
   onCancel(): void { this.router.navigate(['/users']); }
 

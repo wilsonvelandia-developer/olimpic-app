@@ -5,10 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { VenueService } from '../venue.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ImageUpload } from '../../../shared/components/image-upload/image-upload';
+import { MapPicker } from '../../../shared/components/map-picker/map-picker';
 
 @Component({
   selector: 'app-venue-form',
-  imports: [ReactiveFormsModule, LoadingSpinner],
+  imports: [ReactiveFormsModule, LoadingSpinner, ImageUpload, MapPicker],
   templateUrl: './venue-form.html',
   styleUrl: './venue-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -115,6 +117,14 @@ export class VenueForm implements OnInit {
         error: () => { this.errorMessage.set('No se pudo guardar la sede.'); this.isSaving.set(false); },
       });
     }
+  }
+
+  onImageUploaded(url: string): void {
+    this.form.patchValue({ imageUrl: url });
+  }
+
+  onMapUrlChanged(url: string): void {
+    this.form.patchValue({ mapUrl: url });
   }
 
   onCancel(): void { this.router.navigate(['/venues']); }

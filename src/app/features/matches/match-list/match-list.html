@@ -59,7 +59,10 @@
       @if (viewMode() === 'card') {
         <div class="matches-grid">
           @for (match of matches(); track match.id) {
-            <article class="match-card-item" (click)="onViewDetail(match.id)">
+            <article class="match-card-item"
+              [class.match-card-item--live]="match.status === 'in_progress'"
+              [class.match-card-item--finished]="match.status === 'finished'"
+              (click)="onViewDetail(match.id)">
               <div class="match-card-item__teams">
                 <div class="match-card-item__team-col">
                   <img class="match-card-item__team-img"

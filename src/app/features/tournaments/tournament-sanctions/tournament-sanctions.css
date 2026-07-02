@@ -1,0 +1,15 @@
+.sanctions-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+.sanctions-title { font-size: 1.1rem; font-weight: 600; }
+.sanctions-stats { display: flex; gap: 1rem; font-size: 0.85rem; font-weight: 600; }
+.stat--yellow { color: #b45309; }
+.stat--red { color: #dc2626; }
+.stat--suspended { color: var(--color-error); }
+
+.sanctions-filters { display: flex; gap: 0.375rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.sanctions-empty { color: var(--color-text-secondary); font-size: 0.9rem; }
+
+.player-name { font-weight: 500; }
+.text-center { text-align: center; }
+
+.card { font-size: 1.1rem; }
+.row--suspended { background: #fef2f2; }

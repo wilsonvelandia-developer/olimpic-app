@@ -50,9 +50,9 @@
           </div>
 
           <div class="form-group form-group--full">
-            <label class="form-label" for="imageUrl">Imagen (URL)</label>
-            <input id="imageUrl" type="url" class="form-control"
-              formControlName="imageUrl" placeholder="https://ejemplo.com/sede.jpg" />
+            <app-image-upload label="Imagen de la sede" folder="venues"
+              [currentUrl]="form.get('imageUrl')?.value ?? null"
+              (uploaded)="onImageUploaded($event)" />
           </div>
 
           @if (isEditMode()) {
@@ -80,9 +80,9 @@
               formControlName="email" placeholder="sede@ejemplo.com" />
           </div>
           <div class="form-group form-group--full">
-            <label class="form-label" for="mapUrl">Enlace a mapa (Google Maps)</label>
-            <input id="mapUrl" type="url" class="form-control"
-              formControlName="mapUrl" placeholder="https://maps.google.com/..." />
+            <app-map-picker label="Ubicación (Google Maps)"
+              [currentUrl]="form.get('mapUrl')?.value ?? null"
+              (urlChanged)="onMapUrlChanged($event)" />
           </div>
         </div>
 

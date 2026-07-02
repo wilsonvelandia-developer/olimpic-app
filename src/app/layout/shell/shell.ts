@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from '../navbar/navbar';
 import { Sidebar } from '../sidebar/sidebar';
+import { OnboardingOverlay } from '../../shared/components/onboarding-overlay/onboarding-overlay';
 
 /** Breakpoint at which the sidebar becomes an overlay. */
 const MOBILE_BREAKPOINT = 768;
@@ -13,7 +14,7 @@ const MOBILE_BREAKPOINT = 768;
  */
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, Navbar, Sidebar],
+  imports: [RouterOutlet, Navbar, Sidebar, OnboardingOverlay],
   templateUrl: './shell.html',
   styleUrl: './shell.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

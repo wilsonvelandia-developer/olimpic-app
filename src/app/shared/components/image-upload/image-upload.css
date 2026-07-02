@@ -1,0 +1,85 @@
+.upload-wrapper { display: flex; flex-direction: column; gap: 0.5rem; }
+.upload-label { font-size: 0.875rem; font-weight: 500; color: var(--color-text-primary); }
+
+.drop-zone {
+  position: relative;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.drop-zone:hover,
+.drop-zone--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.drop-zone--uploading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.drop-zone__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.drop-zone__icon { font-size: 2rem; }
+.drop-zone__text { font-size: 0.875rem; color: var(--color-text-primary); }
+.drop-zone__hint { font-size: 0.75rem; color: var(--color-text-secondary); }
+
+.drop-zone__preview {
+  max-width: 100%;
+  max-height: 160px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+}
+
+.drop-zone__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.drop-zone__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.2s;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.progress-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.upload-error {
+  font-size: 0.8rem;
+  color: var(--color-error);
+}

@@ -6,11 +6,12 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TeamService }    from '../team.service';
 import { ApiService }     from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ImageUpload }    from '../../../shared/components/image-upload/image-upload';
 import type { Tournament } from '../../../core/models/tournament.model';
 
 @Component({
   selector: 'app-team-form',
-  imports: [ReactiveFormsModule, LoadingSpinner],
+  imports: [ReactiveFormsModule, LoadingSpinner, ImageUpload],
   templateUrl: './team-form.html',
   styleUrl: './team-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -141,6 +142,10 @@ export class TeamForm implements OnInit {
         error: () => { this.errorMessage.set('No se pudo guardar el equipo.'); this.isSaving.set(false); },
       });
     }
+  }
+
+  onImageUploaded(url: string): void {
+    this.form.patchValue({ imageUrl: url });
   }
 
   onCancel(): void { this.router.navigate(['/teams']); }

@@ -1,0 +1,6 @@
+.no-bracket {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}

@@ -8,6 +8,7 @@
             [routerLink]="item.route"
             routerLinkActive="sidebar__link--active"
             [attr.aria-label]="item.label"
+            [attr.data-tour]="item.route === '/dashboard' ? 'dashboard' : item.route === '/teams' ? 'teams' : item.route === '/matches' ? 'matches' : item.route === '/referee' ? 'referee' : null"
             (click)="onLinkClick()"
           >
             <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>

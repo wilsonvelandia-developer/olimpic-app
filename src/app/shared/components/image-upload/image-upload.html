@@ -1,0 +1,41 @@
+<div class="upload-wrapper">
+  <label class="upload-label">{{ label() }}</label>
+
+  <div class="drop-zone"
+    [class.drop-zone--active]="isDragging()"
+    [class.drop-zone--uploading]="isUploading()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+    role="button"
+    tabindex="0"
+    aria-label="Subir imagen">
+
+    @if (preview() || currentUrl()) {
+      <img class="drop-zone__preview"
+        [src]="preview() || currentUrl()"
+        alt="Preview" loading="lazy" />
+    } @else {
+      <div class="drop-zone__placeholder">
+        <span class="drop-zone__icon" aria-hidden="true">📷</span>
+        <span class="drop-zone__text">Arrastra una imagen o haz clic</span>
+        <span class="drop-zone__hint">JPG, PNG, WebP, GIF — máx. 5MB</span>
+      </div>
+    }
+
+    @if (isUploading()) {
+      <div class="drop-zone__progress">
+        <div class="progress-bar" [style.width.%]="progress()"></div>
+        <span class="progress-text">{{ progress() }}%</span>
+      </div>
+    }
+
+    <input type="file" class="drop-zone__input"
+      accept="image/jpeg,image/png,image/webp,image/gif"
+      (change)="onFileSelected($event)" />
+  </div>
+
+  @if (error()) {
+    <span class="upload-error">{{ error() }}</span>
+  }
+</div>

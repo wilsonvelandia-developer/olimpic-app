@@ -1,0 +1,18 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando llaves..." /> }
+
+@if (!isLoading()) {
+  @if (!hasKnockoutPhase()) {
+    <div class="no-bracket">
+      <p>Este torneo no tiene fase eliminatoria configurada.</p>
+    </div>
+  } @else if (rounds().length === 0) {
+    <div class="no-bracket">
+      <p>No hay partidos en la fase eliminatoria aún.</p>
+    </div>
+  } @else {
+    <app-bracket
+      [rounds]="rounds()"
+      [thirdPlaceMatch]="thirdPlaceMatch()"
+      title="Fase Eliminatoria" />
+  }
+}

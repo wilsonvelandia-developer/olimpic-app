@@ -12,14 +12,21 @@ interface NavItem {
 }
 
 const ALL_NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard',  route: '/dashboard',    icon: '📊' },
-  { label: 'Torneos',    route: '/tournaments',   icon: '🏆' },
-  { label: 'Equipos',    route: '/teams',         icon: '👥' },
-  { label: 'Jugadores',  route: '/players',       icon: '🏃' },
-  { label: 'Partidos',   route: '/matches',       icon: '⚽' },
-  { label: 'Árbitro',    route: '/referee',        icon: '🏁', minRole: 'referee' },
-  { label: 'Deportes',   route: '/sports',        icon: '🎯', minRole: 'admin' },
-  { label: 'Usuarios',   route: '/users',         icon: '🔐', minRole: 'organizer' },
+  { label: 'Dashboard',      route: '/dashboard',            icon: '📊' },
+  { label: 'Panel Org.',     route: '/dashboard/organizer',  icon: '📈', minRole: 'organizer' },
+  { label: 'Torneos',        route: '/tournaments',          icon: '🏆' },
+  { label: 'Equipos',        route: '/teams',                icon: '👥' },
+  { label: 'Jugadores',      route: '/players',              icon: '🏃' },
+  { label: 'Partidos',       route: '/matches',              icon: '⚽' },
+  { label: 'Sedes',          route: '/venues',               icon: '🏟️' },
+  { label: 'Comunicados',    route: '/announcements',        icon: '📢' },
+  { label: 'Galería',        route: '/gallery',              icon: '📸' },
+  { label: 'Pagos',          route: '/payments',             icon: '💰', minRole: 'organizer' },
+  { label: 'Árbitros',       route: '/referee-management',   icon: '🧑‍⚖️', minRole: 'organizer' },
+  { label: 'Chat',           route: '/chat',                 icon: '💬', minRole: 'organizer' },
+  { label: 'Árbitro',        route: '/referee',              icon: '🏁', minRole: 'referee' },
+  { label: 'Deportes',       route: '/sports',               icon: '🎯', minRole: 'admin' },
+  { label: 'Usuarios',       route: '/users',                icon: '🔐', minRole: 'organizer' },
 ];
 
 /**

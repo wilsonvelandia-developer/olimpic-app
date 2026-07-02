@@ -2,7 +2,7 @@
   <app-navbar (menuToggle)="toggleSidebar()" />
 
   <div class="shell__body">
-    <app-sidebar [isOpen]="isSidebarOpen()" (linkClicked)="closeSidebarOnMobile()" />
+    <app-sidebar data-tour="sidebar" [isOpen]="isSidebarOpen()" (linkClicked)="closeSidebarOnMobile()" />
 
     <!-- Backdrop for mobile overlay -->
     <div
@@ -17,3 +17,6 @@
     </main>
   </div>
 </div>
+
+<!-- Onboarding tour overlay (renders globally above all content) -->
+<app-onboarding-overlay />

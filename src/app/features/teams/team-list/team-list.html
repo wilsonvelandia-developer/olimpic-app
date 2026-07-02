@@ -7,7 +7,8 @@
     <div class="page__header-actions">
       <app-view-toggle [(mode)]="viewMode" />
       @if (auth.canEdit()) {
-        <button type="button" class="btn btn--primary" (click)="onCreateTeam()">+ Nuevo equipo</button>
+        <button type="button" class="btn btn--secondary" (click)="onOpenImport()">📥 Importar CSV</button>
+        <button type="button" class="btn btn--primary" data-tour="create-tournament" (click)="onCreateTeam()">+ Nuevo equipo</button>
       }
     </div>
   </div>
@@ -35,11 +36,26 @@
   </div>
 
   @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
-  @if (isLoading())    { <app-loading-spinner label="Cargando equipos..." /> }
+  @if (isLoading()) {
+    @if (viewMode() === 'card') {
+      <div class="items-grid">
+        <app-skeleton type="card" />
+        <app-skeleton type="card" />
+        <app-skeleton type="card" />
+        <app-skeleton type="card" />
+      </div>
+    } @else {
+      <app-skeleton type="table" [rows]="6" />
+    }
+  }
 
   @if (!isLoading()) {
     @if (teams().length === 0) {
-      <div class="empty-state"><p>No se encontraron equipos.</p></div>
+      <app-empty-state
+        title="Sin equipos"
+        message="No se encontraron equipos con los filtros seleccionados."
+        [actionLabel]="auth.canEdit() ? '+ Crear equipo' : ''"
+        (actionClicked)="onCreateTeam()" />
     } @else {
 
       <!-- CARD VIEW -->
@@ -124,4 +140,10 @@
 @if (showDeleteDialog()) {
   <app-confirm-dialog title="Eliminar equipo" [message]="'¿Eliminar «' + selectedTeamName() + '»?'"
     confirmLabel="Eliminar" [isDanger]="true" (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}
+
+@if (showImportDialog()) {
+  <app-csv-import-dialog title="Importar equipos desde CSV"
+    importType="teams"
+    (confirmed)="onImportConfirmed($event)" (cancelled)="onImportCancelled()" />
 }

@@ -43,11 +43,20 @@
           [class.tab-btn--active]="activeTab() === 'matches'"
           (click)="onTabChange('matches')">⚽ Partidos</button>
         <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'bracket'"
+          (click)="onTabChange('bracket')">🏅 Llaves</button>
+        <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'standings'"
           (click)="onTabChange('standings')">🏅 Posiciones</button>
         <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'stats'"
           (click)="onTabChange('stats')">📊 Estadísticas</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'scorers'"
+          (click)="onTabChange('scorers')">⚽ Goleadores</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'sanctions'"
+          (click)="onTabChange('sanctions')">🟨 Sanciones</button>
         <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'enrollments'"
           (click)="onTabChange('enrollments')">📋 Inscripciones</button>
@@ -180,6 +189,11 @@
           />
         }
 
+        <!-- ═══════ TAB 3b: Llaves (Bracket) ═══════ -->
+        @if (activeTab() === 'bracket') {
+          <app-tournament-bracket [tournamentId]="tournament()!.id" />
+        }
+
         <!-- ═══════ TAB 4: Posiciones ═══════ -->
         @if (activeTab() === 'standings') {
           <app-group-standings [tournamentId]="tournament()!.id" />
@@ -192,6 +206,16 @@
           } @else if (stats()) {
             <app-tournament-stats [stats]="stats()!" />
           }
+        }
+
+        <!-- ═══════ TAB 5b: Goleadores ═══════ -->
+        @if (activeTab() === 'scorers') {
+          <app-tournament-scorers [tournamentId]="tournament()!.id" />
+        }
+
+        <!-- ═══════ TAB 5c: Sanciones ═══════ -->
+        @if (activeTab() === 'sanctions') {
+          <app-tournament-sanctions [tournamentId]="tournament()!.id" />
         }
 
         <!-- ═══════ TAB 6: Inscripciones ═══════ -->

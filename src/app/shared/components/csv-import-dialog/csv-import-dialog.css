@@ -1,0 +1,39 @@
+.dialog-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: var(--z-modal); }
+.dialog {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: calc(var(--z-modal) + 1);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 90%; max-width: 600px; max-height: 80vh;
+  display: flex; flex-direction: column;
+}
+.dialog__header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); }
+.dialog__title { font-size: 1.1rem; font-weight: 600; }
+.dialog__close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-secondary); }
+.dialog__body { padding: 1.5rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+.dialog__footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid var(--color-border); }
+
+.upload-area { border: 2px dashed var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; text-align: center; position: relative; cursor: pointer; }
+.upload-area:hover { border-color: var(--color-primary); }
+.upload-area__label { display: flex; flex-direction: column; gap: 0.25rem; cursor: pointer; }
+.upload-area__placeholder { font-size: 0.9rem; color: var(--color-text-primary); }
+.upload-area__filename { font-weight: 600; color: var(--color-primary); }
+.upload-area__hint { font-size: 0.75rem; color: var(--color-text-secondary); }
+.upload-area__input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.alert { padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.85rem; }
+.alert--error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+.processing-text { color: var(--color-text-secondary); font-size: 0.9rem; }
+
+.import-summary { display: flex; gap: 1rem; font-size: 0.9rem; font-weight: 600; }
+.summary-valid { color: var(--color-success); }
+.summary-errors { color: var(--color-error); }
+
+.errors-detail { font-size: 0.8rem; }
+.errors-list { padding-left: 1.5rem; color: var(--color-error); }
+.errors-list li { margin-bottom: 0.25rem; }
+
+.preview-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
+.table--sm { font-size: 0.75rem; }

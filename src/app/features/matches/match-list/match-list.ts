@@ -3,7 +3,8 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule }    from '@angular/forms';
-import { forkJoin }       from 'rxjs';
+import { forkJoin, of }  from 'rxjs';
+import { catchError }    from 'rxjs/operators';
 import { MatchService }   from '../match.service';
 import { ApiService }     from '../../../core/services/api.service';
 import { StatusBadge }    from '../../../shared/components/status-badge/status-badge';
@@ -80,7 +81,9 @@ export class MatchList implements OnInit {
 
     forkJoin({
       matches: this.matchService.getAll(filters),
-      teams:   this.api.getPaginated<Team>('/teams', { pageSize: 200 }),
+      teams:   this.api.getPaginated<Team>('/teams', { pageSize: 500 }).pipe(
+        catchError(() => of({ data: [] as Team[], total: 0, page: 1, pageSize: 500, totalPages: 0, success: true, message: '' })),
+      ),
     }).subscribe({
       next: ({ matches, teams }) => {
         // Build team lookup

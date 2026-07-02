@@ -1,0 +1,40 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [master, develop]
+    paths: ['frontend/**']
+  pull_request:
+    branches: [master, develop]
+    paths: ['frontend/**']
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production
+        run: npx ng build --configuration=production
+
+      - name: Check bundle size
+        run: |
+          MAIN_SIZE=$(stat -f%z dist/olimpic-app/browser/main.js 2>/dev/null || stat --printf="%s" dist/olimpic-app/browser/main.js)
+          echo "Main bundle: $((MAIN_SIZE / 1024))KB"
+          if [ "$MAIN_SIZE" -gt 512000 ]; then
+            echo "::warning::Main bundle exceeds 500KB ($((MAIN_SIZE / 1024))KB)"
+          fi

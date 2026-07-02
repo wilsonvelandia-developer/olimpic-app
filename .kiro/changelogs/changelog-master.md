@@ -80,9 +80,148 @@
 - Carga paralela vía `forkJoin` para métricas en una sola petición
 - Ruta: `/dashboard/organizer` protegida con `organizer`
 
+#### Búsqueda global (Ctrl+K)
+- Se creó componente `GlobalSearch` con modal, input con debounce 300ms, y resultados unificados
+- Busca simultáneamente en torneos, equipos y jugadores con resultados rankeados
+- Cada resultado muestra icono de tipo, título, subtítulo y navega al detalle al hacer click
+- Integrado en navbar con botón 🔍 y atajo de teclado Esc para cerrar
+
+#### PWA Offline (Service Worker)
+- Se reescribió `sw.js` con estrategias diferenciadas: stale-while-revalidate (assets), network-first (API cacheable), network-only (mutations)
+- APIs cacheables: tournaments, teams, matches, standings, sports, venues, announcements, gallery
+- Respuesta offline con JSON genérico cuando no hay caché disponible
+- Precache del app shell (index.html) para navegación offline
+
+#### Calidad y UX — CI/CD
+- Se creó `.github/workflows/ci.yml` para frontend: build production + check bundle size en cada PR
+- Se creó `.github/workflows/ci.yml` para backend: build all + run migrations + test (venues, payments, announcements, matches) con Postgres 15 service
+
+#### Calidad y UX — Docker
+- Se creó `Dockerfile` para el gateway (multi-stage: builder + runner, node:20-alpine, USER node)
+- Se creó `Dockerfile.service` genérico para todos los microservicios (build-args: SERVICE_NAME, SERVICE_PORT)
+
+#### Calidad y UX — Responsive y Animaciones
+- Tabs de tournament-detail: scroll-snap en mobile, scrollbar oculto, hover state en botones
+- CSS micro-animaciones: card hover lift, button press (scale 0.97), dialog slide-up, skeleton shimmer, badge pop-in
+- Page transitions con `slideUp` animation al cargar cada vista
+- Focus rings con `:focus-visible` (2px solid primary, outline-offset 2px) — invisible en mouse
+- Responsive breakpoints (768px): page headers stack, filters column, grids single-column, form grids single-column
+
+#### Calidad y UX — Error Handling
+- `errorInterceptor` mejorado: muestra toast global para errores 500 (error), 403 (warning), 422 (warning), 0 (offline)
+- Silencia 401 (handled by auth) y 404 (handled by componente)
+- Mensajes genéricos al usuario, detalles solo en `console.error`
+
+#### Calidad y UX — Empty States y Skeletons
+- Se creó componente `EmptyState` con SVG de clipboard + lupa, título, mensaje y botón CTA opcional
+- Se conectó `Skeleton` (tipo card y table) en team-list como reemplazo de LoadingSpinner durante carga
+- Skeleton con shimmer animation para feedback visual inmediato
+
+#### Calidad y UX — Dark Mode Fixes
+- Badges (success, warning, error, info) con colores adaptados para dark mode
+- Alerts, cards, y drop-zone con border-color corregido en dark mode
+- Form focus ring con opacidad reducida en dark mode
+
+#### Compartir como imagen
+- Se creó `ShareImageService` con html2canvas: captura, descarga, Web Share API (mobile), clipboard fallback
+- Se creó componente `ShareButton` reutilizable que acepta un `targetRef` (HTMLElement) y genera PNG
+- Soporte para escala 2x, CORS, y fondo blanco forzado
+
+#### Analytics Dashboard (gráficas)
+- Se creó componente `BarChart` (SVG, horizontal bars con labels y valores proporcionales)
+- Se creó componente `DonutChart` (SVG, segmentos coloreados con leyenda y centro con total)
+- Se creó `AnalyticsDashboard` con 3 gráficas: partidos por estado (donut), pagos por método (donut), partidos por ronda (bar)
+- Ruta: `/dashboard/analytics` protegida con `organizer`
+
+#### Búsqueda global (Ctrl+K)
+
+#### Campana de notificaciones in-app
+- Se creó componente `NotificationBell` con badge de no leídos y dropdown
+- Polling cada 30s para actualizar conteo de no leídas
+- Click en notificación marca como leída y navega a la entidad referenciada
+- Botón "Marcar todas leídas" para limpiar el badge
+- Integrado en navbar entre búsqueda y selector de idioma
+
+#### Integración ImageUpload en formularios
+- Se reemplazó el input de texto URL en `team-form` por `ImageUpload` con drag-drop (folder: `teams`)
+- Se reemplazó el input de texto URL en `venue-form` por `ImageUpload` con drag-drop (folder: `venues`)
+- Se reemplazó el input de texto URL en `gallery-form` por `ImageUpload` para portada (folder: `gallery`)
+- Subida directa a Firebase Storage con progreso en tiempo real y preview instantáneo
+
+#### Internacionalización (i18n)
+- Se creó `I18nService` con soporte para español e inglés, persistencia en localStorage, detección del idioma del navegador
+- Se crearon archivos de traducción `es.ts` y `en.ts` con 80+ keys cubriendo navegación, acciones, labels, auth, módulos y errores
+- Se creó componente `LanguageSwitcher` para cambio de idioma desde el navbar
+- Soporte para interpolación de parámetros en traducciones (`{{name}}`)
+
+#### Onboarding / Tour interactivo
+- Se creó `OnboardingService` con gestión de pasos, progresión, persistencia de completado
+- 6 pasos predefinidos: navegación, dashboard, crear torneo, equipos, partidos, modo árbitro
+- Se creó componente `OnboardingOverlay` con tooltip posicionado dinámicamente sobre elementos target
+- Soporte para custom tours (pasos personalizados por contexto)
+- Se detecta posición del elemento target vía `getBoundingClientRect` + scroll into view
+
+#### Importación CSV/Excel de equipos y jugadores
+- Se creó `CsvImportService` con parser CSV nativo (BOM, campos entrecomillados, newlines en quotes)
+- Validación de archivo: tipo (csv/xlsx), tamaño máx. 2MB
+- Parser de equipos: nombre, abreviatura, teléfono, email, variante (acepta headers en español e inglés)
+- Parser de jugadores: nombre, dorsal (0-99), posición, documento, email, teléfono, fecha nacimiento
+- Se creó componente `CsvImportDialog` reutilizable con preview, conteo de errores por fila, y confirmación
+
+#### Chat en tiempo real (WebSocket)
+- Se creó `ChatService` con Socket.IO: conexión, rooms, mensajes, envío, conteo de no leídos
+- Soporte para rooms tipo `tournament`, `team`, `direct`
+- Se creó componente `ChatPanel` con sidebar de conversaciones y área de mensajes
+- Mensajes propios vs ajenos con estilos diferenciados
+- Ruta `/chat` protegida con rol `organizer`+, agregada al sidebar
+
+#### Tema personalizado por torneo
+- Se creó `TournamentThemeService` para aplicar colores y branding custom en la vista pública
+- Aplica CSS custom properties dinámicas (`--tournament-primary`, `--tournament-secondary`, `--tournament-primary-light`)
+- Genera automáticamente versión light del color primario para fondos
+- Método `resetTheme()` para restaurar al salir de la vista pública
+
 #### Base de datos
 - Se aplicaron migraciones 026-029: `venues`, `announcements`, `payments`, `gallery_photos`
 - Tablas con UUID, FK con CASCADE, índices compuestos, constraints CHECK
+
+#### Firebase Storage — Upload de imágenes
+- Se creó `ImageUploadService` con upload a Firebase Storage, progreso en tiempo real y validación (5MB, JPG/PNG/WebP/GIF)
+- Se creó componente `ImageUpload` reutilizable con drag-and-drop, preview instantáneo y barra de progreso
+- Genera nombres únicos con timestamp + random para evitar colisiones en storage
+
+#### Bracket visual de eliminatoria
+- Se creó `TournamentBracket` que carga fases eliminatorias reales del backend
+- Detecta automáticamente fases con formato `single_elim`/`double_elim`
+- Mapea partidos a rondas (octavos, cuartos, semis, final) por conteo de matches
+- Conecta con el componente shared `Bracket` existente para renderizado visual
+- Soporte para partido por el 3er puesto separado
+- Integrado como tab "Llaves" en tournament-detail
+
+#### Sistema de sanciones
+- Se creó `TournamentSanctions` con tabla de tarjetas amarillas/rojas y suspensiones
+- Filtros por tipo: todas, amarillas, rojas, suspendidos
+- Estadísticas resumen: total amarillas, total rojas, jugadores suspendidos
+- Resaltado visual de filas de jugadores suspendidos
+- Integrado como tab "Sanciones" en tournament-detail
+
+#### Ranking de goleadores
+- Se creó `TournamentScorers` con tabla de goleadores ordenada por goles
+- Columnas: posición (medallas top 3), jugador, equipo, goles, asistencias, PJ, goles/partido
+- Resaltado visual de los 3 primeros
+- Integrado como tab "Goleadores" en tournament-detail
+
+#### Swagger / OpenAPI
+- Se instaló `swagger-ui-express@5.0.1` y `yaml@2.7.1` en el gateway
+- Se creó `openapi.yaml` (OpenAPI 3.0.3) documentando todos los endpoints de los 10 servicios
+- Se montó Swagger UI en `/api-docs` (público, sin autenticación)
+- Build script del gateway copia el YAML a dist automáticamente
+
+#### Tests unitarios (backend)
+- Se crearon tests para venues schema: 20 tests (create, update, id, query validation)
+- Se crearon tests para payments schema: 18 tests (amount format, status enum, UUIDs)
+- Se crearon tests para announcements schema: 21 tests (priority enum, content, title)
+- Total: 59 tests nuevos, todos passing con vitest 3.2.1
 
 #### Setup y configuración inicial
 - Se inicializó el proyecto Angular 21.x con standalone components, routing y CSS3

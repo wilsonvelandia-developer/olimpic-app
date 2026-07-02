@@ -1,0 +1,22 @@
+@if (onboarding.isActive()) {
+  <div class="tour-backdrop" (click)="onSkip()"></div>
+
+  <div class="tour-tooltip" [style]="tooltipStyle()" role="dialog" aria-modal="true">
+    <div class="tour-tooltip__header">
+      <h4 class="tour-tooltip__title">{{ onboarding.currentStepData()?.title }}</h4>
+      <button type="button" class="tour-tooltip__close" (click)="onSkip()" aria-label="Cerrar tour">&times;</button>
+    </div>
+    <p class="tour-tooltip__content">{{ onboarding.currentStepData()?.content }}</p>
+    <div class="tour-tooltip__footer">
+      <span class="tour-tooltip__progress">{{ onboarding.currentStep() + 1 }} / {{ onboarding.steps().length }}</span>
+      <div class="tour-tooltip__actions">
+        @if (onboarding.currentStep() > 0) {
+          <button type="button" class="btn btn--secondary btn--sm" (click)="onPrevious()">Anterior</button>
+        }
+        <button type="button" class="btn btn--primary btn--sm" (click)="onNext()">
+          {{ onboarding.isLastStep() ? 'Finalizar' : 'Siguiente' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

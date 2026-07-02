@@ -38,9 +38,9 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="coverUrl">Imagen de portada (URL)</label>
-            <input id="coverUrl" type="url" class="form-control"
-              formControlName="coverUrl" placeholder="https://ejemplo.com/portada.jpg" />
+            <app-image-upload label="Imagen de portada" folder="gallery"
+              [currentUrl]="form.get('coverUrl')?.value ?? null"
+              (uploaded)="onCoverUploaded($event)" />
           </div>
         </div>
 

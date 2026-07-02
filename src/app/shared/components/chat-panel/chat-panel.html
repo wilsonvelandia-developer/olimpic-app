@@ -1,0 +1,53 @@
+<div class="chat-container">
+  <!-- Room list -->
+  <aside class="chat-rooms">
+    <h3 class="chat-rooms__title">Conversaciones</h3>
+    @for (room of chat.rooms(); track room.id) {
+      <div class="room-item"
+        [class.room-item--active]="chat.activeRoomId() === room.id"
+        (click)="onSelectRoom(room.id)">
+        <div class="room-item__name">
+          {{ room.name }}
+          @if (room.unreadCount > 0) {
+            <span class="room-item__badge">{{ room.unreadCount }}</span>
+          }
+        </div>
+        @if (room.lastMessage) {
+          <div class="room-item__last">{{ room.lastMessage }}</div>
+        }
+      </div>
+    }
+  </aside>
+
+  <!-- Messages -->
+  <main class="chat-main">
+    @if (!chat.activeRoomId()) {
+      <div class="no-room-selected">Selecciona una conversación</div>
+    } @else {
+      <div class="chat-messages">
+        @if (chat.messages().length === 0) {
+          <p class="chat-messages__empty">No hay mensajes aún. Escribe el primero.</p>
+        }
+        @for (msg of chat.messages(); track msg.id) {
+          <div class="message" [class.message--own]="msg.senderId === currentUserId" [class.message--other]="msg.senderId !== currentUserId">
+            @if (msg.senderId !== currentUserId) {
+              <div class="message__sender">{{ msg.senderName }}</div>
+            }
+            {{ msg.content }}
+            <div class="message__time">{{ formatTime(msg.timestamp) }}</div>
+          </div>
+        }
+      </div>
+
+      <div class="chat-input">
+        <input type="text" class="chat-input__field"
+          placeholder="Escribe un mensaje..."
+          [value]="inputText"
+          (input)="inputText = $any($event.target).value"
+          (keyup.enter)="onSend()"
+          maxlength="1000" />
+        <button type="button" class="btn btn--primary btn--sm" (click)="onSend()">Enviar</button>
+      </div>
+    }
+  </main>
+</div>

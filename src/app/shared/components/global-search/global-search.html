@@ -1,0 +1,35 @@
+@if (isOpen()) {
+  <div class="search-backdrop" (click)="close()"></div>
+  <div class="search-dialog" role="dialog" aria-modal="true" (keydown)="onKeyDown($event)">
+    <div class="search-input-wrapper">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input type="search" class="search-input" placeholder="Buscar torneos, equipos, jugadores..."
+        [ngModel]="query()" (ngModelChange)="onQueryChange($event)"
+        autofocus maxlength="100" />
+      <kbd class="search-kbd">Esc</kbd>
+    </div>
+
+    @if (isSearching()) {
+      <div class="search-loading">Buscando...</div>
+    }
+
+    @if (results().length > 0) {
+      <ul class="search-results" role="listbox">
+        @for (r of results(); track r.id) {
+          <li class="search-result" role="option" (click)="onSelectResult(r)">
+            <span class="search-result__icon">{{ getTypeIcon(r.type) }}</span>
+            <div class="search-result__info">
+              <span class="search-result__title">{{ r.title }}</span>
+              <span class="search-result__subtitle">{{ r.subtitle }}</span>
+            </div>
+            <span class="search-result__type">{{ r.type }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (!isSearching() && query().length >= 2 && results().length === 0) {
+      <div class="search-empty">No se encontraron resultados para "{{ query() }}"</div>
+    }
+  </div>
+}

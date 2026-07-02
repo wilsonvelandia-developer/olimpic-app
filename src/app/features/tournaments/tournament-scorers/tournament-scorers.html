@@ -1,0 +1,40 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando goleadores..." /> }
+
+@if (!isLoading()) {
+  <div class="scorers-section">
+    <h3 class="scorers-title">⚽ Goleadores</h3>
+
+    @if (scorers().length === 0) {
+      <p class="scorers-empty">No hay goles registrados en este torneo.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table" aria-label="Tabla de goleadores">
+          <thead>
+            <tr>
+              <th class="text-center">#</th>
+              <th>Jugador</th>
+              <th>Equipo</th>
+              <th class="text-center">Goles</th>
+              <th class="text-center">Asist.</th>
+              <th class="text-center">PJ</th>
+              <th class="text-center">G/P</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (scorer of scorers(); track scorer.playerId; let i = $index) {
+              <tr [class.row--top3]="i < 3">
+                <td class="text-center position-cell">{{ getMedalIcon(i) }}</td>
+                <td class="player-name">{{ scorer.playerName }}</td>
+                <td>{{ scorer.teamShort || scorer.teamName }}</td>
+                <td class="text-center goals-cell">{{ scorer.goals }}</td>
+                <td class="text-center">{{ scorer.assists }}</td>
+                <td class="text-center">{{ scorer.matchesPlayed }}</td>
+                <td class="text-center">{{ scorer.goalsPerMatch.toFixed(2) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

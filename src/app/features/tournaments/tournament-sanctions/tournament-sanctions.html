@@ -1,0 +1,63 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando sanciones..." /> }
+
+@if (!isLoading()) {
+  <div class="sanctions-section">
+    <div class="sanctions-header">
+      <h3 class="sanctions-title">🟨 Fair Play — Sanciones</h3>
+      <div class="sanctions-stats">
+        <span class="stat stat--yellow">🟨 {{ totalYellows }}</span>
+        <span class="stat stat--red">🟥 {{ totalReds }}</span>
+        <span class="stat stat--suspended">⛔ {{ suspendedCount }} suspendidos</span>
+      </div>
+    </div>
+
+    <div class="sanctions-filters">
+      <button type="button" class="btn btn--sm"
+        [class.btn--primary]="filter() === 'all'" [class.btn--secondary]="filter() !== 'all'"
+        (click)="onFilterChange('all')">Todos</button>
+      <button type="button" class="btn btn--sm"
+        [class.btn--primary]="filter() === 'yellow'" [class.btn--secondary]="filter() !== 'yellow'"
+        (click)="onFilterChange('yellow')">Amarillas</button>
+      <button type="button" class="btn btn--sm"
+        [class.btn--primary]="filter() === 'red'" [class.btn--secondary]="filter() !== 'red'"
+        (click)="onFilterChange('red')">Rojas</button>
+      <button type="button" class="btn btn--sm"
+        [class.btn--primary]="filter() === 'suspended'" [class.btn--secondary]="filter() !== 'suspended'"
+        (click)="onFilterChange('suspended')">Suspendidos</button>
+    </div>
+
+    @if (filteredSanctions.length === 0) {
+      <p class="sanctions-empty">No hay sanciones registradas.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table" aria-label="Sanciones del torneo">
+          <thead>
+            <tr><th>Jugador</th><th>Equipo</th><th>Tipo</th><th>Acumuladas</th><th>Fecha</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            @for (s of filteredSanctions; track s.id) {
+              <tr [class.row--suspended]="s.isSuspended">
+                <td class="player-name">{{ s.playerName }}</td>
+                <td>{{ s.teamName }}</td>
+                <td>
+                  @if (s.type === 'yellow_card') { <span class="card card--yellow">🟨</span> }
+                  @if (s.type === 'red_card') { <span class="card card--red">🟥</span> }
+                  @if (s.type === 'suspension') { <span class="card card--suspension">⛔</span> }
+                </td>
+                <td class="text-center">{{ s.accumulatedYellows }}</td>
+                <td>{{ s.matchDate ? (s.matchDate | date:'shortDate') : '—' }}</td>
+                <td>
+                  @if (s.isSuspended) {
+                    <span class="badge badge--error">Suspendido</span>
+                  } @else {
+                    <span class="badge badge--neutral">Activo</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

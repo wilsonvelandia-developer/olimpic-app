@@ -6,10 +6,11 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { GalleryService } from '../gallery.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ImageUpload } from '../../../shared/components/image-upload/image-upload';
 
 @Component({
   selector: 'app-gallery-form',
-  imports: [ReactiveFormsModule, LoadingSpinner],
+  imports: [ReactiveFormsModule, LoadingSpinner, ImageUpload],
   templateUrl: './gallery-form.html',
   styleUrl: './gallery-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -92,6 +93,10 @@ export class GalleryForm implements OnInit {
         error: () => { this.errorMessage.set('No se pudo guardar el álbum.'); this.isSaving.set(false); },
       });
     }
+  }
+
+  onCoverUploaded(url: string): void {
+    this.form.patchValue({ coverUrl: url });
   }
 
   onCancel(): void { this.router.navigate(['/gallery']); }

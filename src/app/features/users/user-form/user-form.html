@@ -50,9 +50,9 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="photoUrl">Foto de perfil (URL)</label>
-            <input id="photoUrl" type="url" class="form-control"
-              formControlName="photoUrl" placeholder="https://ejemplo.com/foto.jpg" />
+            <app-image-upload label="Foto de perfil" folder="users/photos"
+              [currentUrl]="form.get('photoUrl')?.value ?? null"
+              (uploaded)="onPhotoUploaded($event)" />
           </div>
         </div>
 
@@ -76,15 +76,15 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="documentFrontUrl">Foto documento (frente)</label>
-            <input id="documentFrontUrl" type="url" class="form-control"
-              formControlName="documentFrontUrl" placeholder="https://ejemplo.com/doc-frente.jpg" />
+            <app-image-upload label="Documento de identidad (frente)" folder="users/documents"
+              [currentUrl]="form.get('documentFrontUrl')?.value ?? null"
+              (uploaded)="onDocFrontUploaded($event)" />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="documentBackUrl">Foto documento (reverso)</label>
-            <input id="documentBackUrl" type="url" class="form-control"
-              formControlName="documentBackUrl" placeholder="https://ejemplo.com/doc-reverso.jpg" />
+            <app-image-upload label="Documento de identidad (reverso)" folder="users/documents"
+              [currentUrl]="form.get('documentBackUrl')?.value ?? null"
+              (uploaded)="onDocBackUploaded($event)" />
           </div>
         </div>
 
@@ -121,9 +121,9 @@
         <h2 class="form-section-title">🏥 Seguridad social</h2>
         <div class="form-grid">
           <div class="form-group form-group--full">
-            <label class="form-label" for="epsFileUrl">EPS (foto o PDF - URL)</label>
-            <input id="epsFileUrl" type="url" class="form-control"
-              formControlName="epsFileUrl" placeholder="https://ejemplo.com/eps.pdf" />
+            <app-image-upload label="Certificado EPS" folder="users/eps"
+              [currentUrl]="form.get('epsFileUrl')?.value ?? null"
+              (uploaded)="onEpsUploaded($event)" />
             <span class="form-hint">Sube la foto o PDF del carnet de EPS vigente.</span>
           </div>
         </div>

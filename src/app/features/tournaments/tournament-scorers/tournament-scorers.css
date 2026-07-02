@@ -1,0 +1,9 @@
+.scorers-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+.scorers-empty { color: var(--color-text-secondary); font-size: 0.9rem; }
+
+.text-center { text-align: center; }
+.player-name { font-weight: 500; }
+.position-cell { font-size: 1.1rem; width: 40px; }
+.goals-cell { font-weight: 700; font-size: 1rem; color: var(--color-primary); }
+
+.row--top3 { background: var(--color-primary-light); }

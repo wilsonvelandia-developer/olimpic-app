@@ -13,8 +13,16 @@
 
   <nav class="navbar__right" aria-label="User menu">
     @if (currentUser()) {
+      <button type="button" class="navbar__theme-btn" (click)="onOpenSearch()" aria-label="Búsqueda global" title="Buscar (Ctrl+K)">
+        🔍
+      </button>
+      <app-notification-bell />
+      <app-language-switcher />
       <button type="button" class="navbar__theme-btn" (click)="onToggleTheme()" aria-label="Toggle dark mode">
         {{ theme.currentTheme() === 'dark' ? '☀️' : '🌙' }}
+      </button>
+      <button type="button" class="navbar__theme-btn" (click)="onStartTour()" aria-label="Tour de ayuda" title="Tour de ayuda">
+        ❓
       </button>
       <div class="navbar__user-info">
         <span class="navbar__user-name">{{ currentUser()!.name }}</span>
@@ -28,3 +36,5 @@
     }
   </nav>
 </header>
+
+<app-global-search />

@@ -1,0 +1,77 @@
+<div class="dialog-backdrop" (click)="onCancel()"></div>
+<div class="dialog" role="dialog" aria-modal="true">
+  <div class="dialog__header">
+    <h2 class="dialog__title">{{ title() }}</h2>
+    <button type="button" class="dialog__close" (click)="onCancel()" aria-label="Cerrar">&times;</button>
+  </div>
+
+  <div class="dialog__body">
+    <!-- File input -->
+    <div class="upload-area">
+      <label class="upload-area__label" for="csvFile">
+        @if (file()) {
+          <span class="upload-area__filename">{{ file()!.name }}</span>
+        } @else {
+          <span class="upload-area__placeholder">Selecciona un archivo CSV o Excel</span>
+          <span class="upload-area__hint">Máx. 2MB — Formato: .csv, .xlsx</span>
+        }
+      </label>
+      <input id="csvFile" type="file" accept=".csv,.xlsx,.xls"
+        (change)="onFileSelected($event)" class="upload-area__input" />
+    </div>
+
+    @if (fileError()) { <div class="alert alert--error">{{ fileError() }}</div> }
+
+    @if (isProcessing()) { <p class="processing-text">Procesando archivo...</p> }
+
+    <!-- Preview -->
+    @if (validCount() > 0 || errors().length > 0) {
+      <div class="import-summary">
+        <span class="summary-valid">{{ validCount() }} filas válidas</span>
+        @if (errors().length > 0) {
+          <span class="summary-errors">{{ errors().length }} errores</span>
+        }
+      </div>
+
+      @if (errors().length > 0) {
+        <details class="errors-detail">
+          <summary>Ver errores ({{ errors().length }})</summary>
+          <ul class="errors-list">
+            @for (e of errors(); track e.row) {
+              <li>Fila {{ e.row }}: {{ e.message }}</li>
+            }
+          </ul>
+        </details>
+      }
+
+      @if (preview().length > 0) {
+        <div class="preview-section">
+          <h4 class="preview-title">Vista previa (primeras 5 filas)</h4>
+          <div class="table-wrapper">
+            <table class="table table--sm">
+              <thead>
+                <tr>
+                  @for (key of previewHeaders; track key) { <th>{{ key }}</th> }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of preview(); track $index) {
+                  <tr>
+                    @for (key of previewHeaders; track key) { <td>{{ row[key] ?? '' }}</td> }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="dialog__footer">
+    <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
+    <button type="button" class="btn btn--primary" [disabled]="validCount() === 0 || isProcessing()" (click)="onConfirm()">
+      Importar {{ validCount() }} registros
+    </button>
+  </div>
+</div>
