@@ -103,6 +103,7 @@ export class RefereePanel implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.ref.loadMatch(this.id());
+    // WebSocket is optional — don't block the panel if it fails
     this.connectWebSocket();
   }
 
@@ -112,27 +113,44 @@ export class RefereePanel implements OnInit, OnDestroy {
     if (this.timerSyncInterval) clearInterval(this.timerSyncInterval);
   }
 
-  /** Connect WebSocket and join match room as referee. */
-  private async connectWebSocket(): Promise<void> {
+  /**
+   * Connect WebSocket and join match room as referee.
+   * This is non-blocking — if WebSocket fails, the panel still works via REST.
+   */
+  private connectWebSocket(): void {
     this.socket.connect();
-    // Wait a moment for connection then join
-    setTimeout(async () => {
-      const res = await this.socket.joinAsReferee(this.id());
-      if (!res.success) {
-        this.ref.error.set(res.message ?? 'No se pudo tomar control del partido');
-      }
-      // Start timer sync broadcast every 5 seconds
-      this.timerSyncInterval = setInterval(() => {
-        const timer = this.timerComponent();
-        if (timer && timer.isRunning()) {
-          this.socket.emitTimerSync({
-            matchId: this.id(),
-            elapsed: timer.elapsed(),
-            running: true,
-          });
+
+    // Listen for successful connection to join the room
+    const unsubConnect = this.socket.on('__internal_connected', () => {});
+
+    // Poll for connection (retry up to 5 seconds)
+    let attempts = 0;
+    const joinInterval = setInterval(async () => {
+      attempts++;
+      if (this.socket.isConnected()) {
+        clearInterval(joinInterval);
+        const res = await this.socket.joinAsReferee(this.id());
+        if (!res.success) {
+          // Not critical — just means real-time broadcast won't work
+          console.warn('WebSocket referee join failed:', res.message);
         }
-      }, 5000);
-    }, 1000);
+        // Start timer sync broadcast every 5 seconds
+        this.timerSyncInterval = setInterval(() => {
+          const timer = this.timerComponent();
+          if (timer && timer.isRunning() && this.socket.isConnected()) {
+            this.socket.emitTimerSync({
+              matchId: this.id(),
+              elapsed: timer.elapsed(),
+              running: true,
+            });
+          }
+        }, 5000);
+      } else if (attempts >= 10) {
+        // Give up after 5 seconds — panel works without WebSocket
+        clearInterval(joinInterval);
+        console.warn('WebSocket connection not available — panel running in REST-only mode');
+      }
+    }, 500);
   }
 
   // ── Score Actions (now opens scorer-select dialog) ────────────────────────

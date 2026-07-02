@@ -4,10 +4,15 @@ import { roleGuard } from './core/guards/role.guard';
 import { Shell } from './layout/shell/shell';
 
 export const routes: Routes = [
-  // ── Public routes ──────────────────────────────────────────────
+  // ── Public routes (no authentication) ──────────────────────────
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+  },
+  {
+    // Public spectator views — accessible without login
+    path: 'p',
+    loadChildren: () => import('./features/public/public.routes').then((m) => m.PUBLIC_ROUTES),
   },
 
   // ── 403 page (inside shell so navbar/sidebar are still visible) ─
@@ -76,6 +81,45 @@ export const routes: Routes = [
         path: 'matches',
         loadChildren: () =>
           import('./features/matches/matches.routes').then((m) => m.MATCH_ROUTES),
+      },
+
+      // viewer+ — venue catalog
+      {
+        path: 'venues',
+        loadChildren: () =>
+          import('./features/venues/venues.routes').then((m) => m.VENUE_ROUTES),
+      },
+
+      // organizer+ — payment management
+      {
+        path: 'payments',
+        canActivate: [roleGuard],
+        data: { requiredRole: 'organizer' },
+        loadChildren: () =>
+          import('./features/payments/payments.routes').then((m) => m.PAYMENT_ROUTES),
+      },
+
+      // viewer+ — announcements
+      {
+        path: 'announcements',
+        loadChildren: () =>
+          import('./features/announcements/announcements.routes').then((m) => m.ANNOUNCEMENT_ROUTES),
+      },
+
+      // viewer+ — gallery
+      {
+        path: 'gallery',
+        loadChildren: () =>
+          import('./features/gallery/gallery.routes').then((m) => m.GALLERY_ROUTES),
+      },
+
+      // organizer+ — referee management (history/availability)
+      {
+        path: 'referee-management',
+        canActivate: [roleGuard],
+        data: { requiredRole: 'organizer' },
+        loadComponent: () =>
+          import('./features/referee/referee-history/referee-history').then((m) => m.RefereeHistory),
       },
 
       // admin only — sport catalog is master data

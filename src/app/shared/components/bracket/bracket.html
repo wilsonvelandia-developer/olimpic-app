@@ -1,0 +1,46 @@
+@if (rounds().length > 0) {
+  <div class="bracket" role="figure" [attr.aria-label]="title() || 'Bracket de eliminación'">
+    @if (title()) {
+      <h3 class="bracket__title">{{ title() }}</h3>
+    }
+
+    <div class="bracket__rounds">
+      @for (round of rounds(); track round.name; let roundIdx = $index) {
+        <div class="bracket__round" [attr.data-round]="roundIdx">
+          <span class="bracket__round-name">{{ round.name }}</span>
+          <div class="bracket__matches" [style.--match-count]="round.matches.length">
+            @for (match of round.matches; track match.id) {
+              <div class="bracket-match" [class]="getMatchClass(match)">
+                <div class="bracket-team" [class]="getTeamClass(match, 'home')">
+                  <span class="bracket-team__name">{{ match.homeTeamName ?? 'Por definir' }}</span>
+                  <span class="bracket-team__score">{{ match.homeScore ?? '' }}</span>
+                </div>
+                <div class="bracket-team" [class]="getTeamClass(match, 'away')">
+                  <span class="bracket-team__name">{{ match.awayTeamName ?? 'Por definir' }}</span>
+                  <span class="bracket-team__score">{{ match.awayScore ?? '' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- 3rd place match -->
+    @if (thirdPlaceMatch(); as m) {
+      <div class="bracket__third-place">
+        <span class="bracket__round-name">3er puesto</span>
+        <div class="bracket-match" [class]="getMatchClass(m)">
+          <div class="bracket-team" [class]="getTeamClass(m, 'home')">
+            <span class="bracket-team__name">{{ m.homeTeamName ?? 'Por definir' }}</span>
+            <span class="bracket-team__score">{{ m.homeScore ?? '' }}</span>
+          </div>
+          <div class="bracket-team" [class]="getTeamClass(m, 'away')">
+            <span class="bracket-team__name">{{ m.awayTeamName ?? 'Por definir' }}</span>
+            <span class="bracket-team__score">{{ m.awayScore ?? '' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

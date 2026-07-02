@@ -1,0 +1,62 @@
+<section class="page">
+  @if (isLoading()) { <app-loading-spinner label="Cargando comunicado..." /> }
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+
+  @if (!isLoading() && announcement()) {
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/announcements" class="breadcrumb__link">Comunicados</a>
+      <span class="breadcrumb__sep" aria-hidden="true">›</span>
+      <span>{{ announcement()!.title }}</span>
+    </nav>
+
+    <div class="page__header">
+      <div>
+        <h1 class="page__title">{{ announcement()!.title }}</h1>
+        <div class="page__meta">
+          <span class="badge"
+            [class.badge--success]="announcement()!.status === 'published'"
+            [class.badge--neutral]="announcement()!.status === 'draft'"
+            [class.badge--muted]="announcement()!.status === 'archived'">
+            {{ announcement()!.status }}
+          </span>
+          <span class="priority-dot" [attr.data-priority]="announcement()!.priority"></span>
+          <span>{{ announcement()!.priority }}</span>
+        </div>
+      </div>
+      <div class="page__header-actions">
+        @if (auth.canEdit()) {
+          <button type="button" class="btn btn--secondary" (click)="onEdit()">✏️ Editar</button>
+        }
+        @if (auth.isAdmin()) {
+          <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">🗑️ Eliminar</button>
+        }
+      </div>
+    </div>
+
+    <article class="section-card">
+      @if (announcement()!.imageUrl) {
+        <img class="announcement-image" [src]="announcement()!.imageUrl"
+          [alt]="announcement()!.title" loading="lazy" />
+      }
+      <div class="announcement-content">{{ announcement()!.content }}</div>
+      <footer class="announcement-footer">
+        @if (announcement()!.authorName) {
+          <span>Autor: {{ announcement()!.authorName }}</span>
+        }
+        @if (announcement()!.publishedAt) {
+          <span>Publicado: {{ announcement()!.publishedAt | date:'medium' }}</span>
+        }
+        @if (announcement()!.tournamentName) {
+          <span>Torneo: {{ announcement()!.tournamentName }}</span>
+        }
+      </footer>
+    </article>
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog title="Eliminar comunicado"
+    [message]="'¿Eliminar «' + announcement()!.title + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}

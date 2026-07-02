@@ -25,4 +25,9 @@ export const MATCH_ROUTES: Routes = [
     data: { requiredRole: 'organizer' },
     loadComponent: () => import('./match-result/match-result').then((m) => m.MatchResult),
   },
+  {
+    // Match sheet — official digital report (planilla)
+    path: ':id/sheet',
+    loadComponent: () => import('./match-sheet/match-sheet').then((m) => m.MatchSheet),
+  },
 ];

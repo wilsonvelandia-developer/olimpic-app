@@ -54,6 +54,7 @@ export class MatchSetup implements OnInit {
   readonly hasSets = input<boolean>(false);
   readonly sportSlug = input<string>('football');
   readonly playersPerTeam = input<number>(11);
+  readonly minPlayersPerTeam = input<number | null>(null);
   readonly visible = input<boolean>(false);
 
   readonly completed = output<MatchSetupResult>();
@@ -83,14 +84,50 @@ export class MatchSetup implements OnInit {
   // ── Computed ──────────────────────────────────────────────────────────────
   readonly isVolleyball = computed(() => this.sportSlug() === 'volleyball');
   readonly isFootball = computed(() => this.sportSlug() === 'football');
-  readonly requiredStarters = computed(() => this.playersPerTeam());
+
+  /**
+   * Required starters is the sport's players_per_team (max on court).
+   * Used to cap the selection.
+   */
+  readonly requiredStarters = computed(() => {
+    return this.playersPerTeam();
+  });
+
+  /**
+   * Minimum starters needed to proceed.
+   * Uses tournament's min_players_per_team if configured,
+   * otherwise falls back to sport's players_per_team,
+   * but never more than available players.
+   */
+  readonly minStartersToAdvance = computed(() => {
+    const configured = this.minPlayersPerTeam();
+    const sportRequired = this.playersPerTeam();
+    const minRequired = configured ?? sportRequired;
+    // Can't require more than what's available
+    const homeAvailable = this.homeTeam().players.length;
+    const awayAvailable = this.awayTeam().players.length;
+    const leastAvailable = Math.min(homeAvailable, awayAvailable);
+    return Math.min(minRequired, leastAvailable);
+  });
 
   readonly homeStarterCount = computed(() => this.homeStarters().size);
   readonly awayStarterCount = computed(() => this.awayStarters().size);
 
   readonly canGoToStep2 = computed(() => true); // coin toss is optional
-  readonly canGoToStep3 = computed(() => this.homeStarterCount() === this.requiredStarters());
-  readonly canFinish = computed(() => this.awayStarterCount() === this.requiredStarters());
+  readonly canGoToStep3 = computed(() => {
+    const count = this.homeStarterCount();
+    const min = this.minPlayersPerTeam() ?? this.playersPerTeam();
+    const available = this.homeTeam().players.length;
+    const effectiveMin = Math.min(min, available);
+    return count >= effectiveMin && count >= 1;
+  });
+  readonly canFinish = computed(() => {
+    const count = this.awayStarterCount();
+    const min = this.minPlayersPerTeam() ?? this.playersPerTeam();
+    const available = this.awayTeam().players.length;
+    const effectiveMin = Math.min(min, available);
+    return count >= effectiveMin && count >= 1;
+  });
 
   ngOnInit(): void {
     // Default coin toss winner to home
@@ -155,8 +192,10 @@ export class MatchSetup implements OnInit {
         this.awayZones.set(zones);
       }
     } else {
-      const max = this.requiredStarters();
-      if (newSet.size >= max) return; // can't add more
+      const max = this.playersPerTeam();
+      const available = side === 'home' ? this.homeTeam().players.length : this.awayTeam().players.length;
+      const cap = Math.min(max, available);
+      if (newSet.size >= cap) return; // can't add more than max on court
       newSet.add(playerId);
     }
     if (side === 'home') this.homeStarters.set(newSet);

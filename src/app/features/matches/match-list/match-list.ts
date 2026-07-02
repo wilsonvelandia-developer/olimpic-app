@@ -45,8 +45,30 @@ export class MatchList implements OnInit {
 
   phaseIdModel      = '';
   filterStatusModel = '';
+  tournamentIdModel = '';
 
-  ngOnInit(): void { this.loadMatches(); }
+  readonly tournaments = signal<Array<{ id: string; name: string; category: string | null }>>([]);
+  readonly phases      = signal<Array<{ id: string; name: string }>>([]);
+
+  ngOnInit(): void {
+    this.loadMatches();
+    this.api.get<Array<{ id: string; name: string; category: string | null }>>('/tournaments').subscribe({
+      next: (res) => { if (res.success && res.data) this.tournaments.set(res.data); },
+    });
+  }
+
+  onTournamentFilterChange(): void {
+    const tid = this.tournamentIdModel;
+    this.phaseIdModel = '';
+    if (tid) {
+      this.api.get<Array<{ id: string; name: string }>>(`/tournaments/${tid}/phases`).subscribe({
+        next: (res) => { if (res.success && res.data) this.phases.set(res.data); },
+      });
+    } else {
+      this.phases.set([]);
+    }
+    this.onApplyFilters();
+  }
 
   loadMatches(): void {
     this.isLoading.set(true);
@@ -83,7 +105,7 @@ export class MatchList implements OnInit {
   }
 
   onApplyFilters(): void  { this.currentPage.set(1); this.loadMatches(); }
-  onClearFilters(): void  { this.phaseIdModel = ''; this.filterStatusModel = ''; this.currentPage.set(1); this.loadMatches(); }
+  onClearFilters(): void  { this.phaseIdModel = ''; this.filterStatusModel = ''; this.tournamentIdModel = ''; this.phases.set([]); this.currentPage.set(1); this.loadMatches(); }
   onScheduleMatch(): void { this.router.navigate(['/matches', 'new']); }
   onViewDetail(id: string): void     { this.router.navigate(['/matches', id]); }
   onRegisterResult(id: string): void { this.router.navigate(['/matches', id, 'result']); }

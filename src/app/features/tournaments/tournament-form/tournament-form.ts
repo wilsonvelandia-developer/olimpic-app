@@ -4,8 +4,10 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { TournamentService } from '../tournament.service';
+import { TournamentService, type StaffMember } from '../tournament.service';
 import { SportService }      from '../../sports/sport.service';
+import { ApiService }        from '../../../core/services/api.service';
+import { ToastService }      from '../../../shared/components/toast/toast.service';
 import { LoadingSpinner }    from '../../../shared/components/loading-spinner/loading-spinner';
 import type { Sport, TournamentStatus } from '../../../core/models';
 
@@ -69,6 +71,94 @@ export class TournamentForm implements OnInit {
     const list = [...this.sanctions()];
     list[index] = { ...list[index], [field]: value };
     this.sanctions.set(list);
+  }
+
+  // ── Staff management ──────────────────────────────────────────────────────
+
+  private readonly apiService = inject(ApiService);
+  private readonly toast = inject(ToastService);
+
+  /** Staff currently assigned to the tournament. */
+  readonly staff = signal<StaffMember[]>([]);
+
+  /** Available users (loaded for assignment). */
+  readonly availableUsers = signal<Array<{ id: string; name: string; email: string }>>([]);
+
+  /** New staff form state. */
+  readonly newStaffUserId = signal<string>('');
+  readonly newStaffRole = signal<string>('referee');
+
+  readonly staffRoleOptions = [
+    { value: 'organizer', label: 'Organizador' },
+    { value: 'referee',   label: 'Árbitro' },
+    { value: 'observer',  label: 'Observador' },
+  ];
+
+  /** Load staff for the current tournament. */
+  private loadStaff(tournamentId: string): void {
+    this.tournamentService.getStaff(tournamentId).subscribe({
+      next: (data) => this.staff.set(data ?? []),
+    });
+  }
+
+  /** Load available users for assignment. */
+  private loadAvailableUsers(): void {
+    this.apiService.get<Array<{ id: string; name: string; email: string }>>('/users').subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          // Map to simple format — the users endpoint returns full user objects
+          const users = (res.data as Array<Record<string, unknown>>).map((u) => ({
+            id: u['id'] as string,
+            name: (u['name'] as string) || `${u['firstName'] ?? ''} ${u['firstLastName'] ?? ''}`.trim() || (u['email'] as string),
+            email: u['email'] as string,
+          }));
+          this.availableUsers.set(users);
+        }
+      },
+      error: () => {
+        // If users endpoint fails, staff management still works but without user search
+        this.availableUsers.set([]);
+      },
+    });
+  }
+
+  onAddStaff(): void {
+    const userId = this.newStaffUserId();
+    const role = this.newStaffRole();
+    const tournamentId = this.tournamentId();
+    if (!userId || !role || !tournamentId) {
+      this.toast.warning('Selecciona un usuario y un rol');
+      return;
+    }
+
+    this.tournamentService.addStaff(tournamentId, userId, role).subscribe({
+      next: (data) => {
+        this.staff.set(data ?? []);
+        this.newStaffUserId.set('');
+        this.toast.success('Staff agregado');
+      },
+      error: (err) => {
+        const msg = err?.error?.message ?? 'No se pudo agregar el staff. Verifica que el usuario exista.';
+        this.toast.error(msg);
+      },
+    });
+  }
+
+  onRemoveStaff(userId: string): void {
+    const tournamentId = this.tournamentId();
+    if (!tournamentId) return;
+
+    this.tournamentService.removeStaff(tournamentId, userId).subscribe({
+      next: () => {
+        this.staff.update((list) => list.filter((s) => s.userId !== userId));
+        this.toast.success('Staff removido');
+      },
+      error: () => this.toast.error('No se pudo remover el staff'),
+    });
+  }
+
+  getStaffRoleLabel(role: string): string {
+    return this.staffRoleOptions.find((r) => r.value === role)?.label ?? role;
   }
 
   /** Tiebreaker criteria order */
@@ -144,6 +234,21 @@ export class TournamentForm implements OnInit {
     pointsLoss:             [0, [Validators.min(0)]],
     initialFairPlayScore:   [1000],
     teamsPerGroupQualify:   [2, [Validators.min(1), Validators.max(10)]],
+
+    // Rule overrides (per-tournament, NULL = use sport default)
+    playersPerTeamOverride:      [null as number | null, [Validators.min(1), Validators.max(50)]],
+    minPlayersPerTeam:           [null as number | null, [Validators.min(1), Validators.max(50)]],
+    hasSetsOverride:             [null as boolean | null],
+    setsToWinOverride:           [null as number | null, [Validators.min(1), Validators.max(10)]],
+    pointsPerSetOverride:        [null as number | null, [Validators.min(1), Validators.max(200)]],
+    decisiveSetPointsOverride:   [null as number | null, [Validators.min(1), Validators.max(200)]],
+    winMarginOverride:           [null as number | null, [Validators.min(1), Validators.max(10)]],
+    periodsPerMatchOverride:     [null as number | null, [Validators.min(1), Validators.max(10)]],
+    maxSubstitutionsOverride:    [null as number | null, [Validators.min(-1), Validators.max(50)]],
+    hasRotationOverride:         [null as boolean | null],
+    allowReentry:                [false],
+    enforcePairedSubs:           [false],
+    liberoUnlimitedSubs:         [true],
   });
 
   ngOnInit(): void {
@@ -199,13 +304,27 @@ export class TournamentForm implements OnInit {
           pointsLoss:           t.pointsConfig?.loss ?? 0,
           initialFairPlayScore: t.initialFairPlayScore ?? 1000,
           teamsPerGroupQualify: t.teamsPerGroupQualify ?? 2,
+          // Rule overrides
+          playersPerTeamOverride:    (t as unknown as Record<string, unknown>)['playersPerTeamOverride'] as number | null ?? null,
+          minPlayersPerTeam:         (t as unknown as Record<string, unknown>)['minPlayersPerTeam'] as number | null ?? null,
+          hasSetsOverride:           (t as unknown as Record<string, unknown>)['hasSetsOverride'] as boolean | null ?? null,
+          setsToWinOverride:         (t as unknown as Record<string, unknown>)['setsToWinOverride'] as number | null ?? null,
+          pointsPerSetOverride:      (t as unknown as Record<string, unknown>)['pointsPerSetOverride'] as number | null ?? null,
+          decisiveSetPointsOverride: (t as unknown as Record<string, unknown>)['decisiveSetPointsOverride'] as number | null ?? null,
+          winMarginOverride:         (t as unknown as Record<string, unknown>)['winMarginOverride'] as number | null ?? null,
+          periodsPerMatchOverride:   (t as unknown as Record<string, unknown>)['periodsPerMatchOverride'] as number | null ?? null,
+          maxSubstitutionsOverride:  (t as unknown as Record<string, unknown>)['maxSubstitutionsOverride'] as number | null ?? null,
+          hasRotationOverride:       (t as unknown as Record<string, unknown>)['hasRotationOverride'] as boolean | null ?? null,
+          allowReentry:              (t as unknown as Record<string, unknown>)['allowReentry'] as boolean ?? false,
+          enforcePairedSubs:         (t as unknown as Record<string, unknown>)['enforcePairedSubs'] as boolean ?? false,
+          liberoUnlimitedSubs:       (t as unknown as Record<string, unknown>)['liberoUnlimitedSubs'] as boolean ?? true,
         });
         // Load tiebreaker criteria
         if (t.tiebreakerCriteria) this.tiebreakerCriteria.set(t.tiebreakerCriteria);
 
         this.isLocked.set(t.status !== 'draft');
 
-        // Load cups and sanction types
+        // Load cups, sanction types, and staff
         forkJoin({
           cups:      this.tournamentService.getCups(id),
           sanctions: this.tournamentService.getSanctionTypes(id),
@@ -231,6 +350,10 @@ export class TournamentForm implements OnInit {
           },
           error: () => { this.isLoading.set(false); },
         });
+
+        // Load staff and available users (parallel, non-blocking)
+        this.loadStaff(id);
+        this.loadAvailableUsers();
       },
       error: () => { this.errorMessage.set('No se pudo cargar el torneo.'); this.isLoading.set(false); },
     });
@@ -279,6 +402,20 @@ export class TournamentForm implements OnInit {
       tiebreakerCriteria:   this.tiebreakerCriteria(),
       initialFairPlayScore: v.initialFairPlayScore ?? 1000,
       teamsPerGroupQualify: v.teamsPerGroupQualify ?? 2,
+      // Rule overrides (per-tournament)
+      playersPerTeamOverride:    v.playersPerTeamOverride ?? null,
+      minPlayersPerTeam:         v.minPlayersPerTeam ?? null,
+      hasSetsOverride:           v.hasSetsOverride ?? null,
+      setsToWinOverride:         v.setsToWinOverride ?? null,
+      pointsPerSetOverride:      v.pointsPerSetOverride ?? null,
+      decisiveSetPointsOverride: v.decisiveSetPointsOverride ?? null,
+      winMarginOverride:         v.winMarginOverride ?? null,
+      periodsPerMatchOverride:   v.periodsPerMatchOverride ?? null,
+      maxSubstitutionsOverride:  v.maxSubstitutionsOverride ?? null,
+      hasRotationOverride:       v.hasRotationOverride ?? null,
+      allowReentry:              v.allowReentry ?? false,
+      enforcePairedSubs:         v.enforcePairedSubs ?? false,
+      liberoUnlimitedSubs:       v.liberoUnlimitedSubs ?? true,
     };
 
     const id = this.tournamentId();

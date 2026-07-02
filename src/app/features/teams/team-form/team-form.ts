@@ -4,7 +4,9 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TeamService }    from '../team.service';
+import { ApiService }     from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import type { Tournament } from '../../../core/models/tournament.model';
 
 @Component({
   selector: 'app-team-form',
@@ -18,12 +20,14 @@ export class TeamForm implements OnInit {
   private readonly router      = inject(Router);
   private readonly route       = inject(ActivatedRoute);
   private readonly teamService = inject(TeamService);
+  private readonly api         = inject(ApiService);
 
   readonly isEditMode   = signal<boolean>(false);
   readonly teamId       = signal<string | null>(null);
   readonly isLoading    = signal<boolean>(false);
   readonly isSaving     = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly tournaments  = signal<Tournament[]>([]);
 
   readonly statusOptions = [
     { value: 'active',    label: 'Activo' },
@@ -49,6 +53,11 @@ export class TeamForm implements OnInit {
   });
 
   ngOnInit(): void {
+    // Load tournaments for the dropdown
+    this.api.get<Tournament[]>('/tournaments').subscribe({
+      next: (res) => { if (res.success && res.data) this.tournaments.set(res.data); },
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);

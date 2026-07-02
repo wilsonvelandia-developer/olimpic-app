@@ -43,6 +43,14 @@ export interface SanctionTypePayload {
   icon: string;
 }
 
+export interface StaffMember {
+  userId: string;
+  userName: string;
+  email: string;
+  staffRole: string;
+  assignedAt: string;
+}
+
 export interface TournamentFilters {
   sportId?:  string;
   status?:   string;
@@ -110,5 +118,24 @@ export class TournamentService {
   saveSanctionTypes(tournamentId: string, types: SanctionTypePayload[]): Observable<SanctionType[]> {
     return this.api.post<SanctionType[]>(`${this.basePath}/${tournamentId}/sanction-types`, types)
       .pipe(map((r) => r.data));
+  }
+
+  // ── Staff Management ──────────────────────────────────────────────────────
+
+  getStaff(tournamentId: string, role?: string): Observable<StaffMember[]> {
+    const path = role
+      ? `${this.basePath}/${tournamentId}/staff?role=${role}`
+      : `${this.basePath}/${tournamentId}/staff`;
+    return this.api.get<StaffMember[]>(path).pipe(map((r) => r.data));
+  }
+
+  addStaff(tournamentId: string, userId: string, staffRole: string): Observable<StaffMember[]> {
+    return this.api.post<StaffMember[]>(`${this.basePath}/${tournamentId}/staff`, { userId, staffRole })
+      .pipe(map((r) => r.data));
+  }
+
+  removeStaff(tournamentId: string, userId: string): Observable<void> {
+    return this.api.delete<void>(`${this.basePath}/${tournamentId}/staff/${userId}`)
+      .pipe(map(() => undefined));
   }
 }

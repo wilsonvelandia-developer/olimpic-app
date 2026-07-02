@@ -14,8 +14,23 @@
 
   <div class="filters-bar">
     <div class="form-group">
-      <label class="form-label" for="phaseId">ID Fase</label>
-      <input id="phaseId" type="text" class="form-control" placeholder="UUID de fase" [(ngModel)]="phaseIdModel" />
+      <label class="form-label" for="filterTournament">Torneo</label>
+      <select id="filterTournament" class="form-control" [(ngModel)]="tournamentIdModel"
+        (change)="onTournamentFilterChange()">
+        <option value="">Todos los torneos</option>
+        @for (t of tournaments(); track t.id) {
+          <option [value]="t.id">{{ t.name }}{{ t.category ? ' — ' + t.category : '' }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="phaseId">Fase</label>
+      <select id="phaseId" class="form-control" [(ngModel)]="phaseIdModel">
+        <option value="">Todas las fases</option>
+        @for (p of phases(); track p.id) {
+          <option [value]="p.id">{{ p.name }}</option>
+        }
+      </select>
     </div>
     <div class="form-group">
       <label class="form-label" for="matchStatus">Estado</label>

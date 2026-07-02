@@ -1,0 +1,64 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando historial..." /> }
+
+@if (!isLoading()) {
+  <div class="match-history">
+    <div class="match-history__header">
+      <h3 class="match-history__title">📊 Historial de partidos</h3>
+      <div class="match-history__actions">
+        @if (matches().length > 0) {
+          <button type="button" class="btn btn--secondary btn--sm" (click)="onExportPdf()">📄 PDF</button>
+          <button type="button" class="btn btn--secondary btn--sm" (click)="onExportCsv()">📊 CSV</button>
+        }
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    @if (stats.total > 0) {
+      <div class="stats-bar">
+        <span class="stat stat--total">{{ stats.total }} PJ</span>
+        <span class="stat stat--win">{{ stats.wins }} V</span>
+        <span class="stat stat--draw">{{ stats.draws }} E</span>
+        <span class="stat stat--loss">{{ stats.losses }} D</span>
+      </div>
+    }
+
+    @if (matches().length === 0) {
+      <p class="match-history__empty">Este equipo aún no tiene partidos registrados.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table" aria-label="Historial de partidos">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Local</th>
+              <th>Resultado</th>
+              <th>Visitante</th>
+              <th>Ronda</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of matches(); track m.id) {
+              <tr class="clickable-row" (click)="onViewMatch(m.id)">
+                <td>{{ m.scheduledAt ? (m.scheduledAt | date:'shortDate') : '—' }}</td>
+                <td [class.team-highlight]="m.homeTeamId === teamId()">{{ m.homeTeamName ?? 'TBD' }}</td>
+                <td class="score-cell">
+                  @if (m.homeScore != null && m.awayScore != null) {
+                    <span class="score">{{ m.homeScore }} - {{ m.awayScore }}</span>
+                  } @else {
+                    <span class="score score--pending">vs</span>
+                  }
+                </td>
+                <td [class.team-highlight]="m.awayTeamId === teamId()">{{ m.awayTeamName ?? 'TBD' }}</td>
+                <td>{{ m.round ?? '—' }}</td>
+                <td>
+                  <span class="badge" [class]="'badge ' + getResultClass(m)">{{ getResultLabel(m) }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

@@ -4,7 +4,12 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatchService }  from '../match.service';
+import { ApiService }    from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import type { Tournament } from '../../../core/models/tournament.model';
+
+interface PhaseOption { id: string; name: string; }
+interface TeamOption  { id: string; name: string; }
 
 @Component({
   selector: 'app-match-form',
@@ -18,6 +23,7 @@ export class MatchForm implements OnInit {
   private readonly router       = inject(Router);
   private readonly route        = inject(ActivatedRoute);
   private readonly matchService = inject(MatchService);
+  private readonly api          = inject(ApiService);
 
   readonly isEditMode   = signal<boolean>(false);
   readonly matchId      = signal<string | null>(null);
@@ -25,14 +31,28 @@ export class MatchForm implements OnInit {
   readonly isSaving     = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
 
+  /** Data for select dropdowns. */
+  readonly tournaments = signal<Tournament[]>([]);
+  readonly phases      = signal<PhaseOption[]>([]);
+  readonly teams       = signal<TeamOption[]>([]);
+
+  readonly selectedTournamentId = signal<string>('');
+
   readonly form = this.fb.group({
-    phaseId:     ['', [Validators.required]],
-    homeTeamId:  ['', [Validators.required]],
-    awayTeamId:  ['', [Validators.required]],
-    scheduledAt: ['' as string | null],
+    tournamentId: [''],
+    phaseId:      ['', [Validators.required]],
+    homeTeamId:   ['', [Validators.required]],
+    awayTeamId:   ['', [Validators.required]],
+    scheduledAt:  ['' as string | null],
+    venue:        [''],
   });
 
   ngOnInit(): void {
+    // Load tournaments for the first dropdown
+    this.api.get<Tournament[]>('/tournaments').subscribe({
+      next: (res) => { if (res.success && res.data) this.tournaments.set(res.data); },
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);
@@ -41,6 +61,26 @@ export class MatchForm implements OnInit {
     }
     const phaseId = this.route.snapshot.queryParamMap.get('phaseId');
     if (phaseId) this.form.patchValue({ phaseId });
+  }
+
+  /** When tournament changes, load its phases and teams. */
+  onTournamentChange(tournamentId: string): void {
+    this.selectedTournamentId.set(tournamentId);
+    if (!tournamentId) {
+      this.phases.set([]);
+      this.teams.set([]);
+      return;
+    }
+
+    // Load phases
+    this.api.get<PhaseOption[]>(`/tournaments/${tournamentId}/phases`).subscribe({
+      next: (res) => { if (res.success && res.data) this.phases.set(res.data); },
+    });
+
+    // Load teams
+    this.api.get<TeamOption[]>(`/teams?tournamentId=${tournamentId}`).subscribe({
+      next: (res) => { if (res.success && res.data) this.teams.set(res.data); },
+    });
   }
 
   private loadMatch(id: string): void {
@@ -53,6 +93,7 @@ export class MatchForm implements OnInit {
           homeTeamId:  m.homeTeamId,
           awayTeamId:  m.awayTeamId,
           scheduledAt: m.scheduledAt ? m.scheduledAt.slice(0, 16) : null,
+          venue:       (m as unknown as Record<string, unknown>)['venue'] as string ?? '',
         });
         this.isLoading.set(false);
       },
@@ -66,11 +107,15 @@ export class MatchForm implements OnInit {
     this.errorMessage.set(null);
 
     const v = this.form.value;
+    const scheduledAt = v.scheduledAt
+      ? new Date(v.scheduledAt).toISOString() // Convert local datetime-local to ISO with Z
+      : null;
+
     const payload = {
       phaseId:     v.phaseId!,
       homeTeamId:  v.homeTeamId!,
       awayTeamId:  v.awayTeamId!,
-      scheduledAt: v.scheduledAt || null,
+      scheduledAt,
     };
 
     this.matchService.create(payload).subscribe({

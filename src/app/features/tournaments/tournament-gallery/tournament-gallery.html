@@ -1,0 +1,29 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando galería..." /> }
+
+@if (!isLoading()) {
+  <div class="tab-section">
+    <div class="tab-section__header">
+      <h3 class="tab-section__title">📸 Galería</h3>
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--primary btn--sm" (click)="onCreateAlbum()">+ Nuevo álbum</button>
+      }
+    </div>
+
+    @if (albums().length === 0) {
+      <p class="tab-section__empty">No hay álbumes para este torneo.</p>
+    } @else {
+      <div class="gallery-mini-grid">
+        @for (album of albums(); track album.id) {
+          <article class="album-mini-card" (click)="onViewAlbum(album.id)">
+            <div class="album-mini-card__cover">
+              <img [src]="album.coverUrl || 'https://img.icons8.com/3d-fluency/256/photo-gallery.png'"
+                [alt]="album.title" loading="lazy" />
+              <span class="album-mini-card__count">{{ album.itemCount }}</span>
+            </div>
+            <h4 class="album-mini-card__title">{{ album.title }}</h4>
+          </article>
+        }
+      </div>
+    }
+  </div>
+}

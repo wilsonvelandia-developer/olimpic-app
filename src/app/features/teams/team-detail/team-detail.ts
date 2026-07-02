@@ -5,12 +5,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TeamService }   from '../team.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog }  from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { TeamMatches }    from '../team-matches/team-matches';
 import { AuthService }    from '../../../core/services/auth.service';
 import type { Team, Player } from '../../../core/models';
 
 @Component({
   selector: 'app-team-detail',
-  imports: [RouterLink, LoadingSpinner, ConfirmDialog],
+  imports: [RouterLink, LoadingSpinner, ConfirmDialog, TeamMatches],
   templateUrl: './team-detail.html',
   styleUrl: './team-detail.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

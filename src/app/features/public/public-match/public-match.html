@@ -1,0 +1,64 @@
+<div class="public-page">
+  @if (isLoading()) {
+    <div class="public-page__loading">Cargando partido...</div>
+  } @else if (!match()) {
+    <div class="public-page__empty">Partido no encontrado.</div>
+  } @else {
+    <header class="public-match__header">
+      <button type="button" class="public-detail__back" (click)="goBack()">← Volver</button>
+      <span class="badge"
+        [class.badge--success]="match()!.status === 'in_progress'"
+        [class.badge--info]="match()!.status === 'finished'"
+        [class.badge--neutral]="match()!.status === 'scheduled'"
+      >{{ match()!.status === 'in_progress' ? '🔴 En Vivo' : match()!.status === 'finished' ? 'Finalizado' : 'Programado' }}</span>
+    </header>
+
+    <!-- Scoreboard -->
+    <div class="public-match__scoreboard">
+      <div class="public-match__team">
+        <span class="public-match__team-name">{{ match()!.homeTeamName ?? 'Local' }}</span>
+        <span class="public-match__score public-match__score--home">{{ totalHome }}</span>
+      </div>
+      <span class="public-match__vs">—</span>
+      <div class="public-match__team">
+        <span class="public-match__score public-match__score--away">{{ totalAway }}</span>
+        <span class="public-match__team-name">{{ match()!.awayTeamName ?? 'Visitante' }}</span>
+      </div>
+    </div>
+
+    <!-- Periods -->
+    @if (periods().length > 0) {
+      <section class="public-match__periods">
+        <h3 class="public-match__periods-title">Detalle por período</h3>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Período</th>
+                <th>Local</th>
+                <th>Visitante</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of periods(); track p.id) {
+                <tr>
+                  <td>{{ p.periodNumber }}</td>
+                  <td><strong>{{ p.homeScore }}</strong></td>
+                  <td><strong>{{ p.awayScore }}</strong></td>
+                  <td>
+                    <span class="badge"
+                      [class.badge--success]="p.status === 'in_progress'"
+                      [class.badge--info]="p.status === 'finished'"
+                      [class.badge--neutral]="p.status === 'pending'"
+                    >{{ p.status === 'finished' ? 'Finalizado' : p.status === 'in_progress' ? 'En juego' : 'Pendiente' }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  }
+</div>

@@ -1,0 +1,35 @@
+<div class="public-page">
+  <header class="public-page__header">
+    <h1 class="public-page__title">Torneos</h1>
+    <p class="public-page__subtitle">Consulta resultados, fixture y tabla de posiciones</p>
+  </header>
+
+  @if (isLoading()) {
+    <div class="public-page__loading">Cargando torneos...</div>
+  } @else if (tournaments().length === 0) {
+    <div class="public-page__empty">No hay torneos disponibles.</div>
+  } @else {
+    <div class="public-tournaments__grid">
+      @for (t of tournaments(); track t.id) {
+        <button type="button" class="public-tournament-card" (click)="openTournament(t.id)">
+          @if (t.imageUrl) {
+            <img class="public-tournament-card__img" [src]="t.imageUrl" [alt]="t.name" />
+          } @else {
+            <div class="public-tournament-card__placeholder">🏆</div>
+          }
+          <div class="public-tournament-card__body">
+            <h2 class="public-tournament-card__name">{{ t.name }}</h2>
+            @if (t.category) {
+              <span class="public-tournament-card__category">{{ t.category }}</span>
+            }
+            <span class="public-tournament-card__status badge"
+              [class.badge--success]="t.status === 'active'"
+              [class.badge--info]="t.status === 'finished'"
+              [class.badge--neutral]="t.status === 'draft'"
+            >{{ getStatusLabel(t.status) }}</span>
+          </div>
+        </button>
+      }
+    </div>
+  }
+</div>

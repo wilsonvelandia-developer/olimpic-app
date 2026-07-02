@@ -1,0 +1,58 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Panel del Organizador</h1>
+      <p class="page__subtitle">Resumen general de la plataforma</p>
+    </div>
+  </div>
+
+  @if (isLoading()) { <app-loading-spinner label="Cargando métricas..." /> }
+
+  @if (!isLoading()) {
+    <!-- Metric cards -->
+    <div class="metrics-grid">
+      @for (m of metrics(); track m.label) {
+        <article class="metric-card" (click)="onNavigate(m.route)">
+          <span class="metric-card__icon">{{ m.icon }}</span>
+          <div>
+            <span class="metric-card__label">{{ m.label }}</span>
+            <div class="metric-card__value" [class]="'metric-card__value--' + m.color">{{ m.value }}</div>
+          </div>
+        </article>
+      }
+    </div>
+
+    <!-- Two column section: payments + upcoming -->
+    <div class="two-columns">
+      <div class="section-card">
+        <h3 class="section-card__title">💰 Últimos pagos</h3>
+        @if (recentPayments().length === 0) {
+          <p class="section-card__empty">Sin pagos recientes.</p>
+        } @else {
+          @for (p of recentPayments(); track p.id) {
+            <div class="payment-item" (click)="onViewPayment(p.id)">
+              <span class="payment-item__team">{{ p.teamName }}</span>
+              <span class="payment-item__amount">{{ formatCurrency(p.amount, p.currency) }}</span>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="section-card">
+        <h3 class="section-card__title">⚽ Próximos partidos</h3>
+        @if (upcomingMatches().length === 0) {
+          <p class="section-card__empty">Sin partidos programados.</p>
+        } @else {
+          @for (m of upcomingMatches(); track m.id) {
+            <div class="match-item" (click)="onViewMatch(m.id)">
+              <div>
+                <span class="match-item__teams">{{ m.homeTeamName }} vs {{ m.awayTeamName }}</span>
+                <span class="match-item__meta">{{ formatDate(m.scheduledAt) }}{{ m.venue ? ' — ' + m.venue : '' }}</span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+</section>

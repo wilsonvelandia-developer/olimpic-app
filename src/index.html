@@ -6,12 +6,26 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Plataforma de administración y gestión de torneos deportivos" />
+    <meta name="theme-color" content="#1a56db" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="OlimpicApp" />
     <!-- CSP: allow API gateway and Chrome DevTools in development -->
     <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:3000 ws://localhost:4200; img-src 'self' data: https:; font-src 'self' data:;" />
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:3000 ws://localhost:3000 wss://localhost:3000 ws://localhost:4200 wss://localhost:4200 https://*.googleapis.com https://*.firebaseio.com https://fcmregistrations.googleapis.com; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self';" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
   </head>
   <body>
     <app-root></app-root>
+    <script>
+      // Register Service Worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

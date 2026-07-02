@@ -1,0 +1,33 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando comunicados..." /> }
+
+@if (!isLoading()) {
+  <div class="tab-section">
+    <div class="tab-section__header">
+      <h3 class="tab-section__title">📢 Comunicados</h3>
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--primary btn--sm" (click)="onCreateAnnouncement()">+ Nuevo comunicado</button>
+      }
+    </div>
+
+    @if (announcements().length === 0) {
+      <p class="tab-section__empty">No hay comunicados para este torneo.</p>
+    } @else {
+      <div class="announcement-items">
+        @for (a of announcements(); track a.id) {
+          <article class="announcement-item" (click)="onViewAnnouncement(a.id)">
+            <div class="announcement-item__header">
+              <span class="priority-dot" [attr.data-priority]="a.priority" aria-hidden="true"></span>
+              <h4 class="announcement-item__title">{{ a.title }}</h4>
+              <span class="badge"
+                [class.badge--success]="a.status === 'published'"
+                [class.badge--neutral]="a.status === 'draft'"
+                [class.badge--muted]="a.status === 'archived'">{{ a.status }}</span>
+            </div>
+            <p class="announcement-item__excerpt">{{ a.content | slice:0:100 }}{{ a.content.length > 100 ? '...' : '' }}</p>
+            <span class="announcement-item__date">{{ a.publishedAt ? (a.publishedAt | date:'mediumDate') : 'Sin publicar' }}</span>
+          </article>
+        }
+      </div>
+    }
+  </div>
+}

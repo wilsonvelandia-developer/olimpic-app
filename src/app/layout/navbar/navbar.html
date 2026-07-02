@@ -13,6 +13,9 @@
 
   <nav class="navbar__right" aria-label="User menu">
     @if (currentUser()) {
+      <button type="button" class="navbar__theme-btn" (click)="onToggleTheme()" aria-label="Toggle dark mode">
+        {{ theme.currentTheme() === 'dark' ? '☀️' : '🌙' }}
+      </button>
       <div class="navbar__user-info">
         <span class="navbar__user-name">{{ currentUser()!.name }}</span>
         <span class="navbar__role-badge">

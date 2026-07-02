@@ -22,6 +22,10 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "sw.js",
+                "input": "src"
               }
             ],
             "styles": [

@@ -1,0 +1,195 @@
+@if (isLoading()) {
+  <div class="sheet-loading">Cargando planilla...</div>
+} @else if (!data()) {
+  <div class="sheet-loading">Partido no encontrado.</div>
+} @else {
+  <div class="match-sheet">
+    <!-- Header / Actions (hidden on print) -->
+    <div class="sheet-actions no-print">
+      <button type="button" class="btn btn--secondary" (click)="goBack()">← Volver</button>
+      <button type="button" class="btn btn--primary" (click)="print()">🖨️ Imprimir</button>
+    </div>
+
+    <!-- Sheet header -->
+    <header class="sheet-header">
+      <h1 class="sheet-header__title">Planilla de Partido</h1>
+      <div class="sheet-header__teams">
+        <span class="sheet-header__team">{{ data()!.match.homeTeamName ?? 'Local' }}</span>
+        <span class="sheet-header__score">{{ totalHome }} — {{ totalAway }}</span>
+        <span class="sheet-header__team">{{ data()!.match.awayTeamName ?? 'Visitante' }}</span>
+      </div>
+      <div class="sheet-header__meta">
+        @if (data()!.match.scheduledAt) {
+          <span>{{ data()!.match.scheduledAt | date:'medium' }}</span>
+        }
+        @if (data()!.match.venue) {
+          <span>📍 {{ data()!.match.venue }}</span>
+        }
+        <span class="badge badge--info">{{ data()!.match.status }}</span>
+      </div>
+    </header>
+
+    <!-- Periods / Score by period -->
+    <section class="sheet-section">
+      <h2 class="sheet-section__title">Marcador por período</h2>
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Período</th>
+              <th>{{ data()!.match.homeTeamName ?? 'Local' }}</th>
+              <th>{{ data()!.match.awayTeamName ?? 'Visitante' }}</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of data()!.periods; track p.id) {
+              <tr>
+                <td>{{ p.periodNumber }}</td>
+                <td><strong>{{ p.homeScore }}</strong></td>
+                <td><strong>{{ p.awayScore }}</strong></td>
+                <td>{{ p.status }}</td>
+              </tr>
+            }
+            <tr class="sheet-total-row">
+              <td><strong>TOTAL</strong></td>
+              <td><strong>{{ totalHome }}</strong></td>
+              <td><strong>{{ totalAway }}</strong></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Lineups -->
+    <section class="sheet-section">
+      <h2 class="sheet-section__title">Alineaciones</h2>
+      <div class="sheet-lineups">
+        <!-- Home -->
+        <div class="sheet-lineup">
+          <h3 class="sheet-lineup__team">{{ data()!.match.homeTeamName ?? 'Local' }}</h3>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>#</th><th>Jugador</th><th>Rol</th></tr></thead>
+              <tbody>
+                @for (p of data()!.lineups.home; track p.jerseyNumber) {
+                  <tr [class.sheet-starter]="p.isStarter">
+                    <td>{{ p.jerseyNumber }}</td>
+                    <td>{{ p.playerName }}</td>
+                    <td>
+                      @if (p.isCaptain) { <span class="badge badge--info">C</span> }
+                      @if (p.isGoalkeeper) { <span class="badge badge--warning">GK</span> }
+                      @if (p.isLibero) { <span class="badge badge--success">L</span> }
+                      @if (p.isStarter) { Titular } @else { Suplente }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Away -->
+        <div class="sheet-lineup">
+          <h3 class="sheet-lineup__team">{{ data()!.match.awayTeamName ?? 'Visitante' }}</h3>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead><tr><th>#</th><th>Jugador</th><th>Rol</th></tr></thead>
+              <tbody>
+                @for (p of data()!.lineups.away; track p.jerseyNumber) {
+                  <tr [class.sheet-starter]="p.isStarter">
+                    <td>{{ p.jerseyNumber }}</td>
+                    <td>{{ p.playerName }}</td>
+                    <td>
+                      @if (p.isCaptain) { <span class="badge badge--info">C</span> }
+                      @if (p.isGoalkeeper) { <span class="badge badge--warning">GK</span> }
+                      @if (p.isLibero) { <span class="badge badge--success">L</span> }
+                      @if (p.isStarter) { Titular } @else { Suplente }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scorers -->
+    @if (data()!.scorers.length > 0) {
+      <section class="sheet-section">
+        <h2 class="sheet-section__title">Goles / Anotadores</h2>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead><tr><th>Min</th><th>Jugador</th><th>Equipo</th><th>Per.</th><th>Pts</th></tr></thead>
+            <tbody>
+              @for (s of data()!.scorers; track $index) {
+                <tr>
+                  <td>{{ s.matchMinute ?? '—' }}'</td>
+                  <td>#{{ s.jerseyNumber }} {{ s.playerName }}</td>
+                  <td>{{ s.teamName }}</td>
+                  <td>{{ s.periodNumber }}</td>
+                  <td>{{ s.points }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- Substitutions -->
+    @if (data()!.substitutions.length > 0) {
+      <section class="sheet-section">
+        <h2 class="sheet-section__title">Sustituciones</h2>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead><tr><th>Min</th><th>Sale</th><th>Entra</th><th>Equipo</th><th>Per.</th></tr></thead>
+            <tbody>
+              @for (sub of data()!.substitutions; track $index) {
+                <tr>
+                  <td>{{ sub.minute ?? '—' }}'</td>
+                  <td>{{ sub.playerOutName }}</td>
+                  <td>{{ sub.playerInName }}</td>
+                  <td>{{ sub.teamName }}</td>
+                  <td>{{ sub.periodNumber }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- Sanctions -->
+    @if (data()!.sanctions.length > 0) {
+      <section class="sheet-section">
+        <h2 class="sheet-section__title">Sanciones</h2>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead><tr><th>Min</th><th>Tipo</th><th>Jugador</th><th>Equipo</th><th>Per.</th></tr></thead>
+            <tbody>
+              @for (s of data()!.sanctions; track $index) {
+                <tr>
+                  <td>{{ s.minute ?? '—' }}'</td>
+                  <td>
+                    <span [style.color]="s.sanctionColor">{{ s.sanctionIcon ?? '⚠️' }}</span>
+                    {{ s.sanctionName }}
+                  </td>
+                  <td>{{ s.playerName ?? 'Equipo' }}</td>
+                  <td>{{ s.teamName }}</td>
+                  <td>{{ s.periodNumber ?? '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- Footer -->
+    <footer class="sheet-footer">
+      <p>Generado por OlimpicApp</p>
+    </footer>
+  </div>
+}

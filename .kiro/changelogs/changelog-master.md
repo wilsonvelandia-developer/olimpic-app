@@ -4,6 +4,86 @@
 
 ### Agregado
 
+#### Módulo de Sedes (Venues)
+- Se creó `venue.model.ts` con interfaces `Venue`, `VenueCreateRequest`, `VenueUpdateRequest` y tipo `VenueStatus`
+- Se implementó `VenueService`: CRUD con filtros por búsqueda, ciudad y estado
+- `VenueList`: grid/tabla con filtros, paginación, toggle de vista card/list, confirmación de borrado
+- `VenueForm`: formulario reactivo con validación (nombre, dirección, ciudad requeridos), campos de contacto y mapa
+- `VenueDetail`: vista de detalle con grilla de información, enlace a mapa y acciones de edición/eliminación
+- Rutas: `/venues`, `/venues/new`, `/venues/:id/edit`, `/venues/:id`
+
+#### Módulo de Pagos (Payments)
+- Se creó `payment.model.ts` con interfaces `Payment`, `PaymentCreateRequest`, `PaymentUpdateRequest` y tipos `PaymentStatus`, `PaymentMethod`
+- Se implementó `PaymentService`: CRUD con filtros por torneo, equipo y estado
+- `PaymentList`: tabla con formato de moneda (Intl.NumberFormat), filtros por torneo/estado, paginación
+- `PaymentForm`: formulario reactivo con selects de torneo/equipo (cargados desde API), validación de monto mínimo
+- `PaymentDetail`: vista de detalle con monto destacado, estado, referencia, notas y fechas
+- Rutas protegidas (organizer+): `/payments`, `/payments/new`, `/payments/:id/edit`, `/payments/:id`
+
+#### Módulo de Comunicados (Announcements)
+- Se creó `announcement.model.ts` con interfaces `Announcement`, `AnnouncementCreateRequest`, `AnnouncementUpdateRequest` y tipos `AnnouncementPriority`, `AnnouncementStatus`
+- Se implementó `AnnouncementService`: CRUD con filtros por torneo, prioridad y estado
+- `AnnouncementList`: cards con indicador de prioridad (dot coloreado), extracto de contenido, filtros
+- `AnnouncementForm`: formulario reactivo con textarea para contenido, selects de prioridad/estado/torneo
+- `AnnouncementDetail`: vista completa con imagen, contenido pre-wrap, footer con autor y fecha
+- Rutas: `/announcements`, `/announcements/new`, `/announcements/:id/edit`, `/announcements/:id`
+
+#### Módulo de Galería (Gallery)
+- Se creó `gallery.model.ts` con interfaces `GalleryAlbum`, `GalleryItem`, `GalleryAlbumCreateRequest`, `GalleryAlbumUpdateRequest`, `GalleryItemCreateRequest` y tipo `GalleryItemType`
+- Se implementó `GalleryService`: CRUD de álbumes + operaciones de items (fotos/videos) anidados
+- `GalleryList`: grid visual de álbumes con portada, contador de items y acciones
+- `GalleryForm`: formulario reactivo para crear/editar álbumes con torneo opcional
+- `GalleryDetail`: vista de álbum con grid de fotos/videos, indicador de tipo video, eliminación por item
+- Rutas: `/gallery`, `/gallery/new`, `/gallery/:id/edit`, `/gallery/:id`
+
+### Cambiado
+- Se actualizó `app.routes.ts` para registrar las 4 nuevas rutas lazy-loaded (venues, payments, announcements, gallery)
+- Se actualizó `core/models/index.ts` para exportar los nuevos modelos
+- Se integró tabs de Sedes, Pagos, Comunicados y Galería en `tournament-detail` con sub-componentes dedicados
+- Se agregó ruta `/referee-management` para gestión de árbitros (organizer+)
+- Se agregó ruta `/dashboard/organizer` para dashboard del organizador con métricas
+- Se integró componente `TeamMatches` (historial de partidos) en `team-detail`
+- Se instaló `jspdf@2.5.2` y `jspdf-autotable@3.8.4` como dependencias exactas
+
+#### Integración tournament-detail
+- Se creó `TournamentVenues`: tab sub-componente para sedes del torneo
+- Se creó `TournamentPayments`: tab con resumen de recaudo, tabla de pagos y accesos rápidos
+- Se creó `TournamentAnnouncements`: tab con comunicados del torneo, indicadores de prioridad
+- Se creó `TournamentGallery`: tab con grid de álbumes del torneo
+- Se registraron 4 nuevos tabs (Sedes, Pagos, Comunicados, Galería) en el tab-panel
+
+#### Exportación PDF (jsPDF)
+- Se creó `PdfExportService` con métodos: `exportMatchSheet`, `exportStandings`, `exportFixture`, `exportFixtureFromMatches`
+- Planilla de partido: encabezado, datos del partido, nóminas local/visitante con columnas de goles/tarjetas, firmas
+- Tabla de posiciones: formato landscape con datos de PJ/PG/PE/PP/GF/GC/DG/Pts
+- Fixture: lista de partidos con ronda, fecha, hora, equipos y sede
+
+#### Exportación CSV
+- Se creó `CsvExportService` con métodos: `exportFixture`, `exportStandings`
+- Soporte para BOM UTF-8 (compatibilidad con Excel), escape de campos con comas/comillas
+- Descarga automática vía Blob API
+
+#### Historial de partidos por equipo (#33)
+- Se creó `TeamMatches` component con tabla de historial, resumen (V/E/D) y botones de exportación PDF/CSV
+- Se integró en `team-detail` como sección debajo de jugadores
+- Se implementó clasificación de resultados (victoria/empate/derrota) con colores
+
+#### Gestión de árbitros (#21)
+- Se creó `RefereeHistory` component con layout split (sidebar de lista + panel de asignaciones)
+- Muestra lista de árbitros con contador de partidos e indicador de disponibilidad
+- Panel de detalle con historial de asignaciones: fecha, equipos, torneo, rol, estado
+- Ruta: `/referee-management` protegida con `organizer`
+
+#### Dashboard del organizador (#22)
+- Se creó `OrganizerDashboard` con grid de métricas (torneos, equipos, partidos, recaudo)
+- Sección de últimos pagos y próximos partidos con acciones de navegación
+- Carga paralela vía `forkJoin` para métricas en una sola petición
+- Ruta: `/dashboard/organizer` protegida con `organizer`
+
+#### Base de datos
+- Se aplicaron migraciones 026-029: `venues`, `announcements`, `payments`, `gallery_photos`
+- Tablas con UUID, FK con CASCADE, índices compuestos, constraints CHECK
+
 #### Setup y configuración inicial
 - Se inicializó el proyecto Angular 21.x con standalone components, routing y CSS3
 - Se configuró Angular CLI con analytics deshabilitado globalmente

@@ -1,0 +1,113 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Sedes</h1>
+      <p class="page__subtitle">Gestiona las sedes y escenarios deportivos</p>
+    </div>
+    <div class="page__header-actions">
+      <app-view-toggle [(mode)]="viewMode" />
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--primary" (click)="onCreateVenue()">+ Nueva sede</button>
+      }
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="venueSearch">Buscar</label>
+      <input id="venueSearch" type="search" class="form-control" placeholder="Nombre o ciudad..."
+        [(ngModel)]="searchModel" maxlength="80" (keyup.enter)="onApplyFilters()" />
+    </div>
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+  @if (isLoading()) { <app-loading-spinner label="Cargando sedes..." /> }
+
+  @if (!isLoading()) {
+    @if (venues().length === 0) {
+      <div class="empty-state"><p>No se encontraron sedes.</p></div>
+    } @else {
+
+      <!-- CARD VIEW -->
+      @if (viewMode() === 'card') {
+        <div class="items-grid">
+          @for (venue of venues(); track venue.id) {
+            <article class="item-card" (click)="onViewDetail(venue.id)">
+              <img class="item-card__img"
+                [src]="venue.imageUrl || 'https://img.icons8.com/3d-fluency/256/stadium.png'"
+                [alt]="venue.name" width="48" height="48" loading="lazy" />
+              <div class="item-card__body">
+                <h3 class="item-card__name">{{ venue.name }}</h3>
+                <span class="item-card__sub">{{ venue.address }}, {{ venue.city }}</span>
+                @if (venue.capacity) {
+                  <span class="item-card__sub">Capacidad: {{ venue.capacity }} personas</span>
+                }
+              </div>
+              <div class="item-card__badge">
+                <span class="badge"
+                  [class.badge--success]="venue.status === 'active'"
+                  [class.badge--warning]="venue.status === 'maintenance'"
+                  [class.badge--muted]="venue.status === 'inactive'">{{ venue.status }}</span>
+              </div>
+              <div class="item-card__actions" (click)="$event.stopPropagation()">
+                @if (auth.canEdit()) {
+                  <button type="button" class="btn btn--secondary btn--sm" (click)="onEditVenue(venue.id)">✏️</button>
+                }
+                @if (auth.isAdmin()) {
+                  <button type="button" class="btn btn--secondary btn--sm" (click)="onDeleteConfirm(venue)">🗑️</button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+      <!-- LIST VIEW -->
+      @if (viewMode() === 'list') {
+        <div class="table-wrapper">
+          <table class="table" aria-label="Lista de sedes">
+            <thead><tr><th>Nombre</th><th>Dirección</th><th>Ciudad</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+              @for (venue of venues(); track venue.id) {
+                <tr>
+                  <td>
+                    <button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(venue.id)">{{ venue.name }}</button>
+                  </td>
+                  <td>{{ venue.address }}</td>
+                  <td>{{ venue.city }}</td>
+                  <td>{{ venue.capacity ?? '—' }}</td>
+                  <td><span class="badge" [class.badge--success]="venue.status === 'active'" [class.badge--warning]="venue.status === 'maintenance'" [class.badge--muted]="venue.status === 'inactive'">{{ venue.status }}</span></td>
+                  <td>
+                    <div class="table__actions">
+                      @if (auth.canEdit()) { <button type="button" class="btn btn--secondary btn--sm" (click)="onEditVenue(venue.id)">✏️</button> }
+                      @if (auth.isAdmin()) { <button type="button" class="btn btn--secondary btn--sm" (click)="onDeleteConfirm(venue)">🗑️</button> }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    @if (totalPages > 1) {
+      <nav class="pagination">
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage() === 1" (click)="onPageChange(currentPage()-1)">‹</button>
+        @for (page of pageRange; track page) {
+          <button type="button" class="btn btn--sm" [class.btn--primary]="page===currentPage()" [class.btn--secondary]="page!==currentPage()" (click)="onPageChange(page)">{{ page }}</button>
+        }
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage()===totalPages" (click)="onPageChange(currentPage()+1)">›</button>
+      </nav>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog title="Eliminar sede" [message]="'¿Eliminar «' + selectedVenueName() + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true" (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}

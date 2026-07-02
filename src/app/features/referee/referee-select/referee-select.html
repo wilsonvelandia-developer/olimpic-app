@@ -10,7 +10,7 @@
   } @else if (matches().length === 0) {
     <div class="referee-select__empty">
       <p>No hay partidos disponibles para arbitrar.</p>
-      <p class="referee-select__hint">Los partidos deben estar programados o en curso.</p>
+      <p class="referee-select__hint">Verifica que estés registrado como árbitro en al menos un torneo.</p>
     </div>
   } @else {
     <ul class="referee-select__list" role="list">
@@ -21,18 +21,37 @@
             class="referee-select__match-card"
             (click)="selectMatch(match.id)"
           >
+            <!-- Tournament & Sport info -->
+            <div class="referee-select__tournament-info">
+              @if ($any(match)['sportName']) {
+                <span class="referee-select__sport">{{ $any(match)['sportName'] }}</span>
+              }
+              @if ($any(match)['tournamentName']) {
+                <span class="referee-select__tournament-name">{{ $any(match)['tournamentName'] }}</span>
+              }
+              @if ($any(match)['category']) {
+                <span class="referee-select__category">{{ $any(match)['category'] }}</span>
+              }
+            </div>
+
+            <!-- Teams -->
             <div class="referee-select__teams">
               <span class="referee-select__team">{{ match.homeTeamName ?? 'Local' }}</span>
               <span class="referee-select__vs">vs</span>
               <span class="referee-select__team">{{ match.awayTeamName ?? 'Visitante' }}</span>
             </div>
+
+            <!-- Status, date, venue -->
             <div class="referee-select__meta">
               <span class="badge"
                 [class.badge--success]="match.status === 'in_progress'"
                 [class.badge--neutral]="match.status === 'scheduled'"
               >{{ statusLabel(match.status) }}</span>
               @if (match.scheduledAt) {
-                <span class="referee-select__date">{{ match.scheduledAt | date:'short' }}</span>
+                <span class="referee-select__date">📅 {{ formatDateTime(match.scheduledAt) }}</span>
+              }
+              @if ($any(match)['venue']) {
+                <span class="referee-select__venue">📍 {{ $any(match)['venue'] }}</span>
               }
             </div>
           </button>

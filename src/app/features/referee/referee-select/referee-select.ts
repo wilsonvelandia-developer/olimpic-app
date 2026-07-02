@@ -28,23 +28,35 @@ export class RefereeSelect implements OnInit {
 
   loadMatches(): void {
     this.isLoading.set(true);
-    this.api.get<Match[]>('/matches?status=in_progress').subscribe({
+    // Load matches only from tournaments where the current user is assigned as referee
+    this.api.get<Match[]>('/matches/for-referee').subscribe({
       next: (res) => {
-        const inProgress = res.data ?? [];
-        // Also load scheduled
-        this.api.get<Match[]>('/matches?status=scheduled').subscribe({
-          next: (res2) => {
-            const scheduled = res2.data ?? [];
-            this.matches.set([...inProgress, ...scheduled]);
-            this.isLoading.set(false);
+        const matches = res.data ?? [];
+        // Show in_progress first, then scheduled
+        const sorted = [
+          ...matches.filter((m) => m.status === 'in_progress'),
+          ...matches.filter((m) => m.status === 'scheduled'),
+        ];
+        this.matches.set(sorted);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        // Fallback: load all matches if the filtered endpoint fails (backward compat)
+        this.api.get<Match[]>('/matches?status=in_progress').subscribe({
+          next: (res) => {
+            const inProgress = res.data ?? [];
+            this.api.get<Match[]>('/matches?status=scheduled').subscribe({
+              next: (res2) => {
+                const scheduled = res2.data ?? [];
+                this.matches.set([...inProgress, ...scheduled]);
+                this.isLoading.set(false);
+              },
+              error: () => { this.matches.set(inProgress); this.isLoading.set(false); },
+            });
           },
-          error: () => {
-            this.matches.set(inProgress);
-            this.isLoading.set(false);
-          },
+          error: () => this.isLoading.set(false),
         });
       },
-      error: () => this.isLoading.set(false),
     });
   }
 
@@ -63,5 +75,12 @@ export class RefereeSelect implements OnInit {
       case 'scheduled':   return 'Programado';
       default:            return status;
     }
+  }
+
+  /** Format datetime for display. */
+  formatDateTime(dateStr: string): string {
+    return new Date(dateStr).toLocaleString('es-CO', {
+      weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+    });
   }
 }

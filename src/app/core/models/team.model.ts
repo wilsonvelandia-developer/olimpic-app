@@ -68,9 +68,15 @@ export interface TeamUpdateRequest {
 }
 
 export interface PlayerCreateRequest {
-  name:         string;
-  jerseyNumber: number;
-  position?:    string | null;
+  name:            string;
+  jerseyNumber:    number;
+  position?:       string | null;
+  documentType?:   string | null;
+  documentNumber?: string | null;
+  userId?:         string | null;
+  email?:          string | null;
+  phone?:          string | null;
+  birthDate?:      string | null;
 }
 
 export interface PlayerUpdateRequest extends Partial<PlayerCreateRequest> {

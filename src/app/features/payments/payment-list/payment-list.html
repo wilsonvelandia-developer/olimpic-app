@@ -1,0 +1,112 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Pagos</h1>
+      <p class="page__subtitle">Gestiona los pagos de inscripción de equipos</p>
+    </div>
+    <div class="page__header-actions">
+      <button type="button" class="btn btn--primary" (click)="onCreatePayment()">+ Nuevo pago</button>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="paymentSearch">Buscar</label>
+      <input id="paymentSearch" type="search" class="form-control" placeholder="Referencia o equipo..."
+        [(ngModel)]="searchModel" maxlength="80" (keyup.enter)="onApplyFilters()" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="paymentTournament">Torneo</label>
+      <select id="paymentTournament" class="form-control" [(ngModel)]="tournamentModel" (change)="onApplyFilters()">
+        <option value="">Todos</option>
+        @for (t of tournaments(); track t.id) {
+          <option [value]="t.id">{{ t.name }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="paymentStatus">Estado</label>
+      <select id="paymentStatus" class="form-control" [(ngModel)]="statusModel" (change)="onApplyFilters()">
+        <option value="">Todos</option>
+        <option value="pending">Pendiente</option>
+        <option value="completed">Completado</option>
+        <option value="failed">Fallido</option>
+        <option value="refunded">Reembolsado</option>
+      </select>
+    </div>
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+  @if (isLoading()) { <app-loading-spinner label="Cargando pagos..." /> }
+
+  @if (!isLoading()) {
+    @if (payments().length === 0) {
+      <div class="empty-state"><p>No se encontraron pagos.</p></div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table" aria-label="Lista de pagos">
+          <thead>
+            <tr>
+              <th>Equipo</th>
+              <th>Torneo</th>
+              <th>Monto</th>
+              <th>Método</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of payments(); track payment.id) {
+              <tr>
+                <td>
+                  <button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(payment.id)">
+                    {{ payment.teamName ?? 'Equipo' }}
+                  </button>
+                </td>
+                <td>{{ payment.tournamentName ?? '—' }}</td>
+                <td class="text-right">{{ formatCurrency(payment.amount, payment.currency) }}</td>
+                <td>{{ payment.method }}</td>
+                <td>
+                  <span class="badge"
+                    [class.badge--success]="payment.status === 'completed'"
+                    [class.badge--warning]="payment.status === 'pending'"
+                    [class.badge--error]="payment.status === 'failed'"
+                    [class.badge--info]="payment.status === 'refunded'">{{ payment.status }}</span>
+                </td>
+                <td>{{ payment.paidAt ? (payment.paidAt | date:'shortDate') : '—' }}</td>
+                <td>
+                  <div class="table__actions">
+                    <button type="button" class="btn btn--secondary btn--sm" (click)="onEditPayment(payment.id)">✏️</button>
+                    @if (auth.isAdmin()) {
+                      <button type="button" class="btn btn--secondary btn--sm" (click)="onDeleteConfirm(payment)">🗑️</button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (totalPages > 1) {
+      <nav class="pagination">
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage() === 1" (click)="onPageChange(currentPage()-1)">‹</button>
+        @for (page of pageRange; track page) {
+          <button type="button" class="btn btn--sm" [class.btn--primary]="page===currentPage()" [class.btn--secondary]="page!==currentPage()" (click)="onPageChange(page)">{{ page }}</button>
+        }
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage()===totalPages" (click)="onPageChange(currentPage()+1)">›</button>
+      </nav>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog title="Eliminar pago" message="¿Está seguro de eliminar este registro de pago?"
+    confirmLabel="Eliminar" [isDanger]="true" (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}

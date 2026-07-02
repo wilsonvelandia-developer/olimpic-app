@@ -115,9 +115,13 @@
           <h2 class="form-section-title">🏆 Inscripción a torneo (opcional)</h2>
           <div class="form-grid">
             <div class="form-group form-group--full">
-              <label class="form-label" for="tournamentId">ID del torneo</label>
-              <input id="tournamentId" type="text" class="form-control"
-                formControlName="tournamentId" placeholder="UUID del torneo (dejar vacío para equipo independiente)" />
+              <label class="form-label" for="tournamentId">Torneo</label>
+              <select id="tournamentId" class="form-control" formControlName="tournamentId">
+                <option value="">Sin torneo (equipo independiente / club)</option>
+                @for (t of tournaments(); track t.id) {
+                  <option [value]="t.id">{{ t.name }}{{ t.category ? ' — ' + t.category : '' }}</option>
+                }
+              </select>
               <span class="form-hint">Si no se asigna un torneo, el equipo queda como club reutilizable.</span>
             </div>
           </div>

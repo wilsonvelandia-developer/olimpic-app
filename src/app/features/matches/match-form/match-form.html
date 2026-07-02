@@ -1,9 +1,6 @@
 <section class="page">
   <div class="page__header">
-    <div>
-      <h1 class="page__title">{{ isEditMode() ? 'Editar partido' : 'Programar partido' }}</h1>
-      <p class="page__subtitle">Define los equipos y la fecha del encuentro</p>
-    </div>
+    <h1 class="page__title">{{ isEditMode() ? 'Editar partido' : 'Nuevo partido' }}</h1>
   </div>
 
   @if (isLoading()) { <app-loading-spinner label="Cargando partido..." /> }
@@ -15,41 +12,76 @@
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="form-grid">
 
-          <div class="form-group form-group--full">
-            <label class="form-label form-label--required" for="phaseId">ID de la fase (UUID)</label>
-            <input id="phaseId" type="text" class="form-control"
-              [class.form-control--error]="isFieldInvalid('phaseId')"
-              formControlName="phaseId" placeholder="ej: e1d02379-4a73-..." autocomplete="off" />
-            @if (isFieldInvalid('phaseId')) { <span class="form-error" role="alert">{{ getFieldError('phaseId') }}</span> }
-          </div>
-
+          <!-- Tournament (to filter phases and teams) -->
           <div class="form-group">
-            <label class="form-label form-label--required" for="homeTeamId">Equipo local (UUID)</label>
-            <input id="homeTeamId" type="text" class="form-control"
-              [class.form-control--error]="isFieldInvalid('homeTeamId')"
-              formControlName="homeTeamId" placeholder="UUID del equipo local" autocomplete="off" />
-            @if (isFieldInvalid('homeTeamId')) { <span class="form-error" role="alert">{{ getFieldError('homeTeamId') }}</span> }
+            <label class="form-label form-label--required">Torneo</label>
+            <select class="form-control" formControlName="tournamentId"
+              (change)="onTournamentChange($any($event.target).value)">
+              <option value="">Selecciona un torneo...</option>
+              @for (t of tournaments(); track t.id) {
+                <option [value]="t.id">{{ t.name }}{{ t.category ? ' — ' + t.category : '' }}</option>
+              }
+            </select>
+            <span class="form-hint">Selecciona el torneo para cargar fases y equipos.</span>
           </div>
 
+          <!-- Phase -->
           <div class="form-group">
-            <label class="form-label form-label--required" for="awayTeamId">Equipo visitante (UUID)</label>
-            <input id="awayTeamId" type="text" class="form-control"
-              [class.form-control--error]="isFieldInvalid('awayTeamId')"
-              formControlName="awayTeamId" placeholder="UUID del equipo visitante" autocomplete="off" />
-            @if (isFieldInvalid('awayTeamId')) { <span class="form-error" role="alert">{{ getFieldError('awayTeamId') }}</span> }
+            <label class="form-label form-label--required">Fase</label>
+            <select class="form-control" formControlName="phaseId"
+              [class.form-control--error]="isFieldInvalid('phaseId')">
+              <option value="">Selecciona una fase...</option>
+              @for (p of phases(); track p.id) {
+                <option [value]="p.id">{{ p.name }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('phaseId')) { <span class="form-error">{{ getFieldError('phaseId') }}</span> }
           </div>
 
+          <!-- Home team -->
           <div class="form-group">
-            <label class="form-label" for="scheduledAt">Fecha y hora (opcional)</label>
-            <input id="scheduledAt" type="datetime-local" class="form-control" formControlName="scheduledAt" />
+            <label class="form-label form-label--required">Equipo Local</label>
+            <select class="form-control" formControlName="homeTeamId"
+              [class.form-control--error]="isFieldInvalid('homeTeamId')">
+              <option value="">Selecciona equipo local...</option>
+              @for (t of teams(); track t.id) {
+                <option [value]="t.id">{{ t.name }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('homeTeamId')) { <span class="form-error">{{ getFieldError('homeTeamId') }}</span> }
           </div>
 
+          <!-- Away team -->
+          <div class="form-group">
+            <label class="form-label form-label--required">Equipo Visitante</label>
+            <select class="form-control" formControlName="awayTeamId"
+              [class.form-control--error]="isFieldInvalid('awayTeamId')">
+              <option value="">Selecciona equipo visitante...</option>
+              @for (t of teams(); track t.id) {
+                <option [value]="t.id">{{ t.name }}</option>
+              }
+            </select>
+            @if (isFieldInvalid('awayTeamId')) { <span class="form-error">{{ getFieldError('awayTeamId') }}</span> }
+          </div>
+
+          <!-- Scheduled date/time -->
+          <div class="form-group">
+            <label class="form-label">Fecha y hora programada</label>
+            <input type="datetime-local" class="form-control" formControlName="scheduledAt" />
+          </div>
+
+          <!-- Venue -->
+          <div class="form-group">
+            <label class="form-label">Cancha / Sede</label>
+            <input type="text" class="form-control" formControlName="venue"
+              placeholder="Ej: Cancha 1" maxlength="200" />
+          </div>
         </div>
 
         <div class="form-actions">
           <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
           <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
-            {{ isSaving() ? 'Guardando...' : 'Programar partido' }}
+            {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Guardar cambios' : 'Crear partido') }}
           </button>
         </div>
       </form>

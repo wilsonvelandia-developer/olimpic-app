@@ -14,9 +14,13 @@
 
   <div class="filters-bar">
     <div class="form-group">
-      <label class="form-label" for="playerTeam">UUID del equipo</label>
-      <input id="playerTeam" type="text" class="form-control" placeholder="UUID del equipo"
-        [(ngModel)]="teamIdModel" (keyup.enter)="onApplyFilters()" />
+      <label class="form-label" for="playerTeam">Equipo</label>
+      <select id="playerTeam" class="form-control" [(ngModel)]="teamIdModel" (change)="onApplyFilters()">
+        <option value="">Todos los equipos</option>
+        @for (t of teams(); track t.id) {
+          <option [value]="t.id">{{ t.name }}</option>
+        }
+      </select>
     </div>
     <div class="filters-bar__actions">
       <button type="button" class="btn btn--primary"   (click)="onApplyFilters()">Buscar</button>

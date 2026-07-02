@@ -1,0 +1,32 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando sedes..." /> }
+
+@if (!isLoading()) {
+  <div class="tab-section">
+    <div class="tab-section__header">
+      <h3 class="tab-section__title">🏟️ Sedes del torneo</h3>
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--secondary btn--sm" (click)="onManageVenues()">Gestionar sedes</button>
+      }
+    </div>
+
+    @if (venues().length === 0) {
+      <p class="tab-section__empty">No hay sedes asignadas a este torneo.</p>
+    } @else {
+      <div class="venue-cards">
+        @for (v of venues(); track v.id) {
+          <article class="venue-card" (click)="onViewVenue(v.id)">
+            <div class="venue-card__info">
+              <h4 class="venue-card__name">{{ v.name }}</h4>
+              <span class="venue-card__address">{{ v.address }}, {{ v.city }}</span>
+              @if (v.capacity) { <span class="venue-card__capacity">Capacidad: {{ v.capacity }}</span> }
+            </div>
+            <span class="badge"
+              [class.badge--success]="v.status === 'active'"
+              [class.badge--warning]="v.status === 'maintenance'"
+              [class.badge--muted]="v.status === 'inactive'">{{ v.status }}</span>
+          </article>
+        }
+      </div>
+    }
+  </div>
+}

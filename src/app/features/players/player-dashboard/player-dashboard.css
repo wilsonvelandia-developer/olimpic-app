@@ -1,0 +1,149 @@
+.player-dashboard {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.player-dashboard__header {
+  margin-bottom: 2rem;
+}
+
+.player-dashboard__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.player-dashboard__welcome {
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.player-dashboard__loading,
+.player-dashboard__empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary);
+}
+
+/* Stats */
+.player-dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.player-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.25rem 1rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.player-stat-card__value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.player-stat-card--warning .player-stat-card__value { color: var(--color-warning); }
+.player-stat-card--danger .player-stat-card__value  { color: var(--color-error); }
+
+.player-stat-card__label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Teams */
+.player-dashboard__section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.player-teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.player-team-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.player-team-card__main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.player-team-card__team {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.player-team-card__team:hover { text-decoration: underline; }
+
+.player-team-card__jersey {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.player-team-card__position {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.player-team-card__tournament {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.player-team-card__tournament:hover { opacity: 0.8; }
+
+.player-team-card__sport {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-full);
+}
+
+.player-team-card__tournament-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.player-team-card__category {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 480px) {
+  .player-dashboard__stats { grid-template-columns: 1fr 1fr; }
+  .player-team-card { flex-direction: column; align-items: flex-start; }
+}

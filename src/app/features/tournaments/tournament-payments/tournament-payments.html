@@ -1,0 +1,55 @@
+@if (isLoading()) { <app-loading-spinner label="Cargando pagos..." /> }
+
+@if (!isLoading()) {
+  <div class="tab-section">
+    <div class="tab-section__header">
+      <h3 class="tab-section__title">💰 Pagos del torneo</h3>
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--primary btn--sm" (click)="onRegisterPayment()">+ Registrar pago</button>
+      }
+    </div>
+
+    <!-- Summary -->
+    <div class="payment-summary">
+      <div class="payment-summary__item">
+        <span class="payment-summary__label">Total recaudado</span>
+        <span class="payment-summary__value payment-summary__value--success">{{ formatCurrency(totalCollected, 'COP') }}</span>
+      </div>
+      <div class="payment-summary__item">
+        <span class="payment-summary__label">Pagos pendientes</span>
+        <span class="payment-summary__value payment-summary__value--warning">{{ pendingCount }}</span>
+      </div>
+      <div class="payment-summary__item">
+        <span class="payment-summary__label">Total registros</span>
+        <span class="payment-summary__value">{{ payments().length }}</span>
+      </div>
+    </div>
+
+    @if (payments().length === 0) {
+      <p class="tab-section__empty">No hay pagos registrados para este torneo.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table" aria-label="Pagos del torneo">
+          <thead><tr><th>Equipo</th><th>Monto</th><th>Método</th><th>Estado</th><th>Fecha</th></tr></thead>
+          <tbody>
+            @for (p of payments(); track p.id) {
+              <tr class="clickable-row" (click)="onViewPayment(p.id)">
+                <td>{{ p.teamName ?? 'Equipo' }}</td>
+                <td class="text-right">{{ formatCurrency(p.amount, p.currency) }}</td>
+                <td>{{ p.method }}</td>
+                <td>
+                  <span class="badge"
+                    [class.badge--success]="p.status === 'completed'"
+                    [class.badge--warning]="p.status === 'pending'"
+                    [class.badge--error]="p.status === 'failed'"
+                    [class.badge--info]="p.status === 'refunded'">{{ p.status }}</span>
+                </td>
+                <td>{{ p.paidAt ? (p.paidAt | date:'shortDate') : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

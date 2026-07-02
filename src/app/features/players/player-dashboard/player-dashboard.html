@@ -1,0 +1,66 @@
+<div class="player-dashboard">
+  <header class="player-dashboard__header">
+    <h1 class="player-dashboard__title">Mi Perfil de Jugador</h1>
+    @if (userName()) {
+      <p class="player-dashboard__welcome">Hola, {{ userName()!.name }}</p>
+    }
+  </header>
+
+  @if (isLoading()) {
+    <p class="player-dashboard__loading">Cargando...</p>
+  } @else {
+    <!-- Stats summary -->
+    @if (stats()) {
+      <section class="player-dashboard__stats">
+        <div class="player-stat-card">
+          <span class="player-stat-card__value">{{ stats()!.totalMatches }}</span>
+          <span class="player-stat-card__label">Partidos</span>
+        </div>
+        <div class="player-stat-card">
+          <span class="player-stat-card__value">{{ stats()!.totalGoals }}</span>
+          <span class="player-stat-card__label">Goles/Puntos</span>
+        </div>
+        <div class="player-stat-card player-stat-card--warning">
+          <span class="player-stat-card__value">{{ stats()!.yellowCards }}</span>
+          <span class="player-stat-card__label">T. Amarillas</span>
+        </div>
+        <div class="player-stat-card player-stat-card--danger">
+          <span class="player-stat-card__value">{{ stats()!.redCards }}</span>
+          <span class="player-stat-card__label">T. Rojas</span>
+        </div>
+      </section>
+    }
+
+    <!-- Teams & Tournaments -->
+    <section class="player-dashboard__teams">
+      <h2 class="player-dashboard__section-title">Mis Equipos y Torneos</h2>
+
+      @if (teams().length === 0) {
+        <p class="player-dashboard__empty">No estás vinculado a ningún equipo actualmente.</p>
+      } @else {
+        <div class="player-teams-list">
+          @for (team of teams(); track team.teamId) {
+            <div class="player-team-card">
+              <div class="player-team-card__main">
+                <h3 class="player-team-card__team" (click)="openTeam(team.teamId)">
+                  {{ team.teamName }}
+                </h3>
+                <span class="player-team-card__jersey">#{{ team.jerseyNumber }}</span>
+                @if (team.position) {
+                  <span class="player-team-card__position">{{ team.position }}</span>
+                }
+              </div>
+              <div class="player-team-card__tournament" (click)="openTournament(team.tournamentId)">
+                <span class="player-team-card__sport">{{ team.sportName }}</span>
+                <span class="player-team-card__tournament-name">{{ team.tournamentName }}</span>
+                @if (team.category) {
+                  <span class="player-team-card__category">{{ team.category }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

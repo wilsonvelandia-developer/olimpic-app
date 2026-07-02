@@ -1,0 +1,22 @@
+.tab-section__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.tab-section__title { font-size: 1.1rem; font-weight: 600; }
+.tab-section__empty { color: var(--color-text-secondary); font-size: 0.9rem; }
+
+.venue-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.venue-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.venue-card:hover { border-color: var(--color-primary); }
+
+.venue-card__name { font-weight: 600; margin-bottom: 0.125rem; }
+.venue-card__address { font-size: 0.85rem; color: var(--color-text-secondary); display: block; }
+.venue-card__capacity { font-size: 0.8rem; color: var(--color-text-secondary); }

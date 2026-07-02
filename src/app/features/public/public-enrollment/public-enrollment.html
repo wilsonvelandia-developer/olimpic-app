@@ -1,0 +1,95 @@
+<div class="public-page">
+  @if (isLoading()) {
+    <div class="public-page__loading">Cargando...</div>
+  } @else if (success()) {
+    <div class="enrollment-success">
+      <span class="enrollment-success__icon">✅</span>
+      <h2 class="enrollment-success__title">Inscripción Enviada</h2>
+      <p class="enrollment-success__message">
+        Tu equipo ha sido registrado. El organizador revisará y aprobará la inscripción.
+      </p>
+      <button type="button" class="btn btn--primary" (click)="goBack()">Volver al torneo</button>
+    </div>
+  } @else {
+    <header class="public-page__header">
+      <button type="button" class="public-detail__back" (click)="goBack()">← Volver</button>
+      <h1 class="public-page__title">Inscribir Equipo</h1>
+      @if (tournament()) {
+        <p class="public-page__subtitle">{{ tournament()!.name }}</p>
+      }
+    </header>
+
+    @if (errorMessage()) {
+      <div class="alert alert--error">{{ errorMessage() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="enrollment-form">
+      <!-- Team info -->
+      <h2 class="form-section-title">Datos del equipo</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label form-label--required">Nombre del equipo</label>
+          <input type="text" class="form-control" formControlName="teamName"
+            placeholder="Ej: Club Deportivo Los Tigres" maxlength="200" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Abreviatura</label>
+          <input type="text" class="form-control" formControlName="shortName"
+            placeholder="Ej: TIG" maxlength="10" />
+        </div>
+      </div>
+
+      <!-- Contact info -->
+      <h2 class="form-section-title">Contacto del representante</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label form-label--required">Nombre del contacto</label>
+          <input type="text" class="form-control" formControlName="contactName"
+            placeholder="Nombre completo del director técnico o representante" />
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Teléfono</label>
+          <input type="tel" class="form-control" formControlName="contactPhone"
+            placeholder="+57 300 123 4567" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="contactEmail"
+            placeholder="correo@ejemplo.com" />
+        </div>
+      </div>
+
+      <!-- Players -->
+      <h2 class="form-section-title">Jugadores</h2>
+      <p class="form-hint">Registra los jugadores del equipo. Puedes agregar más después.</p>
+
+      <div class="enrollment-players" formArrayName="players">
+        @for (player of players.controls; track $index; let i = $index) {
+          <div class="enrollment-player" [formGroupName]="i">
+            <span class="enrollment-player__number">{{ i + 1 }}</span>
+            <input type="text" class="form-control enrollment-player__name"
+              formControlName="name" placeholder="Nombre del jugador" />
+            <input type="number" class="form-control enrollment-player__jersey"
+              formControlName="jerseyNumber" placeholder="#" min="0" />
+            <input type="text" class="form-control enrollment-player__position"
+              formControlName="position" placeholder="Posición" />
+            <button type="button" class="btn btn--ghost btn--sm" (click)="removePlayer(i)"
+              [disabled]="players.length <= 1">×</button>
+          </div>
+        }
+      </div>
+
+      <button type="button" class="btn btn--secondary" (click)="addPlayer()">
+        + Agregar jugador
+      </button>
+
+      <!-- Submit -->
+      <div class="form-actions">
+        <button type="button" class="btn btn--secondary" (click)="goBack()">Cancelar</button>
+        <button type="submit" class="btn btn--primary" [disabled]="isSaving()">
+          {{ isSaving() ? 'Enviando...' : 'Enviar Inscripción' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

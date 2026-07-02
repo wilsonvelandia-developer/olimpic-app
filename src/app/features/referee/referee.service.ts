@@ -1,5 +1,6 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { ApiService } from '../../core/services/api.service';
+import { ToastService } from '../../shared/components/toast/toast.service';
 import type { MatchDetail, MatchPeriod, Match } from '../../core/models/match.model';
 import type { MatchEventItem } from './match-events-log/match-events-log';
 import type { PlayerOption } from './scorer-select/scorer-select';
@@ -24,6 +25,7 @@ interface PlayerInfo {
 @Injectable()
 export class RefereeService {
   private readonly api = inject(ApiService);
+  private readonly toast = inject(ToastService);
 
   // ── State ─────────────────────────────────────────────────────────────────
   readonly isLoading = signal<boolean>(false);
@@ -49,6 +51,7 @@ export class RefereeService {
   /** Sport info. */
   readonly sportSlug = signal<string>('football');
   readonly playersPerTeam = signal<number>(11);
+  readonly minPlayersPerTeam = signal<number | null>(null);
 
   /** Substitution tracking. */
   private readonly _homeSubsUsed = signal<number>(0);
@@ -120,6 +123,7 @@ export class RefereeService {
           this.loadEvents();
           this.loadPlayers();
           this.loadSubstitutionCount();
+          this.loadSportRules();
         } else {
           this.error.set('No se pudo cargar el partido');
         }
@@ -137,6 +141,29 @@ export class RefereeService {
       next: (res) => {
         if (res.success && res.data) {
           this.events.set(res.data);
+        }
+      },
+    });
+  }
+
+  /** Load sport rules for this match to get playersPerTeam, sportSlug, etc. */
+  private loadSportRules(): void {
+    this.api.get<{
+      sportSlug: string;
+      playersPerTeam: number;
+      minPlayersPerTeam: number | null;
+      hasSets: boolean;
+      hasRotation: boolean;
+      maxSubstitutions: number | null;
+    }>(`/matches/${this.matchId}/sport-rules`).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.sportSlug.set(res.data.sportSlug);
+          this.playersPerTeam.set(res.data.playersPerTeam);
+          this.minPlayersPerTeam.set(res.data.minPlayersPerTeam);
+          if (res.data.maxSubstitutions !== null) {
+            this.subsMax.set(res.data.maxSubstitutions);
+          }
         }
       },
     });
@@ -205,9 +232,10 @@ export class RefereeService {
         if (res.success && res.data) {
           this._match.set(res.data.match);
           this._periods.set(res.data.periods);
+          this.toast.success('Partido iniciado');
         }
       },
-      error: () => this.error.set('Error al iniciar el partido'),
+      error: () => { this.error.set('Error al iniciar el partido'); this.toast.error('Error al iniciar el partido'); },
     });
   }
 
@@ -217,9 +245,10 @@ export class RefereeService {
         if (res.success && res.data) {
           this._match.set(res.data.match);
           this._periods.set(res.data.periods);
+          this.toast.success('Partido finalizado');
         }
       },
-      error: () => this.error.set('Error al finalizar el partido'),
+      error: () => { this.error.set('Error al finalizar el partido'); this.toast.error('Error al finalizar el partido'); },
     });
   }
 
@@ -285,12 +314,13 @@ export class RefereeService {
       next: () => {
         this.loadEvents();
         this.loadSubstitutionCount();
-        // Update on-court/bench state
         this.swapPlayer(dto.teamId, dto.playerOutId, dto.playerInId);
+        this.toast.success('Cambio registrado');
       },
       error: (err) => {
         const msg = err?.error?.message ?? 'Error al registrar sustitución';
         this.error.set(msg);
+        this.toast.error(msg);
       },
     });
   }
@@ -332,8 +362,8 @@ export class RefereeService {
     minute: number | null;
   }): void {
     this.api.post(`/matches/${this.matchId}/sanctions`, dto).subscribe({
-      next: () => this.loadEvents(),
-      error: () => this.error.set('Error al registrar sanción'),
+      next: () => { this.loadEvents(); this.toast.warning('Sanción registrada'); },
+      error: () => { this.error.set('Error al registrar sanción'); this.toast.error('Error al registrar sanción'); },
     });
   }
 
@@ -372,6 +402,24 @@ export class RefereeService {
 
   endCurrentPeriod(): void {
     this.loadMatch(this.matchId);
+  }
+
+  // ── Undo Last Action ──────────────────────────────────────────────────────
+
+  /** Undo the last scorer registered (remove last match_scorers entry). */
+  undoLastScorer(): void {
+    this.api.delete(`/matches/${this.matchId}/scorers/last`).subscribe({
+      next: () => { this.loadEvents(); this.toast.info('Último anotador revertido'); },
+      error: () => this.toast.error('No se pudo revertir'),
+    });
+  }
+
+  /** Undo the last event (generic). Reloads match data. */
+  undoLastEvent(): void {
+    this.api.delete(`/matches/${this.matchId}/events/last`).subscribe({
+      next: () => { this.loadMatch(this.matchId); this.toast.info('Última acción revertida'); },
+      error: () => this.toast.error('No se pudo revertir'),
+    });
   }
 
   // ── Timer Events ──────────────────────────────────────────────────────────

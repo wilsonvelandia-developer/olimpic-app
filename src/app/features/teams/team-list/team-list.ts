@@ -4,6 +4,7 @@ import {
 import { Router } from '@angular/router';
 import { FormsModule }    from '@angular/forms';
 import { TeamService }    from '../team.service';
+import { ApiService }     from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog }  from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { ViewToggle, type ViewMode } from '../../../shared/components/view-toggle/view-toggle';
@@ -21,9 +22,11 @@ import type { TeamFilters } from '../team.service';
 export class TeamList implements OnInit {
   private readonly teamService = inject(TeamService);
   private readonly router      = inject(Router);
+  private readonly api         = inject(ApiService);
   readonly auth = inject(AuthService);
 
   readonly teams        = signal<Team[]>([]);
+  readonly tournaments  = signal<Array<{ id: string; name: string; category: string | null }>>([]);
   readonly totalCount   = signal<number>(0);
   readonly isLoading    = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
@@ -39,7 +42,12 @@ export class TeamList implements OnInit {
   searchModel      = '';
   tournamentModel  = '';
 
-  ngOnInit(): void { this.loadTeams(); }
+  ngOnInit(): void {
+    this.loadTeams();
+    this.api.get<Array<{ id: string; name: string; category: string | null }>>('/tournaments').subscribe({
+      next: (res) => { if (res.success && res.data) this.tournaments.set(res.data); },
+    });
+  }
 
   loadTeams(): void {
     this.isLoading.set(true);

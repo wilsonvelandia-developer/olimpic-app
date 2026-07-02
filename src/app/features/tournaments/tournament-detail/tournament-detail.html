@@ -48,6 +48,21 @@
         <button type="button" role="tab" class="tab-btn"
           [class.tab-btn--active]="activeTab() === 'stats'"
           (click)="onTabChange('stats')">📊 Estadísticas</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'enrollments'"
+          (click)="onTabChange('enrollments')">📋 Inscripciones</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'venues'"
+          (click)="onTabChange('venues')">🏟️ Sedes</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'payments'"
+          (click)="onTabChange('payments')">💰 Pagos</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'announcements'"
+          (click)="onTabChange('announcements')">📢 Comunicados</button>
+        <button type="button" role="tab" class="tab-btn"
+          [class.tab-btn--active]="activeTab() === 'gallery'"
+          (click)="onTabChange('gallery')">📸 Galería</button>
       </div>
 
       <div class="tab-content" role="tabpanel" [attr.aria-label]="tabLabel()">
@@ -177,6 +192,31 @@
           } @else if (stats()) {
             <app-tournament-stats [stats]="stats()!" />
           }
+        }
+
+        <!-- ═══════ TAB 6: Inscripciones ═══════ -->
+        @if (activeTab() === 'enrollments') {
+          <app-enrollment-manager [tournamentId]="tournament()!.id" />
+        }
+
+        <!-- ═══════ TAB 7: Sedes ═══════ -->
+        @if (activeTab() === 'venues') {
+          <app-tournament-venues [tournamentId]="tournament()!.id" />
+        }
+
+        <!-- ═══════ TAB 8: Pagos ═══════ -->
+        @if (activeTab() === 'payments') {
+          <app-tournament-payments [tournamentId]="tournament()!.id" />
+        }
+
+        <!-- ═══════ TAB 9: Comunicados ═══════ -->
+        @if (activeTab() === 'announcements') {
+          <app-tournament-announcements [tournamentId]="tournament()!.id" />
+        }
+
+        <!-- ═══════ TAB 10: Galería ═══════ -->
+        @if (activeTab() === 'gallery') {
+          <app-tournament-gallery [tournamentId]="tournament()!.id" />
         }
 
       </div>

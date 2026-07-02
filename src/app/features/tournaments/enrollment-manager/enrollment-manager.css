@@ -1,0 +1,68 @@
+.enrollment-manager {
+  margin-top: 2rem;
+}
+
+.enrollment-manager__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.enrollment-manager__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.enrollment-manager__filters {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.enrollment-filter {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.enrollment-filter:hover {
+  background: var(--color-bg-secondary);
+}
+
+.enrollment-filter--active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.enrollment-manager__loading,
+.enrollment-manager__empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.enrollment-short {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-left: 0.25rem;
+}
+
+.enrollment-contact {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 600px) {
+  .enrollment-manager__header { flex-direction: column; align-items: flex-start; }
+  .enrollment-manager__filters { flex-wrap: wrap; }
+}

@@ -76,7 +76,12 @@ export class Login implements OnInit {
     this.auth.login({ email: email!, password: password! }).subscribe({
       next: (response) => {
         if (response.success) {
-          this.router.navigate(['/dashboard']);
+          // Check if user must change password before accessing the app
+          if (response.data?.mustChangePassword) {
+            this.router.navigate(['/auth/change-password']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         } else {
           this.errorMessage.set('Credenciales inválidas. Verifica tu correo y contraseña.');
           this.isLoading.set(false);

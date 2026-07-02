@@ -18,18 +18,24 @@ import { MatchHistory }       from '../match-history/match-history';
 import { GroupDraw }          from '../group-draw/group-draw';
 import { FixtureMatches }    from '../fixture-matches/fixture-matches';
 import { GroupStandings }    from '../group-standings/group-standings';
+import { EnrollmentManager } from '../enrollment-manager/enrollment-manager';
+import { TournamentVenues }        from '../tournament-venues/tournament-venues';
+import { TournamentPayments }      from '../tournament-payments/tournament-payments';
+import { TournamentAnnouncements } from '../tournament-announcements/tournament-announcements';
+import { TournamentGallery }       from '../tournament-gallery/tournament-gallery';
 import { AuthService }        from '../../../core/services/auth.service';
 import type {
   Tournament, StandingsEntry, TournamentStatsData, Match,
 } from '../../../core/models';
 
-type ActiveTab = 'info' | 'groups' | 'matches' | 'standings' | 'stats';
+type ActiveTab = 'info' | 'groups' | 'matches' | 'standings' | 'stats' | 'enrollments' | 'venues' | 'payments' | 'announcements' | 'gallery';
 
 @Component({
   selector: 'app-tournament-detail',
   imports: [
     RouterLink, StatusBadge, LoadingSpinner, ConfirmDialog,
     StandingsTable, TournamentStats, MatchHistory, GroupDraw, FixtureMatches, GroupStandings,
+    EnrollmentManager, TournamentVenues, TournamentPayments, TournamentAnnouncements, TournamentGallery,
   ],
   templateUrl: './tournament-detail.html',
   styleUrl:    './tournament-detail.css',
@@ -58,11 +64,17 @@ export class TournamentDetail implements OnInit {
 
   readonly tabLabel = computed(() => {
     const t = this.activeTab();
-    if (t === 'info')      return 'Información general';
-    if (t === 'groups')    return 'Grupos';
-    if (t === 'matches')   return 'Partidos';
-    if (t === 'standings') return 'Posiciones';
-    return 'Estadísticas';
+    if (t === 'info')          return 'Información general';
+    if (t === 'groups')        return 'Grupos';
+    if (t === 'matches')       return 'Partidos';
+    if (t === 'standings')     return 'Posiciones';
+    if (t === 'stats')         return 'Estadísticas';
+    if (t === 'enrollments')   return 'Inscripciones';
+    if (t === 'venues')        return 'Sedes';
+    if (t === 'payments')      return 'Pagos';
+    if (t === 'announcements') return 'Comunicados';
+    if (t === 'gallery')       return 'Galería';
+    return 'Información general';
   });
 
   ngOnInit(): void {

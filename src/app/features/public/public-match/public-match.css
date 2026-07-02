@@ -1,0 +1,67 @@
+.public-match__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.public-match__scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2.5rem 1.5rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 2rem;
+}
+
+.public-match__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.public-match__team-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.public-match__score {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.public-match__score--home { color: var(--color-primary); }
+.public-match__score--away { color: var(--color-error); }
+
+.public-match__vs {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.public-match__periods {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.public-match__periods-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 480px) {
+  .public-match__score { font-size: 2.5rem; }
+  .public-match__team-name { font-size: 0.9rem; }
+  .public-match__scoreboard { gap: 1rem; padding: 1.5rem 1rem; }
+}

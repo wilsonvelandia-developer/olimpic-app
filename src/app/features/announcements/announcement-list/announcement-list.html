@@ -1,0 +1,96 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Comunicados</h1>
+      <p class="page__subtitle">Gestiona noticias y anuncios del torneo</p>
+    </div>
+    <div class="page__header-actions">
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--primary" (click)="onCreateAnnouncement()">+ Nuevo comunicado</button>
+      }
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="annSearch">Buscar</label>
+      <input id="annSearch" type="search" class="form-control" placeholder="Título..."
+        [(ngModel)]="searchModel" maxlength="80" (keyup.enter)="onApplyFilters()" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="annPriority">Prioridad</label>
+      <select id="annPriority" class="form-control" [(ngModel)]="priorityModel" (change)="onApplyFilters()">
+        <option value="">Todas</option>
+        <option value="low">Baja</option>
+        <option value="normal">Normal</option>
+        <option value="high">Alta</option>
+        <option value="urgent">Urgente</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="annStatus">Estado</label>
+      <select id="annStatus" class="form-control" [(ngModel)]="statusModel" (change)="onApplyFilters()">
+        <option value="">Todos</option>
+        <option value="draft">Borrador</option>
+        <option value="published">Publicado</option>
+        <option value="archived">Archivado</option>
+      </select>
+    </div>
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+  @if (isLoading()) { <app-loading-spinner label="Cargando comunicados..." /> }
+
+  @if (!isLoading()) {
+    @if (announcements().length === 0) {
+      <div class="empty-state"><p>No se encontraron comunicados.</p></div>
+    } @else {
+      <div class="announcements-list">
+        @for (a of announcements(); track a.id) {
+          <article class="announcement-card" (click)="onViewDetail(a.id)">
+            <div class="announcement-card__header">
+              <span class="priority-dot" [attr.data-priority]="a.priority" aria-hidden="true"></span>
+              <h3 class="announcement-card__title">{{ a.title }}</h3>
+              <span class="badge"
+                [class.badge--success]="a.status === 'published'"
+                [class.badge--neutral]="a.status === 'draft'"
+                [class.badge--muted]="a.status === 'archived'">{{ a.status }}</span>
+            </div>
+            <p class="announcement-card__excerpt">{{ a.content | slice:0:120 }}{{ a.content.length > 120 ? '...' : '' }}</p>
+            <div class="announcement-card__footer">
+              <span class="announcement-card__date">{{ a.publishedAt ? (a.publishedAt | date:'mediumDate') : 'Sin publicar' }}</span>
+              @if (a.authorName) { <span class="announcement-card__author">{{ a.authorName }}</span> }
+              <div class="announcement-card__actions" (click)="$event.stopPropagation()">
+                @if (auth.canEdit()) {
+                  <button type="button" class="btn btn--secondary btn--sm" (click)="onEditAnnouncement(a.id)">✏️</button>
+                }
+                @if (auth.isAdmin()) {
+                  <button type="button" class="btn btn--secondary btn--sm" (click)="onDeleteConfirm(a)">🗑️</button>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    @if (totalPages > 1) {
+      <nav class="pagination">
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage() === 1" (click)="onPageChange(currentPage()-1)">‹</button>
+        @for (page of pageRange; track page) {
+          <button type="button" class="btn btn--sm" [class.btn--primary]="page===currentPage()" [class.btn--secondary]="page!==currentPage()" (click)="onPageChange(page)">{{ page }}</button>
+        }
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage()===totalPages" (click)="onPageChange(currentPage()+1)">›</button>
+      </nav>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog title="Eliminar comunicado" [message]="'¿Eliminar «' + selectedTitle() + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true" (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}

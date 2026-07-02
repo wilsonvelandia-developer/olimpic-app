@@ -1,0 +1,73 @@
+<section class="page">
+  @if (isLoading()) { <app-loading-spinner label="Cargando pago..." /> }
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+
+  @if (!isLoading() && payment()) {
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/payments" class="breadcrumb__link">Pagos</a>
+      <span class="breadcrumb__sep" aria-hidden="true">›</span>
+      <span>Detalle de pago</span>
+    </nav>
+
+    <div class="page__header">
+      <div>
+        <h1 class="page__title">Pago — {{ payment()!.teamName ?? 'Equipo' }}</h1>
+        <p class="page__meta">{{ payment()!.tournamentName ?? '' }}</p>
+      </div>
+      <div class="page__header-actions">
+        <button type="button" class="btn btn--secondary" (click)="onEdit()">✏️ Editar</button>
+        @if (auth.isAdmin()) {
+          <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">🗑️ Eliminar</button>
+        }
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2 class="section-card__title">Información del pago</h2>
+      <dl class="detail-grid">
+        <div class="detail-item">
+          <dt>Monto</dt>
+          <dd class="amount">{{ formatCurrency(payment()!.amount, payment()!.currency) }}</dd>
+        </div>
+        <div class="detail-item">
+          <dt>Método</dt>
+          <dd>{{ payment()!.method }}</dd>
+        </div>
+        <div class="detail-item">
+          <dt>Estado</dt>
+          <dd>
+            <span class="badge"
+              [class.badge--success]="payment()!.status === 'completed'"
+              [class.badge--warning]="payment()!.status === 'pending'"
+              [class.badge--error]="payment()!.status === 'failed'"
+              [class.badge--info]="payment()!.status === 'refunded'">{{ payment()!.status }}</span>
+          </dd>
+        </div>
+        <div class="detail-item">
+          <dt>Referencia</dt>
+          <dd>{{ payment()!.reference ?? '—' }}</dd>
+        </div>
+        <div class="detail-item">
+          <dt>Fecha de pago</dt>
+          <dd>{{ payment()!.paidAt ? (payment()!.paidAt | date:'medium') : '—' }}</dd>
+        </div>
+        <div class="detail-item">
+          <dt>Registrado</dt>
+          <dd>{{ payment()!.createdAt | date:'medium' }}</dd>
+        </div>
+      </dl>
+      @if (payment()!.notes) {
+        <div class="section-card__notes">
+          <strong>Notas:</strong> {{ payment()!.notes }}
+        </div>
+      }
+    </div>
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog title="Eliminar pago"
+    message="¿Está seguro de eliminar este registro de pago?"
+    confirmLabel="Eliminar" [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}

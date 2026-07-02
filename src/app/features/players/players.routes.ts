@@ -7,6 +7,10 @@ export const PLAYER_ROUTES: Routes = [
     loadComponent: () => import('./player-list/player-list').then((m) => m.PlayerList),
   },
   {
+    path: 'my-dashboard',
+    loadComponent: () => import('./player-dashboard/player-dashboard').then((m) => m.PlayerDashboard),
+  },
+  {
     path: 'new',
     canActivate: [roleGuard],
     data: { requiredRole: 'organizer' },

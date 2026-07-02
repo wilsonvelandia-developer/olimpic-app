@@ -1,0 +1,75 @@
+<section class="enrollment-manager">
+  <header class="enrollment-manager__header">
+    <h2 class="enrollment-manager__title">📋 Inscripciones</h2>
+    <div class="enrollment-manager__filters">
+      <button type="button" class="enrollment-filter"
+        [class.enrollment-filter--active]="filter() === ''"
+        (click)="onFilterChange('')">Todas</button>
+      <button type="button" class="enrollment-filter"
+        [class.enrollment-filter--active]="filter() === 'active'"
+        (click)="onFilterChange('active')">Aprobadas</button>
+      <button type="button" class="enrollment-filter"
+        [class.enrollment-filter--active]="filter() === 'pending'"
+        (click)="onFilterChange('pending')">Pendientes</button>
+      <button type="button" class="enrollment-filter"
+        [class.enrollment-filter--active]="filter() === 'rejected'"
+        (click)="onFilterChange('rejected')">Rechazadas</button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <p class="enrollment-manager__loading">Cargando inscripciones...</p>
+  } @else if (enrollments().length === 0) {
+    <p class="enrollment-manager__empty">No hay inscripciones {{ filter() ? 'con este estado' : '' }}.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Contacto</th>
+            <th>Jugadores</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of enrollments(); track e.id) {
+            <tr>
+              <td>
+                <strong>{{ e.teamName }}</strong>
+                @if (e.teamShort) { <span class="enrollment-short">({{ e.teamShort }})</span> }
+              </td>
+              <td>
+                @if (e.phone) { <div class="enrollment-contact">📱 {{ e.phone }}</div> }
+                @if (e.email) { <div class="enrollment-contact">✉️ {{ e.email }}</div> }
+              </td>
+              <td>{{ e.playerCount }}</td>
+              <td>{{ e.enrolledAt | date:'shortDate' }}</td>
+              <td>
+                <span class="badge {{ getStatusBadgeClass(e.status) }}">
+                  {{ getStatusLabel(e.status) }}
+                </span>
+              </td>
+              <td>
+                <div class="table__actions">
+                  @if (e.status !== 'active') {
+                    <button type="button" class="btn btn--primary btn--sm" (click)="approve(e)"
+                      title="Aprobar">✓</button>
+                  }
+                  @if (e.status !== 'rejected') {
+                    <button type="button" class="btn btn--danger btn--sm" (click)="reject(e)"
+                      title="Rechazar">✕</button>
+                  }
+                  <button type="button" class="btn btn--ghost btn--sm" (click)="removeEnrollment(e)"
+                    title="Eliminar">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

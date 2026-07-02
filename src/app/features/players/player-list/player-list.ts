@@ -4,6 +4,7 @@ import {
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule }   from '@angular/forms';
 import { PlayerService } from '../player.service';
+import { ApiService }    from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog }  from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { ViewToggle, type ViewMode } from '../../../shared/components/view-toggle/view-toggle';
@@ -19,6 +20,7 @@ import type { Player } from '../../../core/models';
 })
 export class PlayerList implements OnInit {
   private readonly playerService = inject(PlayerService);
+  private readonly api           = inject(ApiService);
   private readonly router        = inject(Router);
   private readonly route         = inject(ActivatedRoute);
   readonly auth = inject(AuthService);
@@ -38,11 +40,18 @@ export class PlayerList implements OnInit {
   readonly viewMode    = signal<ViewMode>('card');
 
   teamIdModel = '';
+  readonly teams = signal<Array<{ id: string; name: string }>>([]);
 
   ngOnInit(): void {
     const teamId = this.route.snapshot.queryParamMap.get('teamId');
     if (teamId) this.teamIdModel = teamId;
-    this.loadPlayers();
+
+    // Load teams for the dropdown
+    this.api.get<Array<{ id: string; name: string }>>('/teams').subscribe({
+      next: (res) => { if (res.success && res.data) this.teams.set(res.data); },
+    });
+
+    if (this.teamIdModel) this.loadPlayers();
   }
 
   loadPlayers(): void {

@@ -126,8 +126,8 @@
     <div class="lineup-section__header">
       <h3 class="lineup-section__title">{{ team.teamName }} — Titulares</h3>
       <span class="lineup-section__counter"
-        [class.lineup-section__counter--complete]="starterCount === requiredStarters()"
-      >{{ starterCount }}/{{ requiredStarters() }}</span>
+        [class.lineup-section__counter--complete]="starterCount >= minStartersToAdvance()"
+      >{{ starterCount }}/{{ minPlayersPerTeam() ?? playersPerTeam() }} min · {{ playersPerTeam() }} max</span>
     </div>
 
     <div class="lineup-section__players">

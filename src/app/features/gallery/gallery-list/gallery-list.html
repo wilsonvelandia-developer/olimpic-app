@@ -1,0 +1,76 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Galería</h1>
+      <p class="page__subtitle">Álbumes de fotos y videos del torneo</p>
+    </div>
+    <div class="page__header-actions">
+      @if (auth.canEdit()) {
+        <button type="button" class="btn btn--primary" (click)="onCreateAlbum()">+ Nuevo álbum</button>
+      }
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="form-group">
+      <label class="form-label" for="gallerySearch">Buscar</label>
+      <input id="gallerySearch" type="search" class="form-control" placeholder="Título del álbum..."
+        [(ngModel)]="searchModel" maxlength="80" (keyup.enter)="onApplyFilters()" />
+    </div>
+    <div class="filters-bar__actions">
+      <button type="button" class="btn btn--primary" (click)="onApplyFilters()">Filtrar</button>
+      <button type="button" class="btn btn--secondary" (click)="onClearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+  @if (isLoading()) { <app-loading-spinner label="Cargando galería..." /> }
+
+  @if (!isLoading()) {
+    @if (albums().length === 0) {
+      <div class="empty-state"><p>No se encontraron álbumes.</p></div>
+    } @else {
+      <div class="gallery-grid">
+        @for (album of albums(); track album.id) {
+          <article class="album-card" (click)="onViewDetail(album.id)">
+            <div class="album-card__cover">
+              <img
+                [src]="album.coverUrl || 'https://img.icons8.com/3d-fluency/256/photo-gallery.png'"
+                [alt]="album.title" loading="lazy" />
+              <span class="album-card__count">{{ album.itemCount }} items</span>
+            </div>
+            <div class="album-card__body">
+              <h3 class="album-card__title">{{ album.title }}</h3>
+              @if (album.tournamentName) {
+                <span class="album-card__sub">{{ album.tournamentName }}</span>
+              }
+            </div>
+            <div class="album-card__actions" (click)="$event.stopPropagation()">
+              @if (auth.canEdit()) {
+                <button type="button" class="btn btn--secondary btn--sm" (click)="onEditAlbum(album.id)">✏️</button>
+              }
+              @if (auth.isAdmin()) {
+                <button type="button" class="btn btn--secondary btn--sm" (click)="onDeleteConfirm(album)">🗑️</button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+
+    @if (totalPages > 1) {
+      <nav class="pagination">
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage() === 1" (click)="onPageChange(currentPage()-1)">‹</button>
+        @for (page of pageRange; track page) {
+          <button type="button" class="btn btn--sm" [class.btn--primary]="page===currentPage()" [class.btn--secondary]="page!==currentPage()" (click)="onPageChange(page)">{{ page }}</button>
+        }
+        <button type="button" class="btn btn--secondary btn--sm" [disabled]="currentPage()===totalPages" (click)="onPageChange(currentPage()+1)">›</button>
+      </nav>
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog title="Eliminar álbum" [message]="'¿Eliminar «' + selectedAlbumTitle() + '»?'"
+    confirmLabel="Eliminar" [isDanger]="true" (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}

@@ -1,0 +1,65 @@
+<section class="page">
+  @if (isLoading()) { <app-loading-spinner label="Cargando álbum..." /> }
+  @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
+
+  @if (!isLoading() && album()) {
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <a routerLink="/gallery" class="breadcrumb__link">Galería</a>
+      <span class="breadcrumb__sep" aria-hidden="true">›</span>
+      <span>{{ album()!.title }}</span>
+    </nav>
+
+    <div class="page__header">
+      <div>
+        <h1 class="page__title">{{ album()!.title }}</h1>
+        @if (album()!.description) {
+          <p class="page__meta">{{ album()!.description }}</p>
+        }
+      </div>
+      <div class="page__header-actions">
+        @if (auth.canEdit()) {
+          <button type="button" class="btn btn--secondary" (click)="onEdit()">✏️ Editar</button>
+        }
+        @if (auth.isAdmin()) {
+          <button type="button" class="btn btn--danger" (click)="onDeleteConfirm()">🗑️ Eliminar</button>
+        }
+      </div>
+    </div>
+
+    @if (isLoadingItems()) { <app-loading-spinner label="Cargando fotos..." /> }
+
+    @if (!isLoadingItems()) {
+      @if (items().length === 0) {
+        <div class="empty-state"><p>Este álbum aún no tiene fotos o videos.</p></div>
+      } @else {
+        <div class="gallery-items-grid">
+          @for (item of items(); track item.id) {
+            <div class="gallery-item">
+              @if (item.type === 'photo') {
+                <img class="gallery-item__img" [src]="item.thumbnail || item.url"
+                  [alt]="item.caption || 'Foto'" loading="lazy" />
+              } @else {
+                <div class="gallery-item__video">
+                  <img class="gallery-item__img" [src]="item.thumbnail || 'https://img.icons8.com/3d-fluency/256/video.png'"
+                    [alt]="item.caption || 'Video'" loading="lazy" />
+                  <span class="gallery-item__play" aria-hidden="true">▶</span>
+                </div>
+              }
+              @if (item.caption) { <span class="gallery-item__caption">{{ item.caption }}</span> }
+              @if (auth.isAdmin()) {
+                <button type="button" class="btn btn--secondary btn--sm gallery-item__delete" (click)="onDeleteItem(item.id)">🗑️</button>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+</section>
+
+@if (showDeleteDialog()) {
+  <app-confirm-dialog title="Eliminar álbum"
+    [message]="'¿Eliminar «' + album()!.title + '» y todas sus fotos?'"
+    confirmLabel="Eliminar" [isDanger]="true"
+    (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()" />
+}

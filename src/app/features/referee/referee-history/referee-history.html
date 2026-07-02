@@ -1,0 +1,80 @@
+<section class="page">
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Gestión de Árbitros</h1>
+      <p class="page__subtitle">Historial de asignaciones y disponibilidad</p>
+    </div>
+  </div>
+
+  @if (isLoading()) { <app-loading-spinner label="Cargando árbitros..." /> }
+
+  @if (!isLoading()) {
+    <div class="referee-layout">
+      <!-- Referee list -->
+      <aside class="referee-sidebar">
+        <h3 class="referee-sidebar__title">Árbitros</h3>
+        @if (referees().length === 0) {
+          <p class="empty-text">No hay árbitros registrados.</p>
+        } @else {
+          <ul class="referee-list">
+            @for (ref of referees(); track ref.id) {
+              <li class="referee-list__item"
+                [class.referee-list__item--active]="selectedReferee() === ref.id"
+                (click)="onSelectReferee(ref.id)">
+                <div class="referee-list__name">{{ ref.name }}</div>
+                <div class="referee-list__meta">
+                  <span>{{ ref.matchCount }} partidos</span>
+                  <span class="availability-dot"
+                    [class.availability-dot--available]="ref.isAvailable"
+                    [class.availability-dot--unavailable]="!ref.isAvailable"></span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </aside>
+
+      <!-- Assignment detail -->
+      <main class="referee-content">
+        @if (!selectedReferee()) {
+          <div class="empty-state"><p>Selecciona un árbitro para ver su historial.</p></div>
+        } @else {
+          <h3 class="referee-content__title">Historial — {{ getSelectedRefereeName() }}</h3>
+
+          @if (isLoadingAssignments()) { <app-loading-spinner label="Cargando asignaciones..." /> }
+
+          @if (!isLoadingAssignments()) {
+            @if (assignments().length === 0) {
+              <p class="empty-text">No hay asignaciones registradas.</p>
+            } @else {
+              <div class="table-wrapper">
+                <table class="table" aria-label="Asignaciones del árbitro">
+                  <thead>
+                    <tr><th>Fecha</th><th>Local</th><th>Visitante</th><th>Torneo</th><th>Rol</th><th>Estado</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (a of assignments(); track a.id) {
+                      <tr class="clickable-row" (click)="onViewMatch(a.matchId)">
+                        <td>{{ a.matchDate ? (a.matchDate | date:'shortDate') : '—' }}</td>
+                        <td>{{ a.homeTeam }}</td>
+                        <td>{{ a.awayTeam }}</td>
+                        <td>{{ a.tournamentName }}</td>
+                        <td><span class="badge badge--info">{{ a.role }}</span></td>
+                        <td>
+                          <span class="badge"
+                            [class.badge--success]="a.status === 'finished'"
+                            [class.badge--warning]="a.status === 'scheduled'"
+                            [class.badge--info]="a.status === 'in_progress'">{{ a.status }}</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          }
+        }
+      </main>
+    </div>
+  }
+</section>

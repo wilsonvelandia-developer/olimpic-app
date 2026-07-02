@@ -51,6 +51,22 @@
   gap: 0.5rem;
 }
 
+.navbar__theme-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  line-height: 1;
+}
+
+.navbar__theme-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
 .navbar__user-name {
   font-size: 0.875rem;
 }

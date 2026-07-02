@@ -1,0 +1,127 @@
+<div class="public-page">
+  @if (isLoading()) {
+    <div class="public-page__loading">Cargando torneo...</div>
+  } @else if (!tournament()) {
+    <div class="public-page__empty">Torneo no encontrado.</div>
+  } @else {
+    <!-- Header -->
+    <header class="public-detail__header">
+      <button type="button" class="public-detail__back" (click)="goBack()">← Torneos</button>
+      <h1 class="public-detail__title">{{ tournament()!.name }}</h1>
+      @if (tournament()!.category) {
+        <span class="public-detail__category">{{ tournament()!.category }}</span>
+      }
+    </header>
+
+    <!-- Live matches banner -->
+    @if (inProgressMatches.length > 0) {
+      <section class="public-detail__live">
+        <h2 class="public-detail__section-title">🔴 En Vivo</h2>
+        <div class="public-matches-grid">
+          @for (match of inProgressMatches; track match.id) {
+            <button type="button" class="public-match-card public-match-card--live" (click)="openMatch(match.id)">
+              <span class="public-match-card__team">{{ match.homeTeamName ?? 'Local' }}</span>
+              <span class="public-match-card__score">{{ match.homeScore ?? 0 }} - {{ match.awayScore ?? 0 }}</span>
+              <span class="public-match-card__team">{{ match.awayTeamName ?? 'Visitante' }}</span>
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Tabs -->
+    <nav class="public-detail__tabs">
+      <button type="button" class="public-tab" [class.public-tab--active]="activeTab() === 'standings'" (click)="setTab('standings')">
+        Posiciones
+      </button>
+      <button type="button" class="public-tab" [class.public-tab--active]="activeTab() === 'fixture'" (click)="setTab('fixture')">
+        Fixture
+      </button>
+      <button type="button" class="public-tab" [class.public-tab--active]="activeTab() === 'results'" (click)="setTab('results')">
+        Resultados
+      </button>
+    </nav>
+
+    <!-- Tab content -->
+    <section class="public-detail__content">
+      <!-- Standings -->
+      @if (activeTab() === 'standings') {
+        @if (standings().length === 0) {
+          <p class="public-page__empty">No hay tabla de posiciones disponible.</p>
+        } @else {
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Equipo</th>
+                  <th>PJ</th>
+                  <th>G</th>
+                  <th>E</th>
+                  <th>P</th>
+                  <th>GF</th>
+                  <th>GC</th>
+                  <th>DIF</th>
+                  <th>PTS</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (entry of standings(); track entry.teamId; let i = $index) {
+                  <tr>
+                    <td><strong>{{ i + 1 }}</strong></td>
+                    <td>{{ entry.teamName }}</td>
+                    <td>{{ entry.played }}</td>
+                    <td>{{ entry.won }}</td>
+                    <td>{{ entry.drawn }}</td>
+                    <td>{{ entry.lost }}</td>
+                    <td>{{ entry.goalsFor }}</td>
+                    <td>{{ entry.goalsAgainst }}</td>
+                    <td>{{ entry.goalDifference }}</td>
+                    <td><strong>{{ entry.points }}</strong></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+
+      <!-- Fixture (scheduled) -->
+      @if (activeTab() === 'fixture') {
+        @if (scheduledMatches.length === 0) {
+          <p class="public-page__empty">No hay partidos programados.</p>
+        } @else {
+          <div class="public-matches-list">
+            @for (match of scheduledMatches; track match.id) {
+              <div class="public-match-row">
+                <span class="public-match-row__team">{{ match.homeTeamName ?? 'Local' }}</span>
+                <span class="public-match-row__vs">vs</span>
+                <span class="public-match-row__team">{{ match.awayTeamName ?? 'Visitante' }}</span>
+                @if (match.scheduledAt) {
+                  <span class="public-match-row__date">{{ match.scheduledAt }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Results (finished) -->
+      @if (activeTab() === 'results') {
+        @if (finishedMatches.length === 0) {
+          <p class="public-page__empty">No hay resultados disponibles.</p>
+        } @else {
+          <div class="public-matches-list">
+            @for (match of finishedMatches; track match.id) {
+              <div class="public-match-row public-match-row--finished">
+                <span class="public-match-row__team">{{ match.homeTeamName ?? 'Local' }}</span>
+                <span class="public-match-row__score">{{ match.homeScore ?? 0 }} - {{ match.awayScore ?? 0 }}</span>
+                <span class="public-match-row__team">{{ match.awayTeamName ?? 'Visitante' }}</span>
+              </div>
+            }
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

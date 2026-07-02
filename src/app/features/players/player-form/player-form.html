@@ -1,8 +1,6 @@
 <section class="page">
   <div class="page__header">
-    <div>
-      <h1 class="page__title">{{ isEditMode() ? 'Editar jugador' : 'Nuevo jugador' }}</h1>
-    </div>
+    <h1 class="page__title">{{ isEditMode() ? 'Editar jugador' : 'Registrar jugador' }}</h1>
   </div>
 
   @if (isLoading()) { <app-loading-spinner label="Cargando jugador..." /> }
@@ -11,34 +9,100 @@
     <div class="form-card">
       @if (errorMessage()) { <div class="alert alert--error" role="alert">{{ errorMessage() }}</div> }
 
+      @if (userFound()) {
+        <div class="alert alert--info" role="status">
+          ✅ Usuario encontrado en el sistema. Los datos se han prellenado. Si deseas actualizar algún dato, modifícalo antes de guardar.
+        </div>
+      }
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ═══ Identificación ═══ -->
+        <h2 class="form-section-title">🪪 Identificación</h2>
         <div class="form-grid">
-
-          <div class="form-group form-group--full">
-            <label class="form-label form-label--required" for="name">Nombre completo</label>
-            <input id="name" type="text" class="form-control"
-              [class.form-control--error]="isFieldInvalid('name')"
-              formControlName="name" placeholder="Ej: Carlos Gómez" maxlength="200" autocomplete="name" />
-            @if (isFieldInvalid('name')) { <span class="form-error" role="alert">{{ getFieldError('name') }}</span> }
+          <div class="form-group">
+            <label class="form-label">Tipo de documento</label>
+            <select class="form-control" formControlName="documentType">
+              @for (dt of documentTypes; track dt.value) {
+                <option [value]="dt.value">{{ dt.label }}</option>
+              }
+            </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label form-label--required" for="jerseyNumber">Número de camiseta</label>
-            <input id="jerseyNumber" type="number" class="form-control"
-              [class.form-control--error]="isFieldInvalid('jerseyNumber')"
-              formControlName="jerseyNumber" min="0" max="999" />
-            @if (isFieldInvalid('jerseyNumber')) { <span class="form-error" role="alert">{{ getFieldError('jerseyNumber') }}</span> }
+            <label class="form-label">Número de documento</label>
+            <input type="text" class="form-control" formControlName="documentNumber"
+              placeholder="Ej: 1234567890"
+              (blur)="onDocumentBlur()" />
+            <span class="form-hint">
+              @if (isSearching()) {
+                Buscando...
+              } @else if (userFound()) {
+                ✅ Usuario encontrado y vinculado
+              } @else {
+                Al salir del campo se buscará si ya está registrado
+              }
+            </span>
           </div>
-
-          <div class="form-group">
-            <label class="form-label" for="position">Posición</label>
-            <input id="position" type="text" class="form-control"
-              formControlName="position" placeholder="Ej: setter, goalkeeper, forward" maxlength="50" autocomplete="off" />
-            <span class="form-hint">Depende del deporte del equipo.</span>
-          </div>
-
         </div>
 
+        <!-- ═══ Datos personales ═══ -->
+        <h2 class="form-section-title">👤 Datos personales</h2>
+        <div class="form-grid">
+          <div class="form-group form-group--full">
+            <label class="form-label form-label--required">Nombre completo</label>
+            <input type="text" class="form-control"
+              [class.form-control--error]="isFieldInvalid('name')"
+              formControlName="name" placeholder="Nombre completo del jugador" maxlength="200" />
+            @if (isFieldInvalid('name')) { <span class="form-error">{{ getFieldError('name') }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" formControlName="email"
+              placeholder="correo@ejemplo.com" />
+            <span class="form-hint">Se usará para el login del jugador</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input type="tel" class="form-control" formControlName="phone"
+              placeholder="+57 300 123 4567" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha de nacimiento</label>
+            <input type="date" class="form-control" formControlName="birthDate" />
+          </div>
+        </div>
+
+        <!-- ═══ Datos en el equipo ═══ -->
+        <h2 class="form-section-title">🏋️ Datos en el equipo</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label form-label--required">Número de camiseta</label>
+            <input type="number" class="form-control"
+              [class.form-control--error]="isFieldInvalid('jerseyNumber')"
+              formControlName="jerseyNumber" min="0" max="999" placeholder="Ej: 10" />
+            @if (isFieldInvalid('jerseyNumber')) { <span class="form-error">{{ getFieldError('jerseyNumber') }}</span> }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Posición</label>
+            <input type="text" class="form-control" formControlName="position"
+              placeholder="Ej: setter, goalkeeper, forward" />
+          </div>
+        </div>
+
+        <!-- ═══ Info de acceso ═══ -->
+        @if (!isEditMode() && !userFound()) {
+          <div class="alert alert--info" role="status" style="margin-top: 1rem;">
+            ℹ️ Se creará una cuenta para el jugador. La contraseña inicial será su número de documento.
+            Al primer ingreso se le pedirá cambiarla.
+          </div>
+        }
+
+        <!-- ═══ Acciones ═══ -->
         <div class="form-actions">
           <button type="button" class="btn btn--secondary" (click)="onCancel()">Cancelar</button>
           <button type="submit" class="btn btn--primary" [disabled]="isSaving()">

@@ -5,6 +5,7 @@ import {
   inject,
 } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 /**
  * Top navigation bar. Emits a toggle event for the sidebar.
@@ -17,6 +18,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class Navbar {
   private readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
 
   readonly menuToggle = output<void>();
 
@@ -24,6 +26,10 @@ export class Navbar {
 
   onMenuToggle(): void {
     this.menuToggle.emit();
+  }
+
+  onToggleTheme(): void {
+    this.theme.toggle();
   }
 
   onLogout(): void {

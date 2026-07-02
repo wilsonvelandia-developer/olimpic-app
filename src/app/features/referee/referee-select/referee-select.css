@@ -59,8 +59,8 @@
 .referee-select__match-card {
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 1rem 1.25rem;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
@@ -77,6 +77,38 @@
 
 .referee-select__match-card:active {
   transform: scale(0.99);
+}
+
+.referee-select__tournament-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.referee-select__sport {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.referee-select__tournament-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.referee-select__category {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
 }
 
 .referee-select__teams {
@@ -98,9 +130,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.referee-select__date {
+.referee-select__date,
+.referee-select__venue {
   font-size: 0.8rem;
   color: var(--color-text-secondary);
 }

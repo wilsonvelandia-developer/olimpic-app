@@ -216,6 +216,100 @@
           </div>
         </div>
 
+        <!-- ═══════ SECCIÓN: Reglas del juego (overrides por torneo) ═══════ -->
+        <h2 class="form-section-title">🏐 Reglas del juego (por torneo)</h2>
+        <p class="form-hint">Estos valores sobreescriben las reglas base del deporte para este torneo. Déjalos vacíos para usar las reglas estándar del deporte.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="playersPerTeamOverride">Jugadores en cancha</label>
+            <input id="playersPerTeamOverride" type="number" class="form-control"
+              formControlName="playersPerTeamOverride" min="1" max="50"
+              placeholder="Ej: 4 (mini-voleibol)" />
+            <span class="form-hint">Vacío = usar valor del deporte.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="minPlayersPerTeam">Mínimo jugadores para iniciar</label>
+            <input id="minPlayersPerTeam" type="number" class="form-control"
+              formControlName="minPlayersPerTeam" min="1" max="50"
+              placeholder="Ej: 4" />
+            <span class="form-hint">Vacío = igual que jugadores en cancha.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="setsToWinOverride">Sets para ganar</label>
+            <input id="setsToWinOverride" type="number" class="form-control"
+              formControlName="setsToWinOverride" min="1" max="10"
+              placeholder="Ej: 1 (set único)" />
+            <span class="form-hint">Vacío = usar valor del deporte.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pointsPerSetOverride">Puntos por set</label>
+            <input id="pointsPerSetOverride" type="number" class="form-control"
+              formControlName="pointsPerSetOverride" min="1" max="200"
+              placeholder="Ej: 21" />
+            <span class="form-hint">Vacío = usar valor del deporte.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="decisiveSetPointsOverride">Puntos set decisivo</label>
+            <input id="decisiveSetPointsOverride" type="number" class="form-control"
+              formControlName="decisiveSetPointsOverride" min="1" max="200"
+              placeholder="Ej: 15" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="winMarginOverride">Margen para ganar set</label>
+            <input id="winMarginOverride" type="number" class="form-control"
+              formControlName="winMarginOverride" min="1" max="10"
+              placeholder="Ej: 2" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="periodsPerMatchOverride">Períodos por partido</label>
+            <input id="periodsPerMatchOverride" type="number" class="form-control"
+              formControlName="periodsPerMatchOverride" min="1" max="10"
+              placeholder="Ej: 2 (fútbol)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="maxSubstitutionsOverride">Cambios máximos</label>
+            <input id="maxSubstitutionsOverride" type="number" class="form-control"
+              formControlName="maxSubstitutionsOverride" min="-1" max="50"
+              placeholder="-1 = ilimitado" />
+            <span class="form-hint">-1 = sin límite. Vacío = usar valor del deporte.</span>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="hasSetsOverride" />
+              <span>Sobreescribir: usa sets</span>
+            </label>
+            <span class="form-hint">Marcar solo si quieres forzar el uso o no de sets.</span>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="hasRotationOverride" />
+              <span>Sobreescribir: rotación</span>
+            </label>
+            <span class="form-hint">Desactivar para categorías infantiles sin rotación.</span>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="allowReentry" />
+              <span>Permitir reingreso de jugadores</span>
+            </label>
+            <span class="form-hint">Jugador sustituido puede volver a ingresar.</span>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="enforcePairedSubs" />
+              <span>Sustituciones pareadas (voleibol)</span>
+            </label>
+            <span class="form-hint">Jugador solo puede reingresar por quien lo sustituyó.</span>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="liberoUnlimitedSubs" />
+              <span>Líbero: cambios ilimitados</span>
+            </label>
+            <span class="form-hint">El líbero no cuenta en el límite de cambios.</span>
+          </div>
+        </div>
+
         <!-- ═══════ SECCIÓN: Configuración de partidos ═══════ -->
         <h2 class="form-section-title">⚽ Configuración de partidos</h2>
         <div class="form-grid">
@@ -377,6 +471,78 @@
           }
           
         </div>
+
+        <!-- ═══════ SECCIÓN: Staff del torneo (Árbitros, Organizadores) ═══════ -->
+        @if (isEditMode()) {
+          <h2 class="form-section-title">👥 Staff del torneo</h2>
+          <p class="form-hint">Asigna árbitros, organizadores y observadores al torneo. Los árbitros asignados podrán arbitrar los partidos de este torneo.</p>
+
+          <!-- Add new staff -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Usuario</label>
+              <select class="form-control" [value]="newStaffUserId()"
+                (change)="newStaffUserId.set($any($event.target).value)">
+                <option value="">Seleccionar usuario...</option>
+                @for (user of availableUsers(); track user.id) {
+                  <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rol</label>
+              <select class="form-control" [value]="newStaffRole()"
+                (change)="newStaffRole.set($any($event.target).value)">
+                @for (role of staffRoleOptions; track role.value) {
+                  <option [value]="role.value">{{ role.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group" style="align-self: end;">
+              <button type="button" class="btn btn--primary" (click)="onAddStaff()"
+                [disabled]="!newStaffUserId()">
+                + Agregar
+              </button>
+            </div>
+          </div>
+
+          <!-- Current staff list -->
+          @if (staff().length > 0) {
+            <div class="table-wrapper" style="margin-top: 1rem;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (member of staff(); track member.userId) {
+                    <tr>
+                      <td>{{ member.userName }}</td>
+                      <td>{{ member.email }}</td>
+                      <td>
+                        <span class="badge"
+                          [class.badge--info]="member.staffRole === 'referee'"
+                          [class.badge--success]="member.staffRole === 'organizer'"
+                          [class.badge--neutral]="member.staffRole === 'observer'"
+                        >{{ getStaffRoleLabel(member.staffRole) }}</span>
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn--danger btn--sm"
+                          (click)="onRemoveStaff(member.userId)">Remover</button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p class="form-hint" style="margin-top: 0.75rem;">No hay staff asignado aún.</p>
+          }
+        }
 
         <!-- ═══════ SECCIÓN: Criterios de desempate ═══════ -->
         <h2 class="form-section-title">⚖️ Criterios de desempate (orden de prioridad)</h2>

@@ -20,6 +20,7 @@ export interface AuthUser {
   phone:     string | null;
   avatarUrl: string | null;
   roles:     AppRole[];
+  mustChangePassword?: boolean;
 }
 
 export interface LoginRequest {
