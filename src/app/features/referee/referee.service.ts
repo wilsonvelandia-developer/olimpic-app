@@ -275,7 +275,7 @@ export class RefereeService {
           this.toast.success('Partido iniciado');
         }
       },
-      error: () => { this.error.set('Error al iniciar el partido'); this.toast.error('Error al iniciar el partido'); },
+      error: () => { this.toast.error('Error al iniciar el partido'); },
     });
   }
 
@@ -288,7 +288,7 @@ export class RefereeService {
           this.toast.success('Partido finalizado');
         }
       },
-      error: () => { this.error.set('Error al finalizar el partido'); this.toast.error('Error al finalizar el partido'); },
+      error: () => { this.toast.error('Error al finalizar el partido'); },
     });
   }
 
@@ -323,7 +323,7 @@ export class RefereeService {
           this._periods.set(res.data.periods);
         }
       },
-      error: () => this.error.set('Error al actualizar marcador'),
+      error: () => this.toast.error('Error al actualizar marcador'),
     });
   }
 
@@ -360,12 +360,11 @@ export class RefereeService {
 
     this.api.post(`/matches/${this.matchId}/substitutions`, dto).subscribe({
       next: () => {
-        this.loadEvents();
         this.loadSubstitutionCount();
         this.swapPlayer(dto.teamId, dto.playerOutId, dto.playerInId);
         this.toast.success('Cambio registrado');
 
-        // Record an enriched event for the timeline
+        // Record an enriched event for the timeline, then reload events
         this.api.post(`/matches/${this.matchId}/events`, {
           eventType: 'substitution',
           teamId: dto.teamId,
@@ -379,11 +378,14 @@ export class RefereeService {
             playerOutJersey: playerOut?.jerseyNumber ?? null,
             playerInJersey: playerIn?.jerseyNumber ?? null,
           },
-        }).subscribe({ next: () => this.loadEvents() });
+        }).subscribe({
+          next: () => this.loadEvents(),
+          error: () => this.loadEvents(), // load events even if event creation fails
+        });
       },
       error: (err) => {
         const msg = err?.error?.message ?? 'Error al registrar sustitución';
-        this.error.set(msg);
+        // Only show toast — do NOT set this.error (which hides the whole match view)
         this.toast.error(msg);
       },
     });
@@ -427,7 +429,7 @@ export class RefereeService {
   }): void {
     this.api.post(`/matches/${this.matchId}/sanctions`, dto).subscribe({
       next: () => { this.loadEvents(); this.toast.warning('Sanción registrada'); },
-      error: () => { this.error.set('Error al registrar sanción'); this.toast.error('Error al registrar sanción'); },
+      error: () => { this.toast.error('Error al registrar sanción'); },
     });
   }
 
@@ -498,6 +500,23 @@ export class RefereeService {
       matchMinute: Math.floor(elapsed / 60),
       payload: { elapsedSeconds: elapsed },
     }).subscribe();
+  }
+
+  /**
+   * Registers a generic event in the match timeline.
+   * Used for score, sanction, substitution events with enriched data.
+   */
+  registerEvent(dto: {
+    eventType: string;
+    teamId?: string | null;
+    playerId?: string | null;
+    periodNumber: number;
+    matchMinute: number | null;
+    payload: Record<string, unknown>;
+  }): void {
+    this.api.post(`/matches/${this.matchId}/events`, dto).subscribe({
+      next: () => this.loadEvents(),
+    });
   }
 
   onTimerExpired(): void {

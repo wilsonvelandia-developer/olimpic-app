@@ -40,6 +40,13 @@ export class MatchEventsLog {
   readonly events = input.required<MatchEventItem[]>();
   readonly visible = input<boolean>(true);
 
+  /** Events sorted by most recent first. */
+  get sortedEvents(): MatchEventItem[] {
+    return [...this.events()].sort((a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
   /** Get icon for event type. */
   getIcon(eventType: string): string {
     return EVENT_ICONS[eventType] ?? '📌';
@@ -100,12 +107,18 @@ export class MatchEventsLog {
     return `${home}-${away}`;
   }
 
-  /** Format time for display. */
+  /** Format time for display — shows elapsed match time in HH:MM:SS. */
   formatTime(event: MatchEventItem): string {
-    if (event.matchMinute !== null) {
-      return `${event.matchMinute}'`;
+    if (event.matchMinute !== null && event.matchMinute > 0) {
+      // matchMinute is stored as elapsed seconds
+      const totalSeconds = event.matchMinute;
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
+    // Fallback: show wall clock time from createdAt
     const date = new Date(event.createdAt);
-    return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 }

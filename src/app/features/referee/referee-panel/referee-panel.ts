@@ -85,7 +85,7 @@ export class RefereePanel implements OnInit, OnDestroy {
   readonly currentMinute = computed(() => {
     const timer = this.timerComponent();
     if (!timer) return null;
-    return Math.floor(timer.elapsed() / 60);
+    return timer.elapsed();
   });
 
   // ── Match setup data ──────────────────────────────────────────────────────
@@ -180,6 +180,15 @@ export class RefereePanel implements OnInit, OnDestroy {
 
       if (sport === 'volleyball' && status === 'in_progress' && homePlayers.length > 0 && awayPlayers.length > 0 && !this.rotationInitialized) {
         this.rotationInitialized = true;
+
+        // Try to restore from localStorage first (preserves state on page reload)
+        const restored = this.rotation.restoreState(this.id());
+        if (restored) {
+          // State restored — no need to re-initialize from API
+          return;
+        }
+
+        // No saved state — initialize from API data
         this.initializeRotationFromData(homePlayers, awayPlayers);
       }
     });
@@ -194,6 +203,9 @@ export class RefereePanel implements OnInit, OnDestroy {
     homePlayers: Array<{ id: string; jerseyNumber: number; name: string }>,
     awayPlayers: Array<{ id: string; jerseyNumber: number; name: string }>,
   ): void {
+    // Set matchId for persistence
+    this.rotation.restoreState(this.id()); // sets the matchId internally
+
     // Try to load match setup for serve/side info
     this.ref.getMatchSetup().subscribe({
       next: (setup) => {
@@ -480,6 +492,13 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.ref.undoLastEvent();
   }
 
+  // ── Official Timeout ──────────────────────────────────────────────────────
+
+  onTimeout(): void {
+    this.timerComponent()?.pause();
+    this.ref.recordTimerPause(this.timerComponent()?.elapsed() ?? 0);
+  }
+
   /**
    * Checks if the current set is won (a team reached pointsPerSet with winMargin).
    * If so, automatically ends the set and triggers side/serve swap.
@@ -507,8 +526,9 @@ export class RefereePanel implements OnInit, OnDestroy {
     const period = this.ref.currentPeriod();
     if (!period) return;
 
+    const teamId = this.scoringTeamId();
     const dto = {
-      teamId: this.scoringTeamId(),
+      teamId,
       playerId: selection.playerId,
       periodNumber: period.periodNumber,
       matchMinute: this.currentMinute(),
@@ -516,6 +536,16 @@ export class RefereePanel implements OnInit, OnDestroy {
     };
 
     this.ref.registerScorer(dto);
+
+    // Also register a score event for the timeline with enriched info
+    this.ref.registerEvent({
+      eventType: 'score',
+      teamId,
+      playerId: selection.playerId,
+      periodNumber: period.periodNumber,
+      matchMinute: this.currentMinute(),
+      payload: { points: 1, playerName: selection.playerName, jerseyNumber: selection.jerseyNumber },
+    });
 
     // Emit via WebSocket for real-time broadcast
     this.socket.emitScore({
@@ -626,6 +656,20 @@ export class RefereePanel implements OnInit, OnDestroy {
       minute,
     });
 
+    // Register sanction event in the timeline
+    this.ref.registerEvent({
+      eventType: 'sanction',
+      teamId: selection.teamId,
+      playerId: selection.playerId,
+      periodNumber: period.periodNumber,
+      matchMinute: minute,
+      payload: {
+        sanctionTypeId: selection.sanctionTypeId,
+        sanctionName: selection.sanctionName ?? '',
+        playerName: selection.playerName ?? '',
+      },
+    });
+
     // Emit via WebSocket
     this.socket.emitSanction({
       matchId: this.id(),
@@ -725,7 +769,9 @@ export class RefereePanel implements OnInit, OnDestroy {
 
   onFinishMatch(): void {
     this.timerComponent()?.pause();
+    this.timerComponent()?.clearState();
     this.ref.finishMatch();
+    this.rotation.clearState();
 
     // Emit match end via WebSocket
     this.socket.emitMatchEnd(this.id());

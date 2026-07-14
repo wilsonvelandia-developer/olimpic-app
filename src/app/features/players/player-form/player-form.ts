@@ -55,6 +55,9 @@ export class PlayerForm implements OnInit {
     epsFileUrl:       [''],
   });
 
+  /** Available teams (loaded when no teamId is pre-set). */
+  readonly availableTeams = signal<Array<{ id: string; name: string }>>([]);
+
   readonly documentTypes = [
     { value: 'CC', label: 'Cédula de Ciudadanía' },
     { value: 'TI', label: 'Tarjeta de Identidad' },
@@ -68,6 +71,13 @@ export class PlayerForm implements OnInit {
     const teamIdParam = this.route.snapshot.queryParamMap.get('teamId')
       ?? this.route.snapshot.paramMap.get('teamId') ?? '';
     this.teamId.set(teamIdParam);
+
+    // If no team pre-selected, load available teams
+    if (!teamIdParam) {
+      this.api.get<Array<{ id: string; name: string }>>('/teams?pageSize=100').subscribe({
+        next: (res) => { if (res.success && res.data) this.availableTeams.set(res.data); },
+      });
+    }
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
@@ -180,6 +190,11 @@ export class PlayerForm implements OnInit {
   onDocBackUploaded(url: string): void { this.form.patchValue({ documentBackUrl: url }); }
   onEpsUploaded(url: string): void { this.form.patchValue({ epsFileUrl: url }); }
   onPhotoUploaded(url: string): void { this.form.patchValue({ photoUrl: url }); }
+
+  onTeamSelected(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.teamId.set(select.value);
+  }
 
   onCancel(): void {
     const tid = this.teamId();

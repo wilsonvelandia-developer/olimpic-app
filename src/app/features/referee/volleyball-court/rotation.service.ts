@@ -47,6 +47,88 @@ export class RotationService {
   /** Sets to win (for detecting decisive set) */
   private setsToWin = 3;
 
+  /** Match ID for persistence */
+  private matchId: string = '';
+
+  // ── Persistence ─────────────────────────────────────────────────────────
+
+  /**
+   * Saves the current rotation state to localStorage.
+   * Called after every state change (point, rotation, substitution, set end).
+   */
+  saveState(): void {
+    if (!this.matchId) return;
+    const state = {
+      homePositions: this.homePositions(),
+      awayPositions: this.awayPositions(),
+      servingTeam: this.servingTeam(),
+      sideATeam: this.sideATeam(),
+      homeRotations: this.homeRotations(),
+      awayRotations: this.awayRotations(),
+      currentSet: this.currentSet(),
+      firstSetFirstServe: this.firstSetFirstServe,
+      setServeHistory: this.setServeHistory,
+      initialHomeLineup: this.initialHomeLineup,
+      initialAwayLineup: this.initialAwayLineup,
+      setsToWin: this.setsToWin,
+    };
+    try {
+      localStorage.setItem(`rotation_${this.matchId}`, JSON.stringify(state));
+    } catch { /* storage full or unavailable */ }
+  }
+
+  /**
+   * Restores rotation state from localStorage.
+   * @returns true if state was restored, false if no saved state found.
+   */
+  restoreState(matchId: string): boolean {
+    this.matchId = matchId;
+    try {
+      const raw = localStorage.getItem(`rotation_${matchId}`);
+      if (!raw) return false;
+
+      const state = JSON.parse(raw) as {
+        homePositions: CourtPlayer[];
+        awayPositions: CourtPlayer[];
+        servingTeam: 'home' | 'away';
+        sideATeam: 'home' | 'away';
+        homeRotations: number;
+        awayRotations: number;
+        currentSet: number;
+        firstSetFirstServe: 'home' | 'away';
+        setServeHistory: Array<'home' | 'away'>;
+        initialHomeLineup: CourtPlayer[];
+        initialAwayLineup: CourtPlayer[];
+        setsToWin: number;
+      };
+
+      this.homePositions.set(state.homePositions);
+      this.awayPositions.set(state.awayPositions);
+      this.servingTeam.set(state.servingTeam);
+      this.sideATeam.set(state.sideATeam);
+      this.homeRotations.set(state.homeRotations);
+      this.awayRotations.set(state.awayRotations);
+      this.currentSet.set(state.currentSet);
+      this.firstSetFirstServe = state.firstSetFirstServe;
+      this.setServeHistory = state.setServeHistory;
+      this.initialHomeLineup = state.initialHomeLineup;
+      this.initialAwayLineup = state.initialAwayLineup;
+      this.setsToWin = state.setsToWin;
+      this.needsDecisiveToss.set(false);
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Clears saved state (call when match finishes). */
+  clearState(): void {
+    if (this.matchId) {
+      localStorage.removeItem(`rotation_${this.matchId}`);
+    }
+  }
+
   /**
    * Initializes the rotation state from match setup.
    * @param homePlayers - initial lineup with positions (from setup)
@@ -79,6 +161,8 @@ export class RotationService {
     // Track serve history
     this.firstSetFirstServe = firstServe;
     this.setServeHistory = [firstServe];
+
+    this.saveState();
   }
 
   /**
@@ -91,11 +175,13 @@ export class RotationService {
 
     if (scoringTeam === serving) {
       // Serving team scored → no rotation
+      this.saveState();
       return false;
     } else {
       // Receiving team scored → they gain serve + rotate
       this.servingTeam.set(scoringTeam);
       this.rotateTeam(scoringTeam);
+      this.saveState();
       return true;
     }
   }
@@ -136,6 +222,8 @@ export class RotationService {
     this.awayPositions.set(this.initialAwayLineup.map((p) => ({ ...p })));
     this.homeRotations.set(0);
     this.awayRotations.set(0);
+
+    this.saveState();
   }
 
   /**
@@ -154,6 +242,8 @@ export class RotationService {
     this.awayPositions.set(this.initialAwayLineup.map((p) => ({ ...p })));
     this.homeRotations.set(0);
     this.awayRotations.set(0);
+
+    this.saveState();
   }
 
   /**
@@ -175,11 +265,11 @@ export class RotationService {
     const updated = [...current];
     updated[outIdx] = { ...inPlayer, position: zone };
     positions.set(updated);
+    this.saveState();
   }
 
   /**
    * Undo last point — reverses the serve change AND rotation if one occurred.
-   * @param teamThatScored - the team whose point is being undone
    */
   undoLastPoint(teamThatScored: 'home' | 'away'): void {
     const serving = this.servingTeam();
@@ -190,23 +280,23 @@ export class RotationService {
       const otherTeam: 'home' | 'away' = teamThatScored === 'home' ? 'away' : 'home';
       this.servingTeam.set(otherTeam);
     }
-    // If the scoring team was already serving, no rotation happened — nothing to undo
+    this.saveState();
   }
 
   /**
    * Manual rotation: rotate the team clockwise (forward).
-   * Used for corrections by the referee.
    */
   manualRotateForward(team: 'home' | 'away'): void {
     this.rotateTeam(team);
+    this.saveState();
   }
 
   /**
    * Manual rotation: rotate the team counter-clockwise (backward).
-   * Used for corrections by the referee.
    */
   manualRotateBackward(team: 'home' | 'away'): void {
     this.reverseRotateTeam(team);
+    this.saveState();
   }
 
   /**

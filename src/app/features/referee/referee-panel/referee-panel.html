@@ -26,6 +26,7 @@
         [mode]="timerMode()"
         [countdownTarget]="countdownTarget()"
         [disabled]="ref.matchStatus() !== 'in_progress'"
+        [matchId]="id()"
         (paused)="onTimerPaused($event)"
         (finished)="onTimerFinished()"
       />
@@ -151,6 +152,10 @@
         <button type="button" class="referee-panel__action-btn" (click)="onUndoLast()">
           <span class="referee-panel__action-icon">↩️</span>
           <span class="referee-panel__action-label">Deshacer</span>
+        </button>
+        <button type="button" class="referee-panel__action-btn" (click)="onTimeout()">
+          <span class="referee-panel__action-icon">⏸</span>
+          <span class="referee-panel__action-label">T. Fuera</span>
         </button>
         <button type="button" class="referee-panel__action-btn" (click)="toggleEventsLog()">
           <span class="referee-panel__action-icon">📋</span>

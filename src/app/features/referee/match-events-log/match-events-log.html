@@ -6,7 +6,7 @@
       <p class="events-log__empty">Sin eventos registrados</p>
     } @else {
       <ul class="events-log__list" role="list">
-        @for (event of events(); track event.id) {
+        @for (event of sortedEvents; track event.id) {
           <li class="events-log__item">
             <span class="events-log__icon">{{ getIcon(event.eventType) }}</span>
             <div class="events-log__content">

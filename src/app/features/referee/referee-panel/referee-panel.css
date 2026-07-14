@@ -311,7 +311,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  max-width: min(300px, 40vw);
+  max-width: min(400px, 45vw);
   max-height: 100%;
   transform: rotate(90deg);
   transform-origin: center center;
@@ -339,7 +339,7 @@
   .side-btn--score { width: 52px; height: 52px; font-size: 1rem; }
 
   .match-court-wrapper app-volleyball-court {
-    max-width: min(360px, 35vw);
+    max-width: min(500px, 50vw);
   }
 
   .referee-panel__action-btn {
@@ -353,7 +353,7 @@
 /* ═══ Large desktop (>= 1200px) ═══ */
 @media (min-width: 1200px) {
   .match-court-wrapper app-volleyball-court {
-    max-width: 400px;
+    max-width: min(600px, 55vw);
   }
   .match-scoreboard { padding: 0.5rem 2rem; }
   .match-scoreboard__score { font-size: 3rem; }
