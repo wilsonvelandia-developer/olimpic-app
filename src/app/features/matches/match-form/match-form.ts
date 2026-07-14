@@ -1,7 +1,7 @@
 import {
   Component, ChangeDetectionStrategy, inject, signal, OnInit,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatchService }  from '../match.service';
 import { ApiService }    from '../../../core/services/api.service';
@@ -13,7 +13,7 @@ interface TeamOption  { id: string; name: string; }
 
 @Component({
   selector: 'app-match-form',
-  imports: [ReactiveFormsModule, LoadingSpinner],
+  imports: [ReactiveFormsModule, RouterLink, LoadingSpinner],
   templateUrl: './match-form.html',
   styleUrl: './match-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +35,7 @@ export class MatchForm implements OnInit {
   readonly tournaments = signal<Tournament[]>([]);
   readonly phases      = signal<PhaseOption[]>([]);
   readonly teams       = signal<TeamOption[]>([]);
+  readonly venues      = signal<Array<{ id: string; name: string; address: string | null }>>([]);
 
   readonly selectedTournamentId = signal<string>('');
 
@@ -51,6 +52,11 @@ export class MatchForm implements OnInit {
     // Load tournaments for the first dropdown
     this.api.get<Tournament[]>('/tournaments').subscribe({
       next: (res) => { if (res.success && res.data) this.tournaments.set(res.data); },
+    });
+
+    // Load venues for venue select
+    this.api.get<Array<{ id: string; name: string; address: string | null }>>('/venues').subscribe({
+      next: (res) => { if (res.success && res.data) this.venues.set(res.data); },
     });
 
     const id = this.route.snapshot.paramMap.get('id');

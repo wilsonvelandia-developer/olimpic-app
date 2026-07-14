@@ -71,7 +71,9 @@ export class RefereeHistory implements OnInit {
   }
 
   onViewMatch(matchId: string): void {
-    this.router.navigate(['/matches', matchId]);
+    if (matchId) {
+      this.router.navigate(['/matches', matchId]);
+    }
   }
 
   getSelectedRefereeName(): string {

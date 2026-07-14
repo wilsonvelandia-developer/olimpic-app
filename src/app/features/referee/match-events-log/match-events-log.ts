@@ -5,10 +5,12 @@ export interface MatchEventItem {
   eventType: string;
   teamName?: string;
   playerName?: string;
+  playerJersey?: number;
   periodNumber: number;
   matchMinute: number | null;
   createdAt: string;
   payload: Record<string, unknown>;
+  partialScore?: { home: number; away: number; homeSets: number; awaySets: number } | null;
 }
 
 /** Maps event types to display icons. */
@@ -45,22 +47,37 @@ export class MatchEventsLog {
 
   /** Get human-readable label for event type. */
   getLabel(event: MatchEventItem): string {
+    const playerTag = event.playerName
+      ? (event.playerJersey ? `#${event.playerJersey} ${event.playerName}` : event.playerName)
+      : '';
+
     switch (event.eventType) {
       case 'score':
-        return event.playerName
-          ? `Punto — ${event.playerName} (${event.teamName})`
+        return playerTag
+          ? `Punto — ${playerTag} (${event.teamName})`
           : `Punto — ${event.teamName}`;
-      case 'substitution':
+      case 'substitution': {
+        const playerIn = event.payload?.['playerInName'] as string | undefined;
+        const playerOut = event.payload?.['playerOutName'] as string | undefined;
+        const jerseyIn = event.payload?.['playerInJersey'] as number | undefined;
+        const jerseyOut = event.payload?.['playerOutJersey'] as number | undefined;
+        if (playerIn && playerOut) {
+          const inTag = jerseyIn ? `#${jerseyIn} ${playerIn}` : playerIn;
+          const outTag = jerseyOut ? `#${jerseyOut} ${playerOut}` : playerOut;
+          return `Cambio — ↑${inTag} ↓${outTag} (${event.teamName})`;
+        }
         return `Cambio — ${event.teamName}`;
+      }
       case 'sanction':
-        return event.playerName
-          ? `Sanción — ${event.playerName} (${event.teamName})`
+        return playerTag
+          ? `Sanción — ${playerTag} (${event.teamName})`
           : `Sanción — ${event.teamName}`;
       case 'rotation':
         return `Rotación — ${event.teamName}`;
       case 'period_start':
         return `Inicio período ${event.periodNumber}`;
       case 'period_end':
+      case 'set_end':
         return `Fin período ${event.periodNumber}`;
       case 'timeout':
         return 'Tiempo fuera';
@@ -71,6 +88,16 @@ export class MatchEventsLog {
       default:
         return event.eventType;
     }
+  }
+
+  /** Format partial score display. */
+  getPartialScore(event: MatchEventItem): string {
+    if (!event.partialScore) return '';
+    const { home, away, homeSets, awaySets } = event.partialScore;
+    if (homeSets > 0 || awaySets > 0) {
+      return `(${homeSets}-${awaySets}) ${home}-${away}`;
+    }
+    return `${home}-${away}`;
   }
 
   /** Format time for display. */

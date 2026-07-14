@@ -7,10 +7,11 @@ import { PlayerService } from '../player.service';
 import { ApiService } from '../../../core/services/api.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ImageUpload } from '../../../shared/components/image-upload/image-upload';
 
 @Component({
   selector: 'app-player-form',
-  imports: [ReactiveFormsModule, LoadingSpinner],
+  imports: [ReactiveFormsModule, LoadingSpinner, ImageUpload],
   templateUrl: './player-form.html',
   styleUrl: './player-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,9 +44,15 @@ export class PlayerForm implements OnInit {
     email:          [''],
     phone:          [''],
     birthDate:      [''],
+    // Player photo
+    photoUrl:       [''],
     // Player-in-team data
     jerseyNumber:   [null as number | null, [Validators.required, Validators.min(0), Validators.max(999)]],
     position:       ['' as string | null],
+    // Document photos
+    documentFrontUrl: [''],
+    documentBackUrl:  [''],
+    epsFileUrl:       [''],
   });
 
   readonly documentTypes = [
@@ -140,6 +147,7 @@ export class PlayerForm implements OnInit {
       email:          v.email || null,
       phone:          v.phone || null,
       birthDate:      v.birthDate || null,
+      photoUrl:       v.photoUrl || null,
       userId:         this.foundUserId(),
     };
 
@@ -168,7 +176,19 @@ export class PlayerForm implements OnInit {
     });
   }
 
-  onCancel(): void { this.router.navigate(['/teams', this.teamId()]); }
+  onDocFrontUploaded(url: string): void { this.form.patchValue({ documentFrontUrl: url }); }
+  onDocBackUploaded(url: string): void { this.form.patchValue({ documentBackUrl: url }); }
+  onEpsUploaded(url: string): void { this.form.patchValue({ epsFileUrl: url }); }
+  onPhotoUploaded(url: string): void { this.form.patchValue({ photoUrl: url }); }
+
+  onCancel(): void {
+    const tid = this.teamId();
+    if (tid) {
+      this.router.navigate(['/teams', tid]);
+    } else {
+      this.router.navigate(['/players']);
+    }
+  }
 
   isFieldInvalid(f: string): boolean { const c = this.form.get(f); return !!(c?.invalid && c?.touched); }
   getFieldError(f: string): string {

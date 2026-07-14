@@ -13,13 +13,13 @@ export const PLAYER_ROUTES: Routes = [
   {
     path: 'new',
     canActivate: [roleGuard],
-    data: { requiredRole: 'organizer' },
+    data: { requiredRole: 'coach' },
     loadComponent: () => import('./player-form/player-form').then((m) => m.PlayerForm),
   },
   {
     path: ':id/edit',
     canActivate: [roleGuard],
-    data: { requiredRole: 'organizer' },
+    data: { requiredRole: 'coach' },
     loadComponent: () => import('./player-form/player-form').then((m) => m.PlayerForm),
   },
   {

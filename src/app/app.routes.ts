@@ -82,11 +82,11 @@ export const routes: Routes = [
           import('./features/venues/venues.routes').then((m) => m.VENUE_ROUTES),
       },
 
-      // organizer+ — payment management
+      // president+ — payment management (coaches/presidents see read-only)
       {
         path: 'payments',
         canActivate: [roleGuard],
-        data: { requiredRole: 'organizer' },
+        data: { requiredRole: 'president' },
         loadChildren: () =>
           import('./features/payments/payments.routes').then((m) => m.PAYMENT_ROUTES),
       },
@@ -103,6 +103,15 @@ export const routes: Routes = [
         path: 'gallery',
         loadChildren: () =>
           import('./features/gallery/gallery.routes').then((m) => m.GALLERY_ROUTES),
+      },
+
+      // observer+ — observations
+      {
+        path: 'observations',
+        canActivate: [roleGuard],
+        data: { requiredRole: 'observer' },
+        loadComponent: () =>
+          import('./features/observations/observations').then((m) => m.Observations),
       },
 
       // organizer+ — referee management (history/availability)
@@ -123,11 +132,11 @@ export const routes: Routes = [
           import('./features/referee/referee.routes').then((m) => m.REFEREE_ROUTES),
       },
 
-      // organizer+ — real-time chat
+      // president+ — real-time chat
       {
         path: 'chat',
         canActivate: [roleGuard],
-        data: { requiredRole: 'organizer' },
+        data: { requiredRole: 'president' },
         loadComponent: () =>
           import('./shared/components/chat-panel/chat-panel').then((m) => m.ChatPanel),
       },

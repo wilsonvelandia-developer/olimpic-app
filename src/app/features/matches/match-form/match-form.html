@@ -73,8 +73,15 @@
           <!-- Venue -->
           <div class="form-group">
             <label class="form-label">Cancha / Sede</label>
-            <input type="text" class="form-control" formControlName="venue"
-              placeholder="Ej: Cancha 1" maxlength="200" />
+            <select class="form-control" formControlName="venue">
+              <option value="">Seleccione una sede</option>
+              @for (v of venues(); track v.id) {
+                <option [value]="v.name">{{ v.name }}{{ v.address ? ' — ' + v.address : '' }}</option>
+              }
+            </select>
+            @if (venues().length === 0) {
+              <a routerLink="/venues/new" class="form-hint form-hint--link">+ Agregar nueva sede</a>
+            }
           </div>
         </div>
 

@@ -104,6 +104,9 @@ export class NotificationBell implements OnInit {
       case 'match': return `/matches/${referenceId}`;
       case 'payment': return `/payments/${referenceId}`;
       case 'announcement': return `/announcements/${referenceId}`;
+      case 'team': return `/teams/${referenceId}`;
+      case 'player': return `/players/${referenceId}`;
+      case 'venue': return `/venues/${referenceId}`;
       default: return null;
     }
   }

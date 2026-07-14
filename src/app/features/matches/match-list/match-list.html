@@ -71,8 +71,17 @@
                   <span class="match-card-item__team">{{ teamLabel(match, 'home') }}</span>
                 </div>
                 <span class="match-card-item__vs">
-                  @if (match.status === 'finished') {
-                    <strong>{{ match.homeScore ?? '?' }} - {{ match.awayScore ?? '?' }}</strong>
+                  @if (match.status === 'finished' || match.status === 'in_progress') {
+                    @if (isSetBased(match)) {
+                      <strong>{{ match.homeSetsWon ?? 0 }} - {{ match.awaySetsWon ?? 0 }}</strong>
+                      <small class="match-card-item__sets">
+                        @for (p of getFinishedPeriods(match); track p.periodNumber) {
+                          <span class="match-card-item__set-score">S{{ p.periodNumber }}: {{ p.homeScore }}-{{ p.awayScore }}</span>
+                        }
+                      </small>
+                    } @else {
+                      <strong>{{ match.homeScore ?? '?' }} - {{ match.awayScore ?? '?' }}</strong>
+                    }
                   } @else {
                     vs
                   }
@@ -111,8 +120,18 @@
                 <tr>
                   <td><button type="button" class="btn btn--ghost btn--sm" (click)="onViewDetail(match.id)">{{ teamLabel(match, 'home') }}</button></td>
                   <td>
-                    @if (match.status === 'finished') { <strong>{{ match.homeScore ?? '?' }} - {{ match.awayScore ?? '?' }}</strong> }
-                    @else { <span>vs</span> }
+                    @if (match.status === 'finished' || match.status === 'in_progress') {
+                      @if (isSetBased(match)) {
+                        <strong>{{ match.homeSetsWon ?? 0 }} - {{ match.awaySetsWon ?? 0 }}</strong>
+                        <small class="table__sets">
+                          @for (p of getFinishedPeriods(match); track p.periodNumber) {
+                            <span>S{{ p.periodNumber }}: {{ p.homeScore }}-{{ p.awayScore }}</span>
+                          }
+                        </small>
+                      } @else {
+                        <strong>{{ match.homeScore ?? '?' }} - {{ match.awayScore ?? '?' }}</strong>
+                      }
+                    } @else { <span>vs</span> }
                   </td>
                   <td>{{ teamLabel(match, 'away') }}</td>
                   <td>{{ formatDateTime(match.scheduledAt) }}</td>

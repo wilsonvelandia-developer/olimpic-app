@@ -495,3 +495,440 @@ a:hover {
   color: var(--color-text-secondary);
   text-align: center;
 }
+
+
+/* ============================================================
+   Fix: Filters bar alignment (left-aligned, no right-push)
+   ============================================================ */
+
+.filters-bar {
+  justify-content: flex-start !important;
+}
+
+.filters-bar__actions {
+  margin-left: 0 !important;
+  align-self: flex-end;
+}
+
+@media (max-width: 768px) {
+  .filters-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .filters-bar .form-group {
+    min-width: unset !important;
+    flex: unset !important;
+    width: 100%;
+  }
+  .filters-bar__actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .filters-bar__actions .btn {
+    flex: 1;
+  }
+}
+
+/* ============================================================
+   Fix: Dark mode table header contrast
+   ============================================================ */
+
+[data-theme="dark"] .table thead th {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-bottom-color: #334155 !important;
+}
+
+[data-theme="dark"] .table thead tr {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .table tbody tr {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .table tbody tr:nth-child(even) {
+  background-color: #1a2332;
+}
+
+[data-theme="dark"] .table tbody tr:hover {
+  background-color: #2d3748 !important;
+}
+
+[data-theme="dark"] .table td,
+[data-theme="dark"] .table th {
+  border-color: #334155;
+}
+
+/* Fix striped table first row blend issue */
+[data-theme="dark"] .table--striped tbody tr:nth-child(odd) {
+  background-color: #111827;
+}
+
+/* Dark mode: ensure all text in tables is readable */
+[data-theme="dark"] .table tbody td {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .table .btn--ghost {
+  color: #93c5fd;
+}
+
+/* ============================================================
+   Fix: Dark mode — referee panel, lineup buttons, player text
+   ============================================================ */
+
+[data-theme="dark"] .lineup-player,
+[data-theme="dark"] .lineup-player__name {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .lineup-btn,
+[data-theme="dark"] .role-btn {
+  color: #e2e8f0 !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .role-btn--active,
+[data-theme="dark"] .lineup-btn--active {
+  background-color: #1e40af !important;
+  color: #fff !important;
+  border-color: #2563eb !important;
+}
+
+[data-theme="dark"] .setup-card,
+[data-theme="dark"] .lineup-card {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+[data-theme="dark"] .lineup-card__header,
+[data-theme="dark"] .setup-card__header {
+  color: #f9fafb !important;
+}
+
+/* Dark mode: form cards and section cards */
+[data-theme="dark"] .form-card,
+[data-theme="dark"] .form-section-title {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .form-label {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .form-control {
+  background-color: #1f2937;
+  color: #f1f5f9;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .form-control:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+[data-theme="dark"] select.form-control {
+  background-color: #1f2937;
+  color: #f1f5f9;
+}
+
+/* Dark mode: button text readable */
+[data-theme="dark"] .btn--secondary {
+  color: #e2e8f0;
+  border-color: #475569;
+  background-color: #374151;
+}
+
+[data-theme="dark"] .btn--secondary:hover {
+  background-color: #4b5563;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .table thead th {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+  }
+  :root:not([data-theme="light"]) .table tbody td {
+    color: #e2e8f0;
+  }
+}
+
+
+/* Form hint as link */
+.form-hint--link {
+  display: inline-block;
+  margin-top: 0.375rem;
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.form-hint--link:hover {
+  text-decoration: underline;
+}
+
+
+/* ============================================================
+   Fix: Header actions - keep view toggle + buttons on same line
+   ============================================================ */
+
+.page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .page__header-actions {
+    gap: 0.375rem;
+  }
+  .page__header-actions .btn {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+}
+
+
+/* ============================================================
+   Comprehensive Dark Mode — Text Contrast & Interactive States
+   ============================================================ */
+
+/* === Base text === */
+[data-theme="dark"] body,
+[data-theme="dark"] .page,
+[data-theme="dark"] .page__title,
+[data-theme="dark"] .page__subtitle,
+[data-theme="dark"] h1, [data-theme="dark"] h2,
+[data-theme="dark"] h3, [data-theme="dark"] h4 {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] label,
+[data-theme="dark"] .form-label {
+  color: #cbd5e1;
+}
+
+/* === Cards === */
+[data-theme="dark"] .item-card,
+[data-theme="dark"] .match-card-item,
+[data-theme="dark"] .album-card,
+[data-theme="dark"] .announcement-card,
+[data-theme="dark"] .venue-card,
+[data-theme="dark"] .metric-card {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .item-card__name,
+[data-theme="dark"] .match-card-item__team,
+[data-theme="dark"] .announcement-card__title {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .item-card__sub,
+[data-theme="dark"] .match-card-item__date,
+[data-theme="dark"] .announcement-card__excerpt {
+  color: #94a3b8;
+}
+
+/* === Hover states === */
+[data-theme="dark"] .item-card:hover,
+[data-theme="dark"] .match-card-item:hover,
+[data-theme="dark"] .album-card:hover {
+  border-color: #60a5fa;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* === Filters bar === */
+[data-theme="dark"] .filters-bar {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* === Sidebar === */
+[data-theme="dark"] .sidebar {
+  background-color: #111827;
+  border-color: #1f2937;
+}
+
+[data-theme="dark"] .sidebar__link {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .sidebar__link:hover {
+  background-color: #1f2937;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .sidebar__link--active {
+  background-color: #1e3a5f;
+  color: #93c5fd;
+  border-left-color: #60a5fa;
+}
+
+/* === Breadcrumb === */
+[data-theme="dark"] .breadcrumb {
+  color: #94a3b8;
+}
+[data-theme="dark"] .breadcrumb__link {
+  color: #93c5fd;
+}
+
+/* === Scoreboard / vs display === */
+[data-theme="dark"] .match-card-item__vs {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .match-card-item--live .match-card-item__vs {
+  background-color: #064e3b;
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .match-card-item--finished .match-card-item__vs {
+  background-color: #1e3a5f;
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+/* === Buttons focus/active === */
+[data-theme="dark"] .btn--primary:focus-visible {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+}
+
+[data-theme="dark"] .btn--primary:active {
+  background-color: #1d4ed8;
+}
+
+[data-theme="dark"] .btn--ghost {
+  color: #93c5fd;
+}
+
+/* === Empty state === */
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .empty-state__title {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .empty-state__message {
+  color: #94a3b8;
+}
+
+/* === Tab panel === */
+[data-theme="dark"] .tab-nav {
+  background-color: #111827;
+  border-bottom-color: #374151;
+}
+
+[data-theme="dark"] .tab-btn {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .tab-btn:hover {
+  color: #e2e8f0;
+  background-color: #1f2937;
+}
+
+[data-theme="dark"] .tab-btn--active {
+  color: #93c5fd;
+  border-bottom-color: #60a5fa;
+}
+
+/* === Pagination === */
+[data-theme="dark"] .pagination .btn--secondary {
+  background-color: #374151;
+  color: #e2e8f0;
+  border-color: #4b5563;
+}
+
+/* === Dialog/modal === */
+[data-theme="dark"] .dialog,
+[data-theme="dark"] .form-card {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* === Search dialog === */
+[data-theme="dark"] .search-dialog {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .search-input {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .search-result:hover {
+  background-color: #374151;
+}
+
+[data-theme="dark"] .search-result__title {
+  color: #f1f5f9;
+}
+
+/* === Stats / metrics === */
+[data-theme="dark"] .stats-bar {
+  background-color: #1f2937;
+}
+
+[data-theme="dark"] .section-card {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .section-card__title {
+  color: #f1f5f9;
+}
+
+/* === Detail grids === */
+[data-theme="dark"] .detail-item dt {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .detail-item dd {
+  color: #f1f5f9;
+}
+
+/* === Toast container === */
+[data-theme="dark"] .toast {
+  border-color: #374151;
+}
+
+/* === Chart cards === */
+[data-theme="dark"] .chart-card {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* === Score display in tables === */
+[data-theme="dark"] .score,
+[data-theme="dark"] .scoreboard {
+  color: #f1f5f9;
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+/* === Donut / bar chart text === */
+[data-theme="dark"] .donut-center__value,
+[data-theme="dark"] .bar-row__value {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .bar-row__label,
+[data-theme="dark"] .donut-legend__label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .bar-row__track {
+  background-color: #374151;
+}

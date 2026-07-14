@@ -6,11 +6,12 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { PaymentService } from '../payment.service';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { ImageUpload } from '../../../shared/components/image-upload/image-upload';
 import type { PaymentMethod, PaymentStatus } from '../../../core/models';
 
 @Component({
   selector: 'app-payment-form',
-  imports: [ReactiveFormsModule, LoadingSpinner],
+  imports: [ReactiveFormsModule, LoadingSpinner, ImageUpload],
   templateUrl: './payment-form.html',
   styleUrl: './payment-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,8 +40,8 @@ export class PaymentForm implements OnInit {
 
   readonly statusOptions: { value: PaymentStatus; label: string }[] = [
     { value: 'pending', label: 'Pendiente' },
-    { value: 'completed', label: 'Completado' },
-    { value: 'failed', label: 'Fallido' },
+    { value: 'confirmed', label: 'Confirmado' },
+    { value: 'rejected', label: 'Rechazado' },
     { value: 'refunded', label: 'Reembolsado' },
   ];
 
@@ -125,6 +126,8 @@ export class PaymentForm implements OnInit {
       });
     }
   }
+
+  onReceiptUploaded(url: string): void { this.form.patchValue({ reference: url }); }
 
   onCancel(): void { this.router.navigate(['/payments']); }
 

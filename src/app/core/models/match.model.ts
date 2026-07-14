@@ -21,6 +21,9 @@ export interface Match {
   awayTeamName?: string;
   homeScore?:    number | null;
   awayScore?:    number | null;
+  homeSetsWon?:  number;
+  awaySetsWon?:  number;
+  periods?:      Array<{ periodNumber: number; homeScore: number; awayScore: number; status: string }>;
   round?:        string;
   venue?:        string;
 }

@@ -37,9 +37,9 @@
           <dt>Estado</dt>
           <dd>
             <span class="badge"
-              [class.badge--success]="payment()!.status === 'completed'"
+              [class.badge--success]="payment()!.status === 'confirmed'"
               [class.badge--warning]="payment()!.status === 'pending'"
-              [class.badge--error]="payment()!.status === 'failed'"
+              [class.badge--error]="payment()!.status === 'rejected'"
               [class.badge--info]="payment()!.status === 'refunded'">{{ payment()!.status }}</span>
           </dd>
         </div>

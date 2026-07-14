@@ -1,4 +1,6 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { ApiService } from '../../core/services/api.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import type { MatchDetail, MatchPeriod, Match } from '../../core/models/match.model';
@@ -47,11 +49,15 @@ export class RefereeService {
 
   /** Sanction types for the tournament. */
   readonly sanctionTypes = signal<SanctionType[]>([]);
+  private tournamentId: string = '';
 
   /** Sport info. */
   readonly sportSlug = signal<string>('football');
   readonly playersPerTeam = signal<number>(11);
   readonly minPlayersPerTeam = signal<number | null>(null);
+  readonly pointsPerSet = signal<number>(25);
+  readonly winMargin = signal<number>(2);
+  readonly setsToWin = signal<number>(3);
 
   /** Substitution tracking. */
   private readonly _homeSubsUsed = signal<number>(0);
@@ -64,6 +70,20 @@ export class RefereeService {
   readonly awayTeamName = computed(() => this._match()?.awayTeamName ?? 'Visitante');
   readonly homeTeamId = computed(() => this._match()?.homeTeamId ?? '');
   readonly awayTeamId = computed(() => this._match()?.awayTeamId ?? '');
+
+  /** Team colors from DB — with conflict resolution. */
+  readonly homeColor = computed(() => {
+    const m = this._match() as Record<string, unknown> | null;
+    return (m?.['homeColorPrimary'] as string) || '#1e40af';
+  });
+  readonly awayColor = computed(() => {
+    const m = this._match() as Record<string, unknown> | null;
+    const homeC = (m?.['homeColorPrimary'] as string) || '#1e40af';
+    const awayC = (m?.['awayColorPrimary'] as string) || '#dc2626';
+    // If colors are the same, use a contrasting fallback for away
+    if (awayC.toLowerCase() === homeC.toLowerCase()) return '#f59e0b';
+    return awayC;
+  });
 
   readonly hasSets = computed(() => {
     const periods = this._periods();
@@ -124,6 +144,7 @@ export class RefereeService {
           this.loadPlayers();
           this.loadSubstitutionCount();
           this.loadSportRules();
+          this.loadSanctionTypes();
         } else {
           this.error.set('No se pudo cargar el partido');
         }
@@ -155,6 +176,9 @@ export class RefereeService {
       hasSets: boolean;
       hasRotation: boolean;
       maxSubstitutions: number | null;
+      pointsPerSet: number | null;
+      winMargin: number;
+      setsToWin: number | null;
     }>(`/matches/${this.matchId}/sport-rules`).subscribe({
       next: (res) => {
         if (res.success && res.data) {
@@ -164,6 +188,20 @@ export class RefereeService {
           if (res.data.maxSubstitutions !== null) {
             this.subsMax.set(res.data.maxSubstitutions);
           }
+          if (res.data.pointsPerSet) this.pointsPerSet.set(res.data.pointsPerSet);
+          if (res.data.winMargin) this.winMargin.set(res.data.winMargin);
+          if (res.data.setsToWin) this.setsToWin.set(res.data.setsToWin);
+        }
+      },
+    });
+  }
+
+  /** Load sanction types configured for the tournament that owns this match. */
+  private loadSanctionTypes(): void {
+    this.api.get<SanctionType[]>(`/matches/${this.matchId}/sanctions/types`).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.sanctionTypes.set(res.data);
         }
       },
     });
@@ -184,9 +222,10 @@ export class RefereeService {
             position: p.position,
           }));
           this.homePlayers.set(players);
-          // Initially all players are "on court" (until lineup is loaded)
-          this._homeOnCourt.set(players);
-          this._homeOnBench.set([]);
+          // Split: first N players on court (starters), rest on bench
+          const courtSize = this.playersPerTeam() || 6;
+          this._homeOnCourt.set(players.slice(0, courtSize));
+          this._homeOnBench.set(players.slice(courtSize));
         }
       },
     });
@@ -202,8 +241,9 @@ export class RefereeService {
             position: p.position,
           }));
           this.awayPlayers.set(players);
-          this._awayOnCourt.set(players);
-          this._awayOnBench.set([]);
+          const courtSize = this.playersPerTeam() || 6;
+          this._awayOnCourt.set(players.slice(0, courtSize));
+          this._awayOnBench.set(players.slice(courtSize));
         }
       },
     });
@@ -310,12 +350,36 @@ export class RefereeService {
     playerInId: string;
     minute: number | null;
   }): void {
+    // Enrich with player names for event log
+    const match = this._match();
+    const allPlayers = match?.homeTeamId === dto.teamId
+      ? this.homePlayers()
+      : this.awayPlayers();
+    const playerOut = allPlayers.find((p) => p.id === dto.playerOutId);
+    const playerIn = allPlayers.find((p) => p.id === dto.playerInId);
+
     this.api.post(`/matches/${this.matchId}/substitutions`, dto).subscribe({
       next: () => {
         this.loadEvents();
         this.loadSubstitutionCount();
         this.swapPlayer(dto.teamId, dto.playerOutId, dto.playerInId);
         this.toast.success('Cambio registrado');
+
+        // Record an enriched event for the timeline
+        this.api.post(`/matches/${this.matchId}/events`, {
+          eventType: 'substitution',
+          teamId: dto.teamId,
+          periodNumber: dto.periodNumber,
+          matchMinute: dto.minute,
+          payload: {
+            playerOutId: dto.playerOutId,
+            playerInId: dto.playerInId,
+            playerOutName: playerOut?.name ?? '',
+            playerInName: playerIn?.name ?? '',
+            playerOutJersey: playerOut?.jerseyNumber ?? null,
+            playerInJersey: playerIn?.jerseyNumber ?? null,
+          },
+        }).subscribe({ next: () => this.loadEvents() });
       },
       error: (err) => {
         const msg = err?.error?.message ?? 'Error al registrar sustitución';
@@ -438,5 +502,33 @@ export class RefereeService {
 
   onTimerExpired(): void {
     // Could auto-end period
+  }
+
+  // ── Setup & Lineup loading (for rotation initialization) ──────────────────
+
+  /** Loads the saved match setup (coin toss, field sides, first serve). */
+  getMatchSetup(): import('rxjs').Observable<{ firstServeTeamId: string | null; fieldSideHome: string | null; fieldSideAway: string | null } | null> {
+    return this.api.get<{ firstServeTeamId: string | null; fieldSideHome: string | null; fieldSideAway: string | null }>(`/matches/${this.matchId}/setup`).pipe(
+      map((res) => res.success ? res.data : null),
+      catchError(() => of(null)),
+    );
+  }
+
+  /** Loads saved lineups for both teams. */
+  getMatchLineups(): import('rxjs').Observable<{ home: Array<{ playerId: string; isStarter: boolean; isCaptain: boolean; isLibero: boolean; volleyballZone: number | null }>; away: Array<{ playerId: string; isStarter: boolean; isCaptain: boolean; isLibero: boolean; volleyballZone: number | null }> } | null> {
+    const homeId = this._match()?.homeTeamId;
+    const awayId = this._match()?.awayTeamId;
+    if (!homeId || !awayId) return of(null);
+
+    return forkJoin({
+      home: this.api.get<Array<{ playerId: string; isStarter: boolean; isCaptain: boolean; isLibero: boolean; volleyballZone: number | null }>>(`/matches/${this.matchId}/match-lineups/${homeId}`).pipe(
+        map((r) => r.data ?? []),
+        catchError(() => of([])),
+      ),
+      away: this.api.get<Array<{ playerId: string; isStarter: boolean; isCaptain: boolean; isLibero: boolean; volleyballZone: number | null }>>(`/matches/${this.matchId}/match-lineups/${awayId}`).pipe(
+        map((r) => r.data ?? []),
+        catchError(() => of([])),
+      ),
+    });
   }
 }

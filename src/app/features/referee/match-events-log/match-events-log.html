@@ -11,7 +11,12 @@
             <span class="events-log__icon">{{ getIcon(event.eventType) }}</span>
             <div class="events-log__content">
               <span class="events-log__label">{{ getLabel(event) }}</span>
-              <span class="events-log__time">{{ formatTime(event) }} · P{{ event.periodNumber }}</span>
+              <div class="events-log__meta">
+                <span class="events-log__time">{{ formatTime(event) }} · P{{ event.periodNumber }}</span>
+                @if (event.partialScore) {
+                  <span class="events-log__score">{{ getPartialScore(event) }}</span>
+                }
+              </div>
             </div>
           </li>
         }

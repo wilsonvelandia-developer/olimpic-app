@@ -79,8 +79,8 @@ export const EN_TRANSLATIONS: Record<string, string> = {
   'payment.title': 'Payments',
   'payment.create': 'New payment',
   'payment.status.pending': 'Pending',
-  'payment.status.completed': 'Completed',
-  'payment.status.failed': 'Failed',
+  'payment.status.confirmed': 'Confirmed',
+  'payment.status.rejected': 'Rejected',
   'payment.status.refunded': 'Refunded',
 
   // Venues

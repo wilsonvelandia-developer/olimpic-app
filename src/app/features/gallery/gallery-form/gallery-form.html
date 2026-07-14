@@ -51,6 +51,32 @@
           </button>
         </div>
       </form>
+
+      <!-- ═══ Multi-image upload section ═══ -->
+      @if (isEditMode()) {
+        <div class="album-photos-section">
+          <h2 class="form-section-title">🖼️ Fotos del álbum</h2>
+          <p class="form-hint">Sube las fotos que conforman este álbum.</p>
+
+          <div class="photos-grid">
+            @for (photo of albumPhotos(); track photo.url) {
+              <div class="photo-thumb">
+                <img [src]="photo.url" alt="Foto del álbum" loading="lazy" />
+                <button type="button" class="photo-thumb__remove" (click)="onRemovePhoto(photo.url)" title="Eliminar">&times;</button>
+              </div>
+            }
+          </div>
+
+          <div class="photo-upload-zone">
+            <app-image-upload label="Agregar fotos al álbum" folder="gallery/photos"
+              (uploaded)="onPhotoAdded($event)" />
+          </div>
+
+          @if (isUploadingPhotos()) {
+            <p class="upload-status">Subiendo fotos... {{ uploadedCount() }}/{{ totalToUpload() }}</p>
+          }
+        </div>
+      }
     </div>
   }
 </section>

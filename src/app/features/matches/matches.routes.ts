@@ -30,4 +30,9 @@ export const MATCH_ROUTES: Routes = [
     path: ':id/sheet',
     loadComponent: () => import('./match-sheet/match-sheet').then((m) => m.MatchSheet),
   },
+  {
+    // Match detail — view match info, scores, teams
+    path: ':id',
+    loadComponent: () => import('./match-detail/match-detail').then((m) => m.MatchDetail),
+  },
 ];

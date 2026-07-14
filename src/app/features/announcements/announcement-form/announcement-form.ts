@@ -56,6 +56,12 @@ export class AnnouncementForm implements OnInit {
       next: (res) => { if (res.success && res.data) this.tournaments.set(res.data); },
     });
 
+    // Pre-select tournament from query param (when coming from tournament-detail)
+    const queryTournamentId = this.route.snapshot.queryParamMap.get('tournamentId');
+    if (queryTournamentId) {
+      this.form.patchValue({ tournamentId: queryTournamentId });
+    }
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);
@@ -82,6 +88,15 @@ export class AnnouncementForm implements OnInit {
     });
   }
 
+  private navigateBack(): void {
+    const returnTournamentId = this.route.snapshot.queryParamMap.get('tournamentId');
+    if (returnTournamentId) {
+      this.router.navigate(['/tournaments', returnTournamentId]);
+    } else {
+      this.router.navigate(['/announcements']);
+    }
+  }
+
   onSubmit(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.isSaving.set(true);
@@ -99,7 +114,7 @@ export class AnnouncementForm implements OnInit {
         status: v.status!,
         imageUrl: v.imageUrl || null,
       }).subscribe({
-        next: () => { this.isSaving.set(false); this.router.navigate(['/announcements']); },
+        next: () => { this.isSaving.set(false); this.navigateBack(); },
         error: () => { this.errorMessage.set('No se pudo guardar el comunicado.'); this.isSaving.set(false); },
       });
     } else {
@@ -111,13 +126,13 @@ export class AnnouncementForm implements OnInit {
         status: v.status!,
         imageUrl: v.imageUrl || null,
       }).subscribe({
-        next: () => { this.isSaving.set(false); this.router.navigate(['/announcements']); },
+        next: () => { this.isSaving.set(false); this.navigateBack(); },
         error: () => { this.errorMessage.set('No se pudo guardar el comunicado.'); this.isSaving.set(false); },
       });
     }
   }
 
-  onCancel(): void { this.router.navigate(['/announcements']); }
+  onCancel(): void { this.navigateBack(); }
 
   isFieldInvalid(f: string): boolean { const c = this.form.get(f); return !!(c?.invalid && c?.touched); }
   getFieldError(f: string): string {

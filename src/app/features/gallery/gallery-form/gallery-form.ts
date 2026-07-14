@@ -29,6 +29,12 @@ export class GalleryForm implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly tournaments = signal<Array<{ id: string; name: string }>>([]);
 
+  /** Album photos (multi-image). */
+  readonly albumPhotos = signal<Array<{ url: string; path?: string }>>([]);
+  readonly isUploadingPhotos = signal<boolean>(false);
+  readonly uploadedCount = signal<number>(0);
+  readonly totalToUpload = signal<number>(0);
+
   readonly form = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
     description: [''],
@@ -40,6 +46,12 @@ export class GalleryForm implements OnInit {
     this.api.get<Array<{ id: string; name: string }>>('/tournaments').subscribe({
       next: (res) => { if (res.success && res.data) this.tournaments.set(res.data); },
     });
+
+    // Pre-select tournament from query param (when coming from tournament-detail)
+    const queryTournamentId = this.route.snapshot.queryParamMap.get('tournamentId');
+    if (queryTournamentId) {
+      this.form.patchValue({ tournamentId: queryTournamentId });
+    }
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
@@ -60,9 +72,19 @@ export class GalleryForm implements OnInit {
           coverUrl: a.coverUrl ?? '',
         });
         this.isLoading.set(false);
+        this.loadAlbumPhotos(id);
       },
       error: () => { this.errorMessage.set('No se pudo cargar el álbum.'); this.isLoading.set(false); },
     });
+  }
+
+  private navigateBack(): void {
+    const returnTournamentId = this.route.snapshot.queryParamMap.get('tournamentId');
+    if (returnTournamentId) {
+      this.router.navigate(['/tournaments', returnTournamentId]);
+    } else {
+      this.router.navigate(['/gallery']);
+    }
   }
 
   onSubmit(): void {
@@ -79,7 +101,7 @@ export class GalleryForm implements OnInit {
         description: v.description || null,
         coverUrl: v.coverUrl || null,
       }).subscribe({
-        next: () => { this.isSaving.set(false); this.router.navigate(['/gallery']); },
+        next: () => { this.isSaving.set(false); this.navigateBack(); },
         error: () => { this.errorMessage.set('No se pudo guardar el álbum.'); this.isSaving.set(false); },
       });
     } else {
@@ -89,7 +111,7 @@ export class GalleryForm implements OnInit {
         tournamentId: v.tournamentId || null,
         coverUrl: v.coverUrl || null,
       }).subscribe({
-        next: () => { this.isSaving.set(false); this.router.navigate(['/gallery']); },
+        next: () => { this.isSaving.set(false); this.navigateBack(); },
         error: () => { this.errorMessage.set('No se pudo guardar el álbum.'); this.isSaving.set(false); },
       });
     }
@@ -99,7 +121,42 @@ export class GalleryForm implements OnInit {
     this.form.patchValue({ coverUrl: url });
   }
 
-  onCancel(): void { this.router.navigate(['/gallery']); }
+  /** Adds a photo to the album (saves to backend immediately). */
+  onPhotoAdded(url: string): void {
+    const current = this.albumPhotos();
+    this.albumPhotos.set([...current, { url }]);
+
+    // Save photo to backend
+    const albumId = this.albumId();
+    if (albumId) {
+      this.api.post(`/gallery/${albumId}/photos`, { imageUrl: url }).subscribe();
+    }
+  }
+
+  /** Removes a photo from the album. */
+  onRemovePhoto(url: string): void {
+    const current = this.albumPhotos();
+    this.albumPhotos.set(current.filter((p) => p.url !== url));
+
+    // Remove from backend
+    const albumId = this.albumId();
+    if (albumId) {
+      this.api.post(`/gallery/${albumId}/photos/remove`, { imageUrl: url }).subscribe();
+    }
+  }
+
+  /** Loads existing photos for an album in edit mode. */
+  private loadAlbumPhotos(albumId: string): void {
+    this.api.get<Array<{ imageUrl: string }>>(`/gallery/${albumId}/photos`).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.albumPhotos.set(res.data.map((p) => ({ url: p.imageUrl })));
+        }
+      },
+    });
+  }
+
+  onCancel(): void { this.navigateBack(); }
 
   isFieldInvalid(f: string): boolean { const c = this.form.get(f); return !!(c?.invalid && c?.touched); }
   getFieldError(f: string): string {

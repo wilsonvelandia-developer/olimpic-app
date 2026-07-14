@@ -52,7 +52,7 @@ export class TournamentPayments implements OnInit {
   }
 
   get totalCollected(): number {
-    return this.payments().filter((p) => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
+    return this.payments().filter((p) => p.status === 'confirmed').reduce((sum, p) => sum + p.amount, 0);
   }
 
   get pendingCount(): number {

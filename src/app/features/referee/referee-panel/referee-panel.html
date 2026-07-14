@@ -52,42 +52,105 @@
           </button>
         </div>
       } @else {
-        <app-scoreboard
-          [homeTeamName]="ref.homeTeamName()"
-          [awayTeamName]="ref.awayTeamName()"
-          [homeScore]="ref.currentPeriodHomeScore()"
-          [awayScore]="ref.currentPeriodAwayScore()"
-          [homeSetsWon]="ref.homeSetsWon()"
-          [awaySetsWon]="ref.awaySetsWon()"
-          [periodLabel]="ref.currentPeriodLabel()"
-          [hasSets]="ref.hasSets()"
-          [disabled]="ref.matchStatus() !== 'in_progress'"
-          (homeScoreUp)="onHomeScoreUp()"
-          (homeScoreDown)="onHomeScoreDown()"
-          (awayScoreUp)="onAwayScoreUp()"
-          (awayScoreDown)="onAwayScoreDown()"
-        />
+        <!-- ═══ MATCH IN PROGRESS LAYOUT ═══ -->
+
+        <!-- Scoreboard header -->
+        <div class="match-scoreboard">
+          <div class="match-scoreboard__team match-scoreboard__team--a">
+            <span class="match-scoreboard__name" [style.color]="sideAColor()">{{ sideAName() }}</span>
+            <span class="match-scoreboard__score">{{ sideAScore() }}</span>
+          </div>
+          <div class="match-scoreboard__center">
+            <span class="match-scoreboard__set">{{ ref.currentPeriodLabel() }}</span>
+            @if (ref.hasSets() && (sideASets() > 0 || sideBSets() > 0)) {
+              <span class="match-scoreboard__sets-info">{{ sideASets() }} - {{ sideBSets() }}</span>
+            }
+          </div>
+          <div class="match-scoreboard__team match-scoreboard__team--b">
+            <span class="match-scoreboard__name" [style.color]="sideBColor()">{{ sideBName() }}</span>
+            <span class="match-scoreboard__score">{{ sideBScore() }}</span>
+          </div>
+        </div>
+
+        <!-- Serve indicator (only when court is NOT shown — court has its own) -->
+        @if (!showCourt()) {
+          <div class="match-serve">
+            <span class="match-serve__ball" [class.match-serve__ball--active]="isServingSideA()">{{ sportBallIcon() }}</span>
+            <span class="match-serve__label">SAQUE</span>
+            <span class="match-serve__ball" [class.match-serve__ball--active]="!isServingSideA()">{{ sportBallIcon() }}</span>
+          </div>
+        }
+
+        <!-- Court with side buttons -->
+        <div class="match-play-area">
+          <!-- Side A actions (left) -->
+          <div class="match-side">
+            <button type="button" class="side-btn" (click)="openSubstitution(sideATeam())" title="Cambio">🔀</button>
+            <button type="button" class="side-btn" (click)="openSanction(sideATeam())" title="Sanción">🟨</button>
+            <button type="button" class="side-btn side-btn--score" [style.background]="sideAColor()" (click)="onSideAScoreUp()">+1</button>
+            <button type="button" class="side-btn side-btn--minus" (click)="onSideAScoreDown()" title="Restar punto">-1</button>
+            @if (showCourt()) {
+              <button type="button" class="side-btn side-btn--rotate" (click)="onManualRotate(sideATeam(), 'forward')" title="Rotar →">↻</button>
+              <button type="button" class="side-btn side-btn--rotate" (click)="onManualRotate(sideATeam(), 'backward')" title="Rotar ←">↺</button>
+            }
+          </div>
+
+          <!-- Court (center) -->
+          <div class="match-court-wrapper">
+            @if (showCourt()) {
+              <app-volleyball-court
+                [state]="courtState()"
+                [homeLabel]="sideBName()"
+                [awayLabel]="sideAName()"
+                [homeSubs]="sideBBenchPlayers()"
+                [awaySubs]="sideABenchPlayers()"
+              />
+            } @else {
+              <div class="match-court-placeholder">
+                <span>{{ sportBallIcon() }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Side B actions (right) -->
+          <div class="match-side">
+            <button type="button" class="side-btn" (click)="openSubstitution(sideBTeam())" title="Cambio">🔀</button>
+            <button type="button" class="side-btn" (click)="openSanction(sideBTeam())" title="Sanción">🟨</button>
+            <button type="button" class="side-btn side-btn--score" [style.background]="sideBColor()" (click)="onSideBScoreUp()">+1</button>
+            <button type="button" class="side-btn side-btn--minus" (click)="onSideBScoreDown()" title="Restar punto">-1</button>
+            @if (showCourt()) {
+              <button type="button" class="side-btn side-btn--rotate" (click)="onManualRotate(sideBTeam(), 'forward')" title="Rotar →">↻</button>
+              <button type="button" class="side-btn side-btn--rotate" (click)="onManualRotate(sideBTeam(), 'backward')" title="Rotar ←">↺</button>
+            }
+          </div>
+        </div>
       }
     </main>
 
-    <!-- Action bar -->
+    <!-- General action bar (bottom) -->
     @if (ref.matchStatus() === 'in_progress') {
+      <!-- Decisive set toss dialog -->
+      @if (showDecisiveToss()) {
+        <div class="decisive-toss-overlay">
+          <div class="decisive-toss-dialog">
+            <h3>Set decisivo — Nuevo sorteo</h3>
+            <p>Seleccione quién saca y quién elige lado A:</p>
+            <div class="decisive-toss-actions">
+              <button type="button" class="btn btn--primary" (click)="onDecisiveToss('home', 'away')">
+                {{ ref.homeTeamName() }} saca / {{ ref.awayTeamName() }} lado A
+              </button>
+              <button type="button" class="btn btn--secondary" (click)="onDecisiveToss('away', 'home')">
+                {{ ref.awayTeamName() }} saca / {{ ref.homeTeamName() }} lado A
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
       <footer class="referee-panel__actions">
-        <button type="button" class="referee-panel__action-btn" (click)="openSubstitution('home')">
-          <span class="referee-panel__action-icon">🔀</span>
-          <span class="referee-panel__action-label">Cambio L</span>
-        </button>
-        <button type="button" class="referee-panel__action-btn" (click)="openSubstitution('away')">
-          <span class="referee-panel__action-icon">🔀</span>
-          <span class="referee-panel__action-label">Cambio V</span>
-        </button>
-        <button type="button" class="referee-panel__action-btn" (click)="openSanction('home')">
-          <span class="referee-panel__action-icon">🟨</span>
-          <span class="referee-panel__action-label">Sanción L</span>
-        </button>
-        <button type="button" class="referee-panel__action-btn" (click)="openSanction('away')">
-          <span class="referee-panel__action-icon">🟨</span>
-          <span class="referee-panel__action-label">Sanción V</span>
+        <button type="button" class="referee-panel__action-btn" (click)="onUndoLast()">
+          <span class="referee-panel__action-icon">↩️</span>
+          <span class="referee-panel__action-label">Deshacer</span>
         </button>
         <button type="button" class="referee-panel__action-btn" (click)="toggleEventsLog()">
           <span class="referee-panel__action-icon">📋</span>
@@ -95,7 +158,7 @@
         </button>
         <button type="button" class="referee-panel__action-btn" (click)="onEndPeriod()">
           <span class="referee-panel__action-icon">⏭</span>
-          <span class="referee-panel__action-label">Fin Per.</span>
+          <span class="referee-panel__action-label">Fin Set</span>
         </button>
         <button type="button" class="referee-panel__action-btn referee-panel__action-btn--danger" (click)="onFinishMatch()">
           <span class="referee-panel__action-icon">🏁</span>
@@ -116,7 +179,7 @@
   <!-- Scorer Select -->
   <app-scorer-select
     [visible]="showScorerSelect()"
-    [players]="ref.getPlayersOnCourt(scoringTeamSide())"
+    [players]="scoringPlayersOnCourt()"
     [teamName]="scoringTeamName()"
     (playerSelected)="onScorerSelected($event)"
     (skipped)="onScorerSkipped()"
@@ -126,8 +189,8 @@
   <!-- Substitution Dialog -->
   <app-substitution-dialog
     [visible]="showSubstitution()"
-    [playersOnCourt]="ref.getPlayersOnCourt(activeTeamSide())"
-    [playersOnBench]="ref.getPlayersOnBench(activeTeamSide())"
+    [playersOnCourt]="activePlayersOnCourt()"
+    [playersOnBench]="activePlayersOnBench()"
     [teamName]="activeTeamName()"
     [teamId]="activeTeamId()"
     [currentMinute]="currentMinute()"

@@ -21,10 +21,11 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Sedes',          route: '/venues',               icon: '🏟️' },
   { label: 'Comunicados',    route: '/announcements',        icon: '📢' },
   { label: 'Galería',        route: '/gallery',              icon: '📸' },
-  { label: 'Pagos',          route: '/payments',             icon: '💰', minRole: 'organizer' },
+  { label: 'Pagos',          route: '/payments',             icon: '💰', minRole: 'president' },
   { label: 'Árbitros',       route: '/referee-management',   icon: '🧑‍⚖️', minRole: 'organizer' },
-  { label: 'Chat',           route: '/chat',                 icon: '💬', minRole: 'organizer' },
+  { label: 'Chat',           route: '/chat',                 icon: '💬', minRole: 'president' },
   { label: 'Árbitro',        route: '/referee',              icon: '🏁', minRole: 'referee' },
+  { label: 'Observaciones',  route: '/observations',         icon: '📝', minRole: 'observer' },
   { label: 'Deportes',       route: '/sports',               icon: '🎯', minRole: 'admin' },
   { label: 'Usuarios',       route: '/users',                icon: '🔐', minRole: 'organizer' },
 ];

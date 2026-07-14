@@ -143,6 +143,18 @@ export class MatchList implements OnInit {
 
   canRegisterResult(m: Match): boolean { return m.status === 'scheduled' || m.status === 'in_progress'; }
 
+  /** Determines if a match is set-based (volleyball) based on having > 2 periods or setsWon data. */
+  isSetBased(m: Match): boolean {
+    return (m.homeSetsWon !== undefined && m.homeSetsWon !== null && (m.homeSetsWon > 0 || (m.awaySetsWon ?? 0) > 0))
+      || (m.periods !== undefined && m.periods.length > 2);
+  }
+
+  /** Returns finished periods for set score display. */
+  getFinishedPeriods(m: Match): Array<{ periodNumber: number; homeScore: number; awayScore: number }> {
+    if (!m.periods) return [];
+    return m.periods.filter((p) => p.status === 'finished' || p.homeScore > 0 || p.awayScore > 0);
+  }
+
   teamLabel(m: Match, side: 'home' | 'away'): string {
     const id = side === 'home' ? m.homeTeamId : m.awayTeamId;
     return m[side === 'home' ? 'homeTeamName' : 'awayTeamName']

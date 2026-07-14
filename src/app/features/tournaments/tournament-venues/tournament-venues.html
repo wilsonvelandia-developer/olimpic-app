@@ -5,7 +5,10 @@
     <div class="tab-section__header">
       <h3 class="tab-section__title">🏟️ Sedes del torneo</h3>
       @if (auth.canEdit()) {
-        <button type="button" class="btn btn--secondary btn--sm" (click)="onManageVenues()">Gestionar sedes</button>
+        <div class="tab-section__actions">
+          <button type="button" class="btn btn--primary btn--sm" (click)="showLinkDialog.set(true)">+ Vincular sede</button>
+          <button type="button" class="btn btn--secondary btn--sm" (click)="onManageVenues()">Gestionar sedes</button>
+        </div>
       }
     </div>
 
@@ -20,13 +23,44 @@
               <span class="venue-card__address">{{ v.address }}, {{ v.city }}</span>
               @if (v.capacity) { <span class="venue-card__capacity">Capacidad: {{ v.capacity }}</span> }
             </div>
-            <span class="badge"
-              [class.badge--success]="v.status === 'active'"
-              [class.badge--warning]="v.status === 'maintenance'"
-              [class.badge--muted]="v.status === 'inactive'">{{ v.status }}</span>
+            <div class="venue-card__right">
+              <span class="badge"
+                [class.badge--success]="v.status === 'active'"
+                [class.badge--warning]="v.status === 'maintenance'"
+                [class.badge--muted]="v.status === 'inactive'">{{ v.status }}</span>
+              @if (auth.canEdit()) {
+                <button type="button" class="btn btn--ghost btn--sm btn--danger"
+                  (click)="onUnlinkVenue($event, v.id)" title="Desvincular sede">✕</button>
+              }
+            </div>
           </article>
         }
       </div>
     }
+  </div>
+}
+
+<!-- Link Venue Dialog -->
+@if (showLinkDialog()) {
+  <div class="dialog-backdrop" (click)="showLinkDialog.set(false)">
+    <div class="dialog" (click)="$event.stopPropagation()">
+      <h3 class="dialog__title">Vincular sede al torneo</h3>
+      @if (allVenues().length === 0) {
+        <p class="dialog__empty">No hay sedes disponibles. Crea una primero.</p>
+      } @else {
+        <ul class="dialog__list">
+          @for (v of availableVenues(); track v.id) {
+            <li class="dialog__item" (click)="onLinkVenue(v.id)">
+              <span>{{ v.name }}</span>
+              <span class="dialog__item-sub">{{ v.city ?? v.address ?? '' }}</span>
+            </li>
+          }
+        </ul>
+        @if (availableVenues().length === 0) {
+          <p class="dialog__empty">Todas las sedes ya están vinculadas.</p>
+        }
+      }
+      <button type="button" class="btn btn--secondary btn--sm dialog__close" (click)="showLinkDialog.set(false)">Cerrar</button>
+    </div>
   </div>
 }

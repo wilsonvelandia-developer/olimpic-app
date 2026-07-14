@@ -29,8 +29,8 @@
       <select id="paymentStatus" class="form-control" [(ngModel)]="statusModel" (change)="onApplyFilters()">
         <option value="">Todos</option>
         <option value="pending">Pendiente</option>
-        <option value="completed">Completado</option>
-        <option value="failed">Fallido</option>
+        <option value="confirmed">Confirmado</option>
+        <option value="rejected">Rechazado</option>
         <option value="refunded">Reembolsado</option>
       </select>
     </div>
@@ -73,9 +73,9 @@
                 <td>{{ payment.method }}</td>
                 <td>
                   <span class="badge"
-                    [class.badge--success]="payment.status === 'completed'"
+                    [class.badge--success]="payment.status === 'confirmed'"
                     [class.badge--warning]="payment.status === 'pending'"
-                    [class.badge--error]="payment.status === 'failed'"
+                    [class.badge--error]="payment.status === 'rejected'"
                     [class.badge--info]="payment.status === 'refunded'">{{ payment.status }}</span>
                 </td>
                 <td>{{ payment.paidAt ? (payment.paidAt | date:'shortDate') : '—' }}</td>

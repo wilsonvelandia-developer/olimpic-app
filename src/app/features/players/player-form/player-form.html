@@ -76,6 +76,16 @@
           </div>
         </div>
 
+        <!-- ═══ Foto del jugador ═══ -->
+        <h2 class="form-section-title">📷 Foto del jugador</h2>
+        <div class="form-grid">
+          <div class="form-group form-group--full">
+            <app-image-upload label="Foto del jugador (tomar foto o subir archivo)" folder="players/photos"
+              [currentUrl]="form.get('photoUrl')?.value ?? null"
+              (uploaded)="onPhotoUploaded($event)" />
+          </div>
+        </div>
+
         <!-- ═══ Datos en el equipo ═══ -->
         <h2 class="form-section-title">🏋️ Datos en el equipo</h2>
         <div class="form-grid">
@@ -101,6 +111,26 @@
             Al primer ingreso se le pedirá cambiarla.
           </div>
         }
+
+        <!-- ═══ Documentos ═══ -->
+        <h2 class="form-section-title">📄 Documentos</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <app-image-upload label="Documento de identidad (frente)" folder="players/documents"
+              [currentUrl]="form.get('documentFrontUrl')?.value ?? null"
+              (uploaded)="onDocFrontUploaded($event)" />
+          </div>
+          <div class="form-group">
+            <app-image-upload label="Documento de identidad (reverso)" folder="players/documents"
+              [currentUrl]="form.get('documentBackUrl')?.value ?? null"
+              (uploaded)="onDocBackUploaded($event)" />
+          </div>
+          <div class="form-group form-group--full">
+            <app-image-upload label="Certificado EPS / Afiliación" folder="players/eps"
+              [currentUrl]="form.get('epsFileUrl')?.value ?? null"
+              (uploaded)="onEpsUploaded($event)" />
+          </div>
+        </div>
 
         <!-- ═══ Acciones ═══ -->
         <div class="form-actions">

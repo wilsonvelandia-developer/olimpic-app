@@ -3,7 +3,7 @@
  * IDs are UUIDs (string).
  */
 
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type PaymentStatus = 'pending' | 'confirmed' | 'rejected' | 'refunded';
 export type PaymentMethod = 'cash' | 'transfer' | 'card' | 'other';
 
 export interface Payment {

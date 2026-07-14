@@ -39,9 +39,9 @@
                 <td>{{ p.method }}</td>
                 <td>
                   <span class="badge"
-                    [class.badge--success]="p.status === 'completed'"
+                    [class.badge--success]="p.status === 'confirmed'"
                     [class.badge--warning]="p.status === 'pending'"
-                    [class.badge--error]="p.status === 'failed'"
+                    [class.badge--error]="p.status === 'rejected'"
                     [class.badge--info]="p.status === 'refunded'">{{ p.status }}</span>
                 </td>
                 <td>{{ p.paidAt ? (p.paidAt | date:'shortDate') : '—' }}</td>

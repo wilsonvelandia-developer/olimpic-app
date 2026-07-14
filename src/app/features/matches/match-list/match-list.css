@@ -175,3 +175,26 @@
   .matches-grid { grid-template-columns: 1fr; }
   .match-card-item__actions { opacity: 1; }
 }
+
+/* ═══ Volleyball Set Scores ═══ */
+.match-card-item__sets {
+  display: flex; flex-wrap: wrap; gap: 0.25rem;
+  justify-content: center; margin-top: 0.25rem;
+}
+.match-card-item__set-score {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary, #f3f4f6);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-sm, 3px);
+}
+.table__sets {
+  display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem;
+}
+.table__sets span {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary, #f3f4f6);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
