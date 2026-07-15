@@ -37,6 +37,9 @@ export class RefereeService {
   private readonly _periods = signal<MatchPeriod[]>([]);
   readonly events = signal<MatchEventItem[]>([]);
 
+  /** Public read-only access to periods (for match summary). */
+  readonly periods = this._periods.asReadonly();
+
   /** Players loaded from teams API. */
   readonly homePlayers = signal<PlayerOption[]>([]);
   readonly awayPlayers = signal<PlayerOption[]>([]);

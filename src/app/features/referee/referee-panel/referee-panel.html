@@ -179,6 +179,80 @@
     />
   </div>
 
+  <!-- ═══ Set Transition Dialog ═══ -->
+  @if (showSetTransition()) {
+    <div class="decisive-toss-overlay">
+      <div class="decisive-toss-dialog" style="max-width: 500px;">
+        <h3>🏐 Fin del Set {{ ref.currentPeriod()?.periodNumber ? ref.currentPeriod()!.periodNumber - 1 : '' }}</h3>
+        <p>El nuevo set comenzará cuando reanude el tiempo o sume un punto.</p>
+        <p style="font-size: 0.85rem; color: var(--color-text-secondary);">
+          Puede realizar cambios de jugadores antes de continuar.
+        </p>
+        <div class="decisive-toss-actions">
+          <button type="button" class="btn btn--primary" (click)="onSetTransitionConfirmed()">
+            ✅ Continuar partido
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══ Match Summary (shown after finishing) ═══ -->
+  @if (showMatchSummary()) {
+    <div class="decisive-toss-overlay" style="overflow-y: auto;">
+      <div class="match-summary">
+        <h2 class="match-summary__title">🏆 Partido Finalizado</h2>
+
+        <!-- Score -->
+        <div class="match-summary__score">
+          <div class="match-summary__team" [class.match-summary__team--winner]="ref.homeSetsWon() > ref.awaySetsWon()">
+            <span class="match-summary__team-name">{{ ref.homeTeamName() }}</span>
+            <span class="match-summary__sets">{{ ref.homeSetsWon() }}</span>
+          </div>
+          <span class="match-summary__vs">—</span>
+          <div class="match-summary__team" [class.match-summary__team--winner]="ref.awaySetsWon() > ref.homeSetsWon()">
+            <span class="match-summary__sets">{{ ref.awaySetsWon() }}</span>
+            <span class="match-summary__team-name">{{ ref.awayTeamName() }}</span>
+          </div>
+        </div>
+
+        <!-- Set detail -->
+        <div class="match-summary__detail">
+          <h4>Detalle por set</h4>
+          <div class="match-summary__periods">
+            @for (p of ref.periods(); track p.id) {
+              <span class="match-summary__period">
+                Set {{ p.periodNumber }}: <strong>{{ p.homeScore }} - {{ p.awayScore }}</strong>
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- MVP Selection -->
+        <div class="match-summary__mvp">
+          <h4>⭐ MVP del partido</h4>
+          @if (selectedMvp()) {
+            <p class="match-summary__mvp-selected">{{ selectedMvp()!.playerName }}</p>
+          } @else {
+            <p style="font-size: 0.85rem; color: var(--color-text-secondary);">Seleccione el jugador más valioso:</p>
+            <div class="match-summary__mvp-options">
+              @for (p of scoringPlayersOnCourt(); track p.id) {
+                <button type="button" class="btn btn--ghost btn--sm" (click)="onSelectMvp(p.id, p.name)">
+                  #{{ p.jerseyNumber }} {{ p.name }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Back button -->
+        <button type="button" class="btn btn--primary btn--lg" style="margin-top: 1.5rem; width: 100%;" (click)="onBackToMatchList()">
+          ← Volver al listado de partidos
+        </button>
+      </div>
+    </div>
+  }
+
   <!-- ═══ Dialogs ═══ -->
 
   <!-- Scorer Select -->

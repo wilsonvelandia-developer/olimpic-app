@@ -54,6 +54,9 @@ export class RefereePanel implements OnInit, OnDestroy {
   readonly showSubstitution = signal<boolean>(false);
   readonly showSanction = signal<boolean>(false);
   readonly showSetup = signal<boolean>(false);
+  readonly showSetTransition = signal<boolean>(false);
+  readonly showMatchSummary = signal<boolean>(false);
+  readonly selectedMvp = signal<{ playerId: string; playerName: string } | null>(null);
 
   /** WebSocket connection status. */
   readonly wsConnected = this.socket.isConnected;
@@ -107,6 +110,20 @@ export class RefereePanel implements OnInit, OnDestroy {
     // Side A = bottom of court (away half in component)
     // Side B = top of court (home half in component)
     const homeOnA = sideA === 'home';
+
+    // Map servingTeam to visual position:
+    // 'home' in courtState means the TOP half (Side B) is serving
+    // 'away' in courtState means the BOTTOM half (Side A) is serving
+    const rawServing = this.rotation.servingTeam();
+    let visualServing: 'home' | 'away';
+    if (homeOnA) {
+      // home=bottom, away=top → if home serves → bottom serves → visual 'away'
+      visualServing = rawServing === 'home' ? 'away' : 'home';
+    } else {
+      // home=top, away=bottom → if home serves → top serves → visual 'home'
+      visualServing = rawServing;
+    }
+
     return {
       // Top of court (home half) = Side B team
       homePlayers: homeOnA ? this.rotation.awayPositions() : this.rotation.homePositions(),
@@ -114,7 +131,9 @@ export class RefereePanel implements OnInit, OnDestroy {
       awayPlayers: homeOnA ? this.rotation.homePositions() : this.rotation.awayPositions(),
       homeColor: homeOnA ? this.ref.awayColor() : this.ref.homeColor(),
       awayColor: homeOnA ? this.ref.homeColor() : this.ref.awayColor(),
-      servingTeam: this.rotation.servingTeam(),
+      servingTeam: visualServing,
+    };
+  });
     };
   });
 
@@ -204,7 +223,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     awayPlayers: Array<{ id: string; jerseyNumber: number; name: string }>,
   ): void {
     // Set matchId for persistence
-    this.rotation.restoreState(this.id()); // sets the matchId internally
+    this.rotation.restoreState(this.id());
 
     // Try to load match setup for serve/side info
     this.ref.getMatchSetup().subscribe({
@@ -726,6 +745,11 @@ export class RefereePanel implements OnInit, OnDestroy {
       if (homeStarters.length >= 6 && awayStarters.length >= 6) {
         const firstServe: 'home' | 'away' = result.firstServeTeamId === this.ref.homeTeamId() ? 'home' : 'away';
         const sideA: 'home' | 'away' = (result.fieldSideHome === 'A' || result.fieldSideAway === 'B') ? 'home' : 'away';
+
+        // Mark as initialized BEFORE startMatch triggers the effect
+        this.rotationInitialized = true;
+        this.rotation.restoreState(this.id()); // sets matchId for persistence
+
         this.rotation.initialize(
           mapToCourtPlayers(homeStarters, homePlayers),
           mapToCourtPlayers(awayStarters, awayPlayers),
@@ -753,18 +777,27 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.timerComponent()?.pause();
 
     if (this.ref.sportSlug() === 'volleyball') {
-      // Pass current sets won for decisive set detection
       const homeSets = this.ref.homeSetsWon();
       const awaySets = this.ref.awaySetsWon();
       this.rotation.onSetEnd(homeSets, awaySets);
     }
 
     this.ref.endCurrentPeriod();
+
+    // Show set transition — allows lineup changes before next set
+    this.showSetTransition.set(true);
+  }
+
+  /** Called when the referee confirms the lineup for the new set. */
+  onSetTransitionConfirmed(): void {
+    this.showSetTransition.set(false);
+    // Timer stays paused — referee starts it manually or on first point
   }
 
   /** Apply decisive set toss result. */
   onDecisiveToss(serve: 'home' | 'away', sideA: 'home' | 'away'): void {
     this.rotation.applyDecisiveToss(serve, sideA);
+    this.showSetTransition.set(false);
   }
 
   onFinishMatch(): void {
@@ -772,9 +805,29 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.timerComponent()?.clearState();
     this.ref.finishMatch();
     this.rotation.clearState();
+    this.showMatchSummary.set(true);
 
     // Emit match end via WebSocket
     this.socket.emitMatchEnd(this.id());
+  }
+
+  /** Select MVP of the match. */
+  onSelectMvp(playerId: string, playerName: string): void {
+    this.selectedMvp.set({ playerId, playerName });
+
+    // Save MVP and send notification via backend
+    this.ref.registerEvent({
+      eventType: 'match_end',
+      periodNumber: this.ref.currentPeriod()?.periodNumber ?? 1,
+      matchMinute: this.timerComponent()?.elapsed() ?? null,
+      payload: { mvpPlayerId: playerId, mvpPlayerName: playerName },
+    });
+  }
+
+  /** Navigate back to referee match list after finishing. */
+  onBackToMatchList(): void {
+    this.showMatchSummary.set(false);
+    this.router.navigate(['/referee']);
   }
 
   // ── Timer ─────────────────────────────────────────────────────────────────
@@ -806,6 +859,6 @@ export class RefereePanel implements OnInit, OnDestroy {
   // ── Navigation ────────────────────────────────────────────────────────────
 
   goBack(): void {
-    this.router.navigate(['/matches']);
+    this.router.navigate(['/referee']);
   }
 }

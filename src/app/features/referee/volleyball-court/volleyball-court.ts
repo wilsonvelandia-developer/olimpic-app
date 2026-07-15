@@ -34,9 +34,9 @@ export interface CourtState {
         <!-- Left: Serve indicator — bottom dot = side A (away half), top dot = side B (home half) -->
         <div class="court-left-side">
           <div class="serve-indicator">
-            <span class="serve-dot" [class.serve-dot--active]="state().servingTeam === 'away'"></span>
-            <span class="serve-icon">🏐</span>
             <span class="serve-dot" [class.serve-dot--active]="state().servingTeam === 'home'"></span>
+            <span class="serve-icon">🏐</span>
+            <span class="serve-dot" [class.serve-dot--active]="state().servingTeam === 'away'"></span>
           </div>
         </div>
 
