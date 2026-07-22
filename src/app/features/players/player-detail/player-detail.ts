@@ -3,13 +3,14 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PlayerService } from '../player.service';
+import { PlayerStatsComponent } from '../player-stats/player-stats';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 import { ConfirmDialog }  from '../../../shared/components/confirm-dialog/confirm-dialog';
 import type { Player } from '../../../core/models';
 
 @Component({
   selector: 'app-player-detail',
-  imports: [RouterLink, LoadingSpinner, ConfirmDialog],
+  imports: [RouterLink, LoadingSpinner, ConfirmDialog, PlayerStatsComponent],
   templateUrl: './player-detail.html',
   styleUrl: './player-detail.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

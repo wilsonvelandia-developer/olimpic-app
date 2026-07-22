@@ -1,3 +1,5 @@
+<a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
 <div class="shell" [class.shell--collapsed]="!isSidebarOpen()">
   <app-navbar (menuToggle)="toggleSidebar()" />
 
@@ -12,7 +14,7 @@
       aria-hidden="true"
     ></div>
 
-    <main class="shell__content" role="main">
+    <main id="main-content" class="shell__content" role="main" aria-label="Contenido principal">
       <router-outlet />
     </main>
   </div>

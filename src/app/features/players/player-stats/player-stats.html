@@ -1,0 +1,46 @@
+@if (isLoading()) {
+  <div class="stats-loading">Cargando estadísticas...</div>
+} @else if (errorMessage()) {
+  <div class="stats-error">{{ errorMessage() }}</div>
+} @else if (stats(); as s) {
+  <div class="stats-grid">
+    <!-- Matches -->
+    <div class="stat-card">
+      <span class="stat-value">{{ s.matchesPlayed }}</span>
+      <span class="stat-label">Partidos jugados</span>
+    </div>
+
+    <!-- Goals -->
+    <div class="stat-card stat-card--primary">
+      <span class="stat-value">{{ s.goals }}</span>
+      <span class="stat-label">Goles / Puntos</span>
+      <span class="stat-sub">{{ s.goalsPerMatch }} por partido</span>
+    </div>
+
+    <!-- Win rate -->
+    <div class="stat-card stat-card--success">
+      <span class="stat-value">{{ winRate }}%</span>
+      <span class="stat-label">Victorias</span>
+      <span class="stat-sub">{{ s.matchResults.wins }}V / {{ s.matchResults.draws }}E / {{ s.matchResults.losses }}D</span>
+    </div>
+
+    <!-- Yellow cards -->
+    <div class="stat-card stat-card--warning">
+      <span class="stat-value">{{ s.yellowCards }}</span>
+      <span class="stat-label">Tarjetas amarillas</span>
+    </div>
+
+    <!-- Red cards -->
+    <div class="stat-card stat-card--danger">
+      <span class="stat-value">{{ s.redCards }}</span>
+      <span class="stat-label">Tarjetas rojas</span>
+    </div>
+
+    <!-- Substitutions -->
+    <div class="stat-card">
+      <span class="stat-value">{{ s.substitutionsIn + s.substitutionsOut }}</span>
+      <span class="stat-label">Cambios</span>
+      <span class="stat-sub">{{ s.substitutionsIn }} entradas / {{ s.substitutionsOut }} salidas</span>
+    </div>
+  </div>
+}

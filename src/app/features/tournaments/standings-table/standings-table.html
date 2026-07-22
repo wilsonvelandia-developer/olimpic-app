@@ -13,9 +13,9 @@
           <th scope="col" abbr="Partidos ganados">G</th>
           <th scope="col" abbr="Partidos empatados">E</th>
           <th scope="col" abbr="Partidos perdidos">P</th>
-          <th scope="col" abbr="Goles a favor">GF</th>
-          <th scope="col" abbr="Goles en contra">GC</th>
-          <th scope="col" abbr="Diferencia de goles">DG</th>
+          <th scope="col" [attr.abbr]="scoreLabel() + ' a favor'">{{ scoreLabelShort() }}</th>
+          <th scope="col" [attr.abbr]="scoreLabel() + ' en contra'">{{ scoreAgainstShort() }}</th>
+          <th scope="col" [attr.abbr]="'Diferencia de ' + scoreLabel()">{{ scoreDiffShort() }}</th>
           <th scope="col" abbr="Puntos" class="col-pts">Pts</th>
         </tr>
       </thead>
@@ -53,7 +53,7 @@
     <span class="legend-item"><span class="legend-dot legend-dot--won"></span>G = Ganados</span>
     <span class="legend-item"><span class="legend-dot legend-dot--drawn"></span>E = Empatados</span>
     <span class="legend-item"><span class="legend-dot legend-dot--lost"></span>P = Perdidos</span>
-    <span class="legend-item">DG = Diferencia de goles</span>
+    <span class="legend-item">{{ scoreDiffShort() }} = Diferencia de {{ scoreLabel() }}</span>
     <span class="legend-item">Pts = Puntos (G×3, E×1)</span>
   </div>
 }

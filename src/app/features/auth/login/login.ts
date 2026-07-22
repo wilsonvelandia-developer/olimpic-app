@@ -6,7 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
@@ -17,7 +17,7 @@ import { environment } from '../../../../environments/environment';
  */
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -90,6 +90,9 @@ export class Login implements OnInit {
       error: (err) => {
         if (err.status === 401) {
           this.errorMessage.set('Credenciales inválidas. Verifica tu correo y contraseña.');
+        } else if (err.status === 429) {
+          const retryMsg = err.error?.message ?? 'Demasiados intentos. Intenta más tarde.';
+          this.errorMessage.set(retryMsg);
         } else if (err.status === 0) {
           this.errorMessage.set('No se pudo conectar al servidor. Verifica que el backend esté corriendo.');
         } else {

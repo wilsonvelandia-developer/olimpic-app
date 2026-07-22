@@ -52,6 +52,12 @@
         </button>
       </div>
     </div>
+
+    <!-- Player Statistics -->
+    <section class="stats-section">
+      <h2 class="section-title">Estadísticas</h2>
+      <app-player-stats [teamId]="player()!.teamId" [playerId]="player()!.id" />
+    </section>
   }
 </section>
 

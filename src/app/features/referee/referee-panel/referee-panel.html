@@ -182,15 +182,16 @@
   <!-- ═══ Set Transition Dialog ═══ -->
   @if (showSetTransition()) {
     <div class="decisive-toss-overlay">
-      <div class="decisive-toss-dialog" style="max-width: 500px;">
-        <h3>🏐 Fin del Set {{ ref.currentPeriod()?.periodNumber ? ref.currentPeriod()!.periodNumber - 1 : '' }}</h3>
-        <p>El nuevo set comenzará cuando reanude el tiempo o sume un punto.</p>
-        <p style="font-size: 0.85rem; color: var(--color-text-secondary);">
-          Puede realizar cambios de jugadores antes de continuar.
+      <div class="decisive-toss-dialog" style="max-width: 520px;">
+        <h3>🏐 Set finalizado</h3>
+        <p><strong>Cambio de lado automático realizado.</strong></p>
+        <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 1rem;">
+          A continuación seleccione los jugadores y posiciones para el siguiente set.
         </p>
-        <div class="decisive-toss-actions">
-          <button type="button" class="btn btn--primary" (click)="onSetTransitionConfirmed()">
-            ✅ Continuar partido
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <button type="button" class="btn btn--primary btn--lg" (click)="onSetTransitionConfirmed()">
+            ✅ Seleccionar alineación para siguiente set
           </button>
         </div>
       </div>

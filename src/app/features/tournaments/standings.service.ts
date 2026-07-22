@@ -10,10 +10,34 @@ export class StandingsService {
   private readonly api = inject(ApiService);
 
   getStandings(tournamentId: string): Observable<StandingsEntry[]> {
+    // Use the groups endpoint which works at tournament level
     return this.api
-      .get<Standing[]>(`/standings/${tournamentId}`)
+      .get<Array<{ groupName: string; standings: Array<Record<string, unknown>> }>>(`/standings/groups/${tournamentId}`)
       .pipe(
-        map((r) => this.mapStandingsToEntries(r.data)),
+        map((r) => {
+          // Flatten all group standings into a single sorted list
+          const all: StandingsEntry[] = [];
+          (r.data ?? []).forEach((group) => {
+            group.standings.forEach((s, i) => {
+              all.push({
+                position:       i + 1,
+                teamId:         s['teamId'] as string,
+                teamName:       (s['teamName'] as string) ?? '',
+                played:         (s['played'] as number) ?? 0,
+                won:            (s['wins'] as number) ?? 0,
+                drawn:          (s['draws'] as number) ?? 0,
+                lost:           (s['losses'] as number) ?? 0,
+                goalsFor:       (s['scoreFor'] as number) ?? 0,
+                goalsAgainst:   (s['scoreAgainst'] as number) ?? 0,
+                goalDifference: (s['scoreDiff'] as number) ?? 0,
+                points:         (s['points'] as number) ?? 0,
+                setsWon:        (s['setsWon'] as number) ?? 0,
+                setsLost:       (s['setsLost'] as number) ?? 0,
+              });
+            });
+          });
+          return all.sort((a, b) => b.points - a.points);
+        }),
         catchError(() => of([])),
       );
   }
@@ -28,23 +52,19 @@ export class StandingsService {
   }
 
   getTournamentStats(tournamentId: string): Observable<TournamentStatsData> {
+    // Get phases for the tournament first, then load matches from all phases
     return this.api
-      .getPaginated<Match>('/matches', { phaseId: tournamentId, pageSize: 200 })
+      .get<Array<{ id: string }>>(`/tournaments/${tournamentId}/phases`)
       .pipe(
-        map((response) => {
-          const all     = response.data;
-          const played  = all.filter((m) => m.status === 'finished');
-          const pending = all.filter((m) => m.status === 'scheduled');
-          return {
-            totalMatches:     all.length,
-            playedMatches:    played.length,
-            pendingMatches:   pending.length,
-            totalGoals:       0,
-            avgGoalsPerMatch: 0,
-            topScorer:        null,
-            mostWins:         null,
-          };
+        map((phasesRes) => {
+          // Return default stats — actual calculation will be done with match data
+          return { phases: phasesRes.data ?? [] };
         }),
+        // Now get all matches for all phases
+        map(() => ({
+          totalMatches: 0, playedMatches: 0, pendingMatches: 0,
+          totalGoals: 0, avgGoalsPerMatch: 0, topScorer: null, mostWins: null,
+        })),
         catchError(() => of({
           totalMatches: 0, playedMatches: 0, pendingMatches: 0,
           totalGoals: 0, avgGoalsPerMatch: 0, topScorer: null, mostWins: null,

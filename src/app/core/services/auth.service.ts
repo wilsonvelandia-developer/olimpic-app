@@ -104,4 +104,31 @@ export class AuthService {
       .get<ApiResponse<AuthUser>>(`${this.baseUrl}/auth/me`, { withCredentials: true })
       .pipe(tap((r) => { if (r.success) this._currentUser.set(r.data); }));
   }
+
+  /**
+   * Refreshes the session using the httpOnly refresh token cookie.
+   * Called automatically by the auth interceptor on 401 responses.
+   */
+  refreshSession(): Observable<ApiResponse<AuthUser>> {
+    return this.http
+      .post<ApiResponse<AuthUser>>(`${this.baseUrl}/auth/refresh`, {}, { withCredentials: true })
+      .pipe(tap((r) => { if (r.success) this._currentUser.set(r.data); }));
+  }
+
+  /**
+   * Requests a password reset email.
+   * Always returns success to prevent email enumeration.
+   */
+  forgotPassword(email: string): Observable<ApiResponse<void>> {
+    return this.http
+      .post<ApiResponse<void>>(`${this.baseUrl}/auth/forgot-password`, { email }, { withCredentials: true });
+  }
+
+  /**
+   * Resets the password using a valid reset token.
+   */
+  resetPassword(token: string, newPassword: string): Observable<ApiResponse<void>> {
+    return this.http
+      .post<ApiResponse<void>>(`${this.baseUrl}/auth/reset-password`, { token, newPassword }, { withCredentials: true });
+  }
 }

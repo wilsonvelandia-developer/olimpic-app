@@ -300,7 +300,9 @@ export class RotationService {
   }
 
   /**
-   * Performs clockwise rotation for a team (gains serve).
+   * Performs rotation for a team when they gain serve.
+   * Side B (home/top): 1→6, 6→5, 5→4, 4→3, 3→2, 2→1 (clockwise)
+   * Side A (away/bottom): 1→6, 6→5, 5→4, 4→3, 3→2, 2→1 (clockwise)
    */
   private rotateTeam(team: 'home' | 'away'): void {
     const positions = team === 'home' ? this.homePositions : this.awayPositions;
@@ -309,9 +311,7 @@ export class RotationService {
     const current = positions();
     const rotated = current.map((player) => ({
       ...player,
-      position: team === 'home'
-        ? this.nextPositionCounterClockwise(player.position)
-        : this.nextPositionClockwise(player.position),
+      position: this.nextPositionClockwise(player.position),
     }));
 
     positions.set(rotated);
@@ -328,9 +328,7 @@ export class RotationService {
     const current = positions();
     const reversed = current.map((player) => ({
       ...player,
-      position: team === 'home'
-        ? this.nextPositionClockwise(player.position)
-        : this.nextPositionCounterClockwise(player.position),
+      position: this.nextPositionCounterClockwise(player.position),
     }));
 
     positions.set(reversed);

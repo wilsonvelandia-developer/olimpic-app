@@ -15,8 +15,27 @@ export class StandingsTable {
   readonly entries = input.required<StandingsEntry[]>();
   /** UUID of the team to highlight, or null. */
   readonly highlightTeamId = input<string | null>(null);
+  /** Sport slug to determine terminology (goles vs puntos). */
+  readonly sportSlug = input<string>('football');
 
   readonly isEmpty = computed(() => this.entries().length === 0);
+
+  /** Returns "Goles" for football, "Puntos" for everything else. */
+  readonly scoreLabel = computed(() => {
+    return this.sportSlug() === 'football' ? 'Goles' : 'Puntos';
+  });
+
+  readonly scoreLabelShort = computed(() => {
+    return this.sportSlug() === 'football' ? 'GF' : 'PF';
+  });
+
+  readonly scoreAgainstShort = computed(() => {
+    return this.sportSlug() === 'football' ? 'GC' : 'PC';
+  });
+
+  readonly scoreDiffShort = computed(() => {
+    return this.sportSlug() === 'football' ? 'DG' : 'DP';
+  });
 
   positionClass(pos: number): string {
     if (pos === 1) return 'pos--gold';

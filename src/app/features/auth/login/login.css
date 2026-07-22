@@ -146,3 +146,20 @@ form {
   flex-direction: column;
   gap: 1.125rem;
 }
+
+/* Forgot password link */
+.login-links {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.login-link {
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}

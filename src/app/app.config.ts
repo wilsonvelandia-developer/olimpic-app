@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
@@ -11,6 +12,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { sessionInitializer } from './core/initializers/session.initializer';
+import { GlobalErrorHandler } from './core/error-handler/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,6 +20,9 @@ export const appConfig: ApplicationConfig = {
 
     // Zoneless change detection — Angular 21 stable, no Zone.js required
     provideZonelessChangeDetection(),
+
+    // Global error boundary — prevents unhandled errors from crashing the app
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
 
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
 

@@ -52,4 +52,28 @@ export class PlayerService {
   delete(teamId: string, playerId: string): Observable<void> {
     return this.api.delete<void>(`/teams/${teamId}/players/${playerId}`).pipe(map(() => undefined));
   }
+
+  /**
+   * Fetches aggregated player statistics (goals, cards, matches, results).
+   */
+  getStats(teamId: string, playerId: string): Observable<PlayerStats> {
+    return this.api.get<PlayerStats>(`/teams/${teamId}/players/${playerId}/stats`).pipe(map((r) => r.data));
+  }
+}
+
+/** Player statistics response from the backend. */
+export interface PlayerStats {
+  playerId:         string;
+  playerName:       string;
+  teamName:         string;
+  jerseyNumber:     number;
+  position:         string | null;
+  matchesPlayed:    number;
+  goals:            number;
+  goalsPerMatch:    number;
+  yellowCards:      number;
+  redCards:         number;
+  substitutionsIn:  number;
+  substitutionsOut: number;
+  matchResults:     { wins: number; draws: number; losses: number };
 }

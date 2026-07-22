@@ -71,3 +71,15 @@
 
 .alert { padding: 0.875rem 1rem; border-radius: var(--radius-md); font-size: 0.9rem; }
 .alert--error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+/* Player Statistics section */
+.stats-section {
+  margin-top: 2rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1e293b);
+  margin: 0 0 0.5rem;
+}

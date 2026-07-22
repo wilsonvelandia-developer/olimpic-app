@@ -51,7 +51,7 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
-.standings-table tbody tr:hover { background: #f0f4ff; }
+.standings-table tbody tr:hover { background: #f0f4ff; color: #111827; }
 
 .col-pos { width: 40px; text-align: center; }
 .col-team { text-align: left; min-width: 120px; }
@@ -62,7 +62,7 @@
 .pos-badge { font-size: 1rem; }
 .team-name { font-weight: 600; }
 
-.row--qualify { background: #f0fdf4; }
+.row--qualify { background: #f0fdf4; color: #111827; }
 .row--first td { border-left: 3px solid #10b981; }
 
 .diff-pos { color: #059669; font-weight: 600; }

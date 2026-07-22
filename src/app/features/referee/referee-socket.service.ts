@@ -207,6 +207,11 @@ export class RefereeSocketService implements OnDestroy {
     this.socket?.emit('referee:match_end', { matchId });
   }
 
+  /** Emit standings updated event to all tournament viewers. */
+  emitStandingsUpdated(tournamentId: string): void {
+    this.socket?.emit('standings:updated', { tournamentId });
+  }
+
   // ── Event subscription ────────────────────────────────────────────────────
 
   /**

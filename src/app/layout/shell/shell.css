@@ -1,3 +1,25 @@
+/* Skip link — visible only on keyboard focus for accessibility */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary, #1a56db);
+  color: #fff;
+  border-radius: var(--radius-md, 6px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid var(--color-primary, #1a56db);
+  outline-offset: 2px;
+}
+
 .shell {
   display: flex;
   flex-direction: column;

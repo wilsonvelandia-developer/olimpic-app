@@ -6,16 +6,22 @@ import type { ApiResponse, PaginatedResponse } from '../models';
 
 type QueryParams = Record<string, string | number | boolean>;
 
+/** Shape returned by paginated list endpoints. */
+interface PagedApiResponse<T> extends ApiResponse<T[]> {
+  total?:    number;
+  page?:     number;
+  pageSize?: number;
+}
+
 /**
  * Base HTTP service for all API calls.
  * Provides typed wrappers around HttpClient for GET, POST, PUT, PATCH, DELETE.
  * All paths are prepended with /api/ and the gateway base URL.
  *
- * The backend gateway normalizes all responses to:
- *   { data: T, success: boolean, message: string }
+ * The backend normalizes list responses to:
+ *   { data: T[], total: number, page: number, pageSize: number, success, message }
  *
- * List endpoints return { data: T[] } — the getPaginated wrapper
- * adapts them to the PaginatedResponse shape the frontend expects.
+ * getPaginated reads the server-provided total so pagination is accurate.
  */
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -24,7 +30,6 @@ export class ApiService {
 
   /** All API paths go through /api/ prefix on the gateway. */
   private url(path: string): string {
-    // path already includes leading slash, e.g. /sports, /tournaments
     return `${this.baseUrl}/api${path}`;
   }
 
@@ -45,22 +50,23 @@ export class ApiService {
   }
 
   /**
-   * Fetches a list endpoint and adapts the response to PaginatedResponse.
-   * Backend list endpoints return { data: T[], success, message }.
-   * Pagination metadata is computed client-side when the backend does not paginate.
+   * Fetches a paginated list endpoint.
+   * Reads total/page/pageSize from the server response when available.
+   * Falls back to items.length for legacy endpoints that don't return totals.
    */
   getPaginated<T>(path: string, params?: QueryParams): Observable<PaginatedResponse<T>> {
     return this.http
-      .get<ApiResponse<T[]>>(this.url(path), {
+      .get<PagedApiResponse<T>>(this.url(path), {
         params: this.buildParams(params),
         withCredentials: true,
       })
       .pipe(
         map((response) => {
-          const items = response.data ?? [];
-          const page     = Number(params?.['page'] ?? 1);
-          const pageSize = Number(params?.['pageSize'] ?? (items.length || 10));
-          const total    = items.length;
+          const items    = response.data ?? [];
+          const page     = response.page     ?? Number(params?.['page'] ?? 1);
+          const pageSize = response.pageSize ?? Number(params?.['pageSize'] ?? (items.length || 10));
+          // Use server-provided total (real pagination); fall back to items.length for legacy endpoints
+          const total    = response.total ?? items.length;
 
           return {
             data:       items,

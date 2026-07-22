@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component, ChangeDetectionStrategy, input, inject,
   signal, computed, OnInit, OnDestroy, viewChild, effect,
 } from '@angular/core';
@@ -16,7 +16,7 @@ import { RotationService } from '../volleyball-court/rotation.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 
 /**
- * Referee Panel — full-screen match control interface.
+ * Referee Panel â€” full-screen match control interface.
  * Optimized for tablet/mobile in landscape orientation.
  * Integrates: scoreboard, timer, scorer-select, substitution, sanction, match-setup, events log.
  * Emits all events via WebSocket for real-time broadcast to spectators.
@@ -44,11 +44,11 @@ export class RefereePanel implements OnInit, OnDestroy {
 
   readonly timerComponent = viewChild<Timer>('timerRef');
 
-  // ── Timer state ───────────────────────────────────────────────────────────
+  // â”€â”€ Timer state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly timerMode = signal<TimerMode>('progressive');
   readonly countdownTarget = signal<number>(0);
 
-  // ── Dialog visibility ─────────────────────────────────────────────────────
+  // â”€â”€ Dialog visibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly showEventsLog = signal<boolean>(false);
   readonly showScorerSelect = signal<boolean>(false);
   readonly showSubstitution = signal<boolean>(false);
@@ -68,7 +68,7 @@ export class RefereePanel implements OnInit, OnDestroy {
   /** Which team is substituting/receiving sanction. */
   readonly activeTeamSide = signal<'home' | 'away'>('home');
 
-  // ── Computed for dialogs ──────────────────────────────────────────────────
+  // â”€â”€ Computed for dialogs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly scoringTeamName = computed(() =>
     this.scoringTeamSide() === 'home' ? this.ref.homeTeamName() : this.ref.awayTeamName(),
   );
@@ -91,7 +91,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     return timer.elapsed();
   });
 
-  // ── Match setup data ──────────────────────────────────────────────────────
+  // â”€â”€ Match setup data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly homeTeamPlayers = computed<TeamPlayers>(() => ({
     teamId: this.ref.homeTeamId(),
     teamName: this.ref.homeTeamName(),
@@ -104,7 +104,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     players: this.ref.awayPlayers(),
   }));
 
-  /** Volleyball court state — computed from rotation service. */
+  /** Volleyball court state â€” computed from rotation service. */
   readonly courtState = computed<CourtState>(() => {
     const sideA = this.rotation.sideATeam();
     // Side A = bottom of court (away half in component)
@@ -117,10 +117,10 @@ export class RefereePanel implements OnInit, OnDestroy {
     const rawServing = this.rotation.servingTeam();
     let visualServing: 'home' | 'away';
     if (homeOnA) {
-      // home=bottom, away=top → if home serves → bottom serves → visual 'away'
+      // home=bottom, away=top â†’ if home serves â†’ bottom serves â†’ visual 'away'
       visualServing = rawServing === 'home' ? 'away' : 'home';
     } else {
-      // home=top, away=bottom → if home serves → top serves → visual 'home'
+      // home=top, away=bottom â†’ if home serves â†’ top serves â†’ visual 'home'
       visualServing = rawServing;
     }
 
@@ -134,8 +134,6 @@ export class RefereePanel implements OnInit, OnDestroy {
       servingTeam: visualServing,
     };
   });
-    };
-  });
 
   /** Whether to show the volleyball court (only for volleyball matches). */
   readonly showCourt = computed(() =>
@@ -143,7 +141,7 @@ export class RefereePanel implements OnInit, OnDestroy {
   );
 
   /**
-   * Side tracking — derived from rotation service's sideATeam.
+   * Side tracking â€” derived from rotation service's sideATeam.
    */
   readonly sideATeam = computed<'home' | 'away'>(() => this.rotation.sideATeam());
   readonly sideBTeam = computed<'home' | 'away'>(() => this.rotation.sideATeam() === 'home' ? 'away' : 'home');
@@ -173,11 +171,11 @@ export class RefereePanel implements OnInit, OnDestroy {
   readonly sportBallIcon = computed(() => {
     const slug = this.ref.sportSlug();
     switch (slug) {
-      case 'volleyball': return '🏐';
-      case 'football':   return '⚽';
-      case 'basketball': return '🏀';
-      case 'tennis':     return '🎾';
-      default:           return '🏐';
+      case 'volleyball': return 'ðŸ';
+      case 'football':   return 'âš½';
+      case 'basketball': return 'ðŸ€';
+      case 'tennis':     return 'ðŸŽ¾';
+      default:           return 'ðŸ';
     }
   });
 
@@ -203,11 +201,11 @@ export class RefereePanel implements OnInit, OnDestroy {
         // Try to restore from localStorage first (preserves state on page reload)
         const restored = this.rotation.restoreState(this.id());
         if (restored) {
-          // State restored — no need to re-initialize from API
+          // State restored â€” no need to re-initialize from API
           return;
         }
 
-        // No saved state — initialize from API data
+        // No saved state â€” initialize from API data
         this.initializeRotationFromData(homePlayers, awayPlayers);
       }
     });
@@ -222,9 +220,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     homePlayers: Array<{ id: string; jerseyNumber: number; name: string }>,
     awayPlayers: Array<{ id: string; jerseyNumber: number; name: string }>,
   ): void {
-    // Set matchId for persistence
     this.rotation.restoreState(this.id());
-
     // Try to load match setup for serve/side info
     this.ref.getMatchSetup().subscribe({
       next: (setup) => {
@@ -313,7 +309,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     });
   }
 
-  /** Bench players for the court component — follows side swap. */
+  /** Bench players for the court component â€” follows side swap. */
   readonly homeBenchPlayers = computed<CourtPlayer[]>(() => {
     const all = this.ref.homePlayers();
     const onCourt = this.rotation.homePositions();
@@ -385,7 +381,7 @@ export class RefereePanel implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.ref.loadMatch(this.id());
-    // WebSocket is optional — don't block the panel if it fails
+    // WebSocket is optional â€” don't block the panel if it fails
     this.connectWebSocket();
   }
 
@@ -397,7 +393,7 @@ export class RefereePanel implements OnInit, OnDestroy {
 
   /**
    * Connect WebSocket and join match room as referee.
-   * This is non-blocking — if WebSocket fails, the panel still works via REST.
+   * This is non-blocking â€” if WebSocket fails, the panel still works via REST.
    */
   private connectWebSocket(): void {
     this.socket.connect();
@@ -413,7 +409,7 @@ export class RefereePanel implements OnInit, OnDestroy {
         clearInterval(joinInterval);
         const res = await this.socket.joinAsReferee(this.id());
         if (!res.success) {
-          // Not critical — just means real-time broadcast won't work
+          // Not critical â€” just means real-time broadcast won't work
           console.warn('WebSocket referee join failed:', res.message);
         }
         // Start timer sync broadcast every 5 seconds
@@ -428,14 +424,14 @@ export class RefereePanel implements OnInit, OnDestroy {
           }
         }, 5000);
       } else if (attempts >= 10) {
-        // Give up after 5 seconds — panel works without WebSocket
+        // Give up after 5 seconds â€” panel works without WebSocket
         clearInterval(joinInterval);
-        console.warn('WebSocket connection not available — panel running in REST-only mode');
+        console.warn('WebSocket connection not available â€” panel running in REST-only mode');
       }
     }, 500);
   }
 
-  // ── Score Actions (now opens scorer-select dialog) ────────────────────────
+  // â”€â”€ Score Actions (now opens scorer-select dialog) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onHomeScoreUp(): void {
     this.scoringTeamSide.set('home');
@@ -473,7 +469,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     }
   }
 
-  // ── Side-aware score wrappers ─────────────────────────────────────────────
+  // â”€â”€ Side-aware score wrappers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onSideAScoreUp(): void {
     const team = this.sideATeam();
@@ -495,7 +491,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     team === 'home' ? this.onHomeScoreDown() : this.onAwayScoreDown();
   }
 
-  // ── Manual rotation (corrections) ────────────────────────────────────────
+  // â”€â”€ Manual rotation (corrections) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onManualRotate(team: 'home' | 'away', direction: 'forward' | 'backward'): void {
     if (direction === 'forward') {
@@ -505,13 +501,13 @@ export class RefereePanel implements OnInit, OnDestroy {
     }
   }
 
-  // ── Undo last action ──────────────────────────────────────────────────────
+  // â”€â”€ Undo last action â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onUndoLast(): void {
     this.ref.undoLastEvent();
   }
 
-  // ── Official Timeout ──────────────────────────────────────────────────────
+  // â”€â”€ Official Timeout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onTimeout(): void {
     this.timerComponent()?.pause();
@@ -520,11 +516,13 @@ export class RefereePanel implements OnInit, OnDestroy {
 
   /**
    * Checks if the current set is won (a team reached pointsPerSet with winMargin).
-   * If so, automatically ends the set and triggers side/serve swap.
+   * If so, automatically ends the set.
    */
   private checkAutoSetEnd(): void {
-    // Small delay to let the score update propagate
-    setTimeout(() => {
+    // Use the score that was JUST updated locally (addPoint already called updateScore)
+    // We use a reactive effect approach: watch for period score changes
+    // Since addPoint triggers an API call, we watch for when the period score updates
+    const checkInterval = setInterval(() => {
       const homeScore = this.ref.currentPeriodHomeScore();
       const awayScore = this.ref.currentPeriodAwayScore();
       const target = this.ref.pointsPerSet();
@@ -534,12 +532,19 @@ export class RefereePanel implements OnInit, OnDestroy {
 
       // Set is won when one team reaches target AND has required margin
       if (max >= target && (max - min) >= margin) {
+        clearInterval(checkInterval);
+        // Close scorer select first if open
+        this.showScorerSelect.set(false);
+        // Trigger set end
         this.onEndPeriod();
       }
-    }, 500);
+    }, 300);
+
+    // Safety: stop checking after 5 seconds (if backend never updates)
+    setTimeout(() => clearInterval(checkInterval), 5000);
   }
 
-  // ── Scorer Select Dialog ──────────────────────────────────────────────────
+  // â”€â”€ Scorer Select Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onScorerSelected(selection: ScorerSelection): void {
     const period = this.ref.currentPeriod();
@@ -597,7 +602,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.timerComponent()?.start();
   }
 
-  // ── Substitution Dialog ───────────────────────────────────────────────────
+  // â”€â”€ Substitution Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   openSubstitution(side: 'home' | 'away'): void {
     this.activeTeamSide.set(side);
@@ -653,7 +658,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.timerComponent()?.start();
   }
 
-  // ── Sanction Dialog ───────────────────────────────────────────────────────
+  // â”€â”€ Sanction Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   openSanction(side: 'home' | 'away'): void {
     this.activeTeamSide.set(side);
@@ -708,7 +713,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.timerComponent()?.start();
   }
 
-  // ── Match Setup ───────────────────────────────────────────────────────────
+  // â”€â”€ Match Setup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   openSetup(): void {
     this.showSetup.set(true);
@@ -759,15 +764,17 @@ export class RefereePanel implements OnInit, OnDestroy {
       }
     }
 
-    // Auto-start the match after setup is confirmed
-    this.ref.startMatch();
+    // Auto-start the match after setup is confirmed (only if match hasn't started)
+    if (this.ref.matchStatus() === 'scheduled') {
+      this.ref.startMatch();
+    }
   }
 
   onSetupClosed(): void {
     this.showSetup.set(false);
   }
 
-  // ── Match Lifecycle ───────────────────────────────────────────────────────
+  // â”€â”€ Match Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onStartMatch(): void {
     this.ref.startMatch();
@@ -784,20 +791,25 @@ export class RefereePanel implements OnInit, OnDestroy {
 
     this.ref.endCurrentPeriod();
 
-    // Show set transition — allows lineup changes before next set
-    this.showSetTransition.set(true);
+    // Show set transition dialog (for lineup changes and side swap)
+    // If decisive toss is needed, it shows via showDecisiveToss computed
+    if (!this.rotation.needsDecisiveToss()) {
+      this.showSetTransition.set(true);
+    }
   }
 
   /** Called when the referee confirms the lineup for the new set. */
   onSetTransitionConfirmed(): void {
     this.showSetTransition.set(false);
-    // Timer stays paused — referee starts it manually or on first point
+    // Open the match setup wizard to select lineup for the new set
+    this.showSetup.set(true);
   }
 
   /** Apply decisive set toss result. */
   onDecisiveToss(serve: 'home' | 'away', sideA: 'home' | 'away'): void {
     this.rotation.applyDecisiveToss(serve, sideA);
-    this.showSetTransition.set(false);
+    // After decisive toss, show lineup transition
+    this.showSetTransition.set(true);
   }
 
   onFinishMatch(): void {
@@ -809,6 +821,9 @@ export class RefereePanel implements OnInit, OnDestroy {
 
     // Emit match end via WebSocket
     this.socket.emitMatchEnd(this.id());
+
+    // Notify all tournament viewers that standings changed
+    this.socket.emitStandingsUpdated(this.id());
   }
 
   /** Select MVP of the match. */
@@ -830,7 +845,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.router.navigate(['/referee']);
   }
 
-  // ── Timer ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Timer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   onTimerPaused(elapsed: number): void {
     // Only record as timeout event if user explicitly paused (not auto-pause from scoring)
@@ -856,7 +871,7 @@ export class RefereePanel implements OnInit, OnDestroy {
     this.showEventsLog.update((v) => !v);
   }
 
-  // ── Navigation ────────────────────────────────────────────────────────────
+  // â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   goBack(): void {
     this.router.navigate(['/referee']);

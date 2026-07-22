@@ -300,3 +300,48 @@
 - `README.md`: descripción, stack, arquitectura, tabla de endpoints, instrucciones de instalación/build/test
 - Carpeta `postmanCollections/` creada con `.gitkeep`
 - Repositorio commitado en estado limpio (0 archivos pendientes)
+
+### Seguridad
+- Se implementó auto-refresh de token en `authInterceptor`: ante 401, intenta `POST /auth/refresh` antes de redirigir a login
+- Se evitan loops infinitos: no se reintenta refresh en endpoints de auth (login, refresh, logout)
+
+### Agregado
+- Se creó página `ForgotPassword` (`/auth/forgot-password`): formulario de email, prevención de enumeración (siempre muestra éxito), enlace desde login
+- Se creó página `ResetPassword` (`/auth/reset-password`): acepta token por query param, formulario de nueva contraseña con confirmación, feedback de éxito/error
+- Se agregaron métodos `refreshSession()`, `forgotPassword()` y `resetPassword()` en `AuthService`
+- Se agregó enlace "¿Olvidaste tu contraseña?" en la página de login
+- Se agregó manejo de respuesta 429 (brute-force lockout) en el componente de login con mensaje descriptivo
+
+### Cambiado
+- `auth.interceptor.ts`: reescrito con lógica de auto-refresh (switchMap al endpoint /auth/refresh) antes de redirigir a login
+- `auth.routes.ts`: se agregaron rutas `/auth/forgot-password` y `/auth/reset-password`
+- `login.ts`: se importó `RouterLink`, se agregó manejo de status 429
+- `login.html`: se agregó sección de enlaces con link a forgot-password
+
+### Cambiado
+- `ApiService.getPaginated`: ahora lee `total`, `page` y `pageSize` directamente de la respuesta del backend (paginación real); mantiene fallback a `items.length` para endpoints legados que no devuelven metadatos de paginación
+- `ApiService.getPaginated`: tipado mejorado con interfaz interna `PagedApiResponse<T>` que extiende `ApiResponse<T[]>` con campos opcionales de paginación
+
+### Agregado
+- Se creó componente `PlayerStatsComponent` (`player-stats/`): muestra estadísticas agregadas del jugador (goles, tarjetas, partidos, ratio victorias) en una grilla de stat-cards
+- Se integró `PlayerStatsComponent` en `player-detail` como sección "Estadísticas"
+- Se agregó método `getStats(teamId, playerId)` y interfaz `PlayerStats` en `PlayerService`
+
+### Eliminado
+- Se eliminó `push-notification.service.ts` (duplicado). Se conserva `push-notifications.service.ts` que es la versión completa con integración de ToastService y notificaciones locales
+
+### Corregido
+- `ApiService.getPaginated`: corregido error de TypeScript por mezcla de operadores `??` y `||` sin paréntesis
+
+### Cambiado
+- `errorInterceptor`: se agregó retry automático con exponential backoff (1s, 2s) para errores 5xx y network timeout en peticiones GET/HEAD — máximo 2 reintentos antes de mostrar el toast de error
+
+### Agregado
+- Se agregó skip-link "Saltar al contenido principal" en `shell.html` — visible solo con teclado (Tab), estilizado sobre la barra de navegación
+- Se agregó `id="main-content"` y `aria-label="Contenido principal"` al `<main>` del shell
+- Se implementó focus management en cambio de ruta: tras cada NavigationEnd, el foco se mueve al contenido principal (mejora la experiencia con screen readers y teclado)
+- Se agregó CSS para `.skip-link` con posicionamiento absoluto y transición visible en `:focus`
+
+### Agregado
+- Se creó `GlobalErrorHandler` (`core/error-handler/global-error-handler.ts`): captura errores no manejados, previene crash total de la app, detecta chunk-load errors post-deploy y ofrece recargar
+- Se registró `GlobalErrorHandler` como provider de `ErrorHandler` en `app.config.ts`

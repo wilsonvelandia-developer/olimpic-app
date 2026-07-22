@@ -1,8 +1,10 @@
 import {
-  Component, ChangeDetectionStrategy, inject, signal, input, OnInit,
+  Component, ChangeDetectionStrategy, inject, signal, input, OnInit, OnDestroy, effect,
 } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
+import { LiveUpdatesService } from '../../../core/services/live-updates.service';
+import { TournamentLiveService } from '../../../core/services/tournament-live.service';
 
 interface GroupEntry {
   teamId: string;
@@ -33,8 +35,10 @@ interface GroupData {
   styleUrl: './group-standings.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GroupStandings implements OnInit {
+export class GroupStandings implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
+  private readonly liveUpdates = inject(LiveUpdatesService);
+  private readonly tournamentLive = inject(TournamentLiveService);
 
   readonly tournamentId = input.required<string>();
 
@@ -42,7 +46,30 @@ export class GroupStandings implements OnInit {
   readonly isLoading = signal<boolean>(false);
   readonly errorMsg  = signal<string | null>(null);
 
-  ngOnInit(): void { this.loadStandings(); }
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    // React to real-time updates from WebSocket
+    effect(() => {
+      this.tournamentLive.lastUpdate(); // dependency
+      if (this.groups().length > 0) {
+        this.loadStandings(); // reload silently
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadStandings();
+    // Join tournament WebSocket room
+    this.tournamentLive.joinTournament(this.tournamentId());
+    // Also poll every 30s as fallback
+    this.refreshInterval = setInterval(() => this.loadStandings(), 30000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshInterval) clearInterval(this.refreshInterval);
+    this.tournamentLive.leaveTournament();
+  }
 
   loadStandings(): void {
     this.isLoading.set(true);
