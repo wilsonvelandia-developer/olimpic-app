@@ -70,3 +70,23 @@
   .enrollment-player__jersey { flex: 0 0 60px; }
   .enrollment-player__position { flex: 1; }
 }
+
+/* Full-width field within grid */
+.form-group--full {
+  grid-column: 1 / -1;
+}
+
+/* Color picker input */
+.form-control--color {
+  width: 60px;
+  height: 40px;
+  padding: 2px;
+  border-radius: var(--radius-md, 6px);
+  cursor: pointer;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #64748b);
+  margin-top: 0.25rem;
+}

@@ -30,12 +30,61 @@
         <div class="form-group">
           <label class="form-label form-label--required">Nombre del equipo</label>
           <input type="text" class="form-control" formControlName="teamName"
-            placeholder="Ej: Club Deportivo Los Tigres" maxlength="200" />
+            placeholder="Ej: Juventud CEDIJ Negro" maxlength="200" />
         </div>
         <div class="form-group">
           <label class="form-label">Abreviatura</label>
           <input type="text" class="form-control" formControlName="shortName"
-            placeholder="Ej: TIG" maxlength="10" />
+            placeholder="Ej: CDJ-N" maxlength="10" />
+        </div>
+        <div class="form-group form-group--full">
+          <label class="form-label">Club / Organización</label>
+          <input type="text" class="form-control" formControlName="clubName"
+            placeholder="Ej: Club Deportivo Juventud CEDIJ (si participa con varios equipos)" maxlength="200" />
+          <span class="form-hint">Si tu club participa con más de un equipo, escribe el mismo nombre de club en cada inscripción.</span>
+        </div>
+      </div>
+
+      <!-- Branding -->
+      <h2 class="form-section-title">Escudo y colores</h2>
+      <div class="form-grid">
+        <div class="form-group form-group--full">
+          <label class="form-label">Escudo / Logo del equipo (URL de imagen)</label>
+          <input type="url" class="form-control" formControlName="imageUrl"
+            placeholder="https://ejemplo.com/escudo.png" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color principal</label>
+          <input type="color" class="form-control form-control--color" formControlName="colorPrimary" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color secundario</label>
+          <input type="color" class="form-control form-control--color" formControlName="colorSecondary" />
+        </div>
+      </div>
+
+      <!-- Social media -->
+      <h2 class="form-section-title">Redes sociales</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Instagram</label>
+          <input type="url" class="form-control" formControlName="instagramUrl"
+            placeholder="https://instagram.com/tuclub" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Facebook</label>
+          <input type="url" class="form-control" formControlName="facebookUrl"
+            placeholder="https://facebook.com/tuclub" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">TikTok</label>
+          <input type="url" class="form-control" formControlName="tiktokUrl"
+            placeholder="https://tiktok.com/@tuclub" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">YouTube</label>
+          <input type="url" class="form-control" formControlName="youtubeUrl"
+            placeholder="https://youtube.com/@tuclub" />
         </div>
       </div>
 

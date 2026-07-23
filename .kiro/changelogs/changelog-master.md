@@ -345,3 +345,7 @@
 ### Agregado
 - Se creó `GlobalErrorHandler` (`core/error-handler/global-error-handler.ts`): captura errores no manejados, previene crash total de la app, detecta chunk-load errors post-deploy y ofrece recargar
 - Se registró `GlobalErrorHandler` como provider de `ErrorHandler` en `app.config.ts`
+
+### Cambiado
+- Formulario de inscripción pública (`public-enrollment`): se agregaron campos para Club/Organización, Escudo/Logo (URL), colores (primary/secondary con color picker), redes sociales (Instagram, Facebook, TikTok, YouTube), y email
+- Hint informativo en campo Club: indica que si el club participa con varios equipos, debe usar el mismo nombre en cada inscripción

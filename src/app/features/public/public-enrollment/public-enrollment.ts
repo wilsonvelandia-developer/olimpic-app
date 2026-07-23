@@ -33,12 +33,20 @@ export class PublicEnrollment implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    teamName:     ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
-    shortName:    ['', [Validators.maxLength(10)]],
-    contactName:  ['', [Validators.required, Validators.minLength(3)]],
-    contactPhone: ['', [Validators.required]],
-    contactEmail: ['', [Validators.email]],
-    players:      this.fb.array([] as ReturnType<typeof this.createPlayerGroup>[]),
+    teamName:       ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+    shortName:      ['', [Validators.maxLength(10)]],
+    clubName:       ['', [Validators.maxLength(200)]],
+    imageUrl:       ['', [Validators.maxLength(500)]],
+    colorPrimary:   ['', [Validators.maxLength(7)]],
+    colorSecondary: ['', [Validators.maxLength(7)]],
+    instagramUrl:   ['', [Validators.maxLength(500)]],
+    facebookUrl:    ['', [Validators.maxLength(500)]],
+    tiktokUrl:      ['', [Validators.maxLength(500)]],
+    youtubeUrl:     ['', [Validators.maxLength(500)]],
+    contactName:    ['', [Validators.required, Validators.minLength(3)]],
+    contactPhone:   ['', [Validators.required]],
+    contactEmail:   ['', [Validators.email]],
+    players:        this.fb.array([] as ReturnType<typeof this.createPlayerGroup>[]),
   });
 
   ngOnInit(): void {
@@ -82,13 +90,21 @@ export class PublicEnrollment implements OnInit {
 
     const v = this.form.value;
     const payload = {
-      tournamentId: this.tournamentId(),
-      teamName:     v.teamName,
-      shortName:    v.shortName || null,
-      contactName:  v.contactName,
-      contactPhone: v.contactPhone,
-      contactEmail: v.contactEmail || null,
-      players:      v.players?.filter((p: Record<string, unknown>) => p && (p['name'] as string)?.trim()).map((p: Record<string, unknown>) => ({
+      tournamentId:   this.tournamentId(),
+      teamName:       v.teamName,
+      shortName:      v.shortName || null,
+      clubName:       v.clubName || null,
+      imageUrl:       v.imageUrl || null,
+      colorPrimary:   v.colorPrimary || null,
+      colorSecondary: v.colorSecondary || null,
+      instagramUrl:   v.instagramUrl || null,
+      facebookUrl:    v.facebookUrl || null,
+      tiktokUrl:      v.tiktokUrl || null,
+      youtubeUrl:     v.youtubeUrl || null,
+      contactName:    v.contactName,
+      contactPhone:   v.contactPhone,
+      contactEmail:   v.contactEmail || null,
+      players:        v.players?.filter((p: Record<string, unknown>) => p && (p['name'] as string)?.trim()).map((p: Record<string, unknown>) => ({
         name:         p['name'],
         jerseyNumber: p['jerseyNumber'],
         position:     p['position'] || null,
