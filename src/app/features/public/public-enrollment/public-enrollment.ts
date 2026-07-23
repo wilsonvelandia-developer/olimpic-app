@@ -67,9 +67,18 @@ export class PublicEnrollment implements OnInit {
 
   createPlayerGroup() {
     return this.fb.group({
-      name:         ['', [Validators.required, Validators.minLength(2)]],
-      jerseyNumber: [null as number | null, [Validators.required, Validators.min(0)]],
-      position:     [''],
+      name:             ['', [Validators.required, Validators.minLength(2)]],
+      documentType:     ['CC'],
+      documentNumber:   ['', [Validators.required]],
+      email:            ['', [Validators.email]],
+      phone:            [''],
+      birthDate:        [''],
+      jerseyNumber:     [null as number | null, [Validators.required, Validators.min(0)]],
+      position:         [''],
+      photoUrl:         [''],
+      documentFrontUrl: [''],
+      documentBackUrl:  [''],
+      epsFileUrl:       [''],
     });
   }
 
@@ -105,9 +114,18 @@ export class PublicEnrollment implements OnInit {
       contactPhone:   v.contactPhone,
       contactEmail:   v.contactEmail || null,
       players:        v.players?.filter((p: Record<string, unknown>) => p && (p['name'] as string)?.trim()).map((p: Record<string, unknown>) => ({
-        name:         p['name'],
-        jerseyNumber: p['jerseyNumber'],
-        position:     p['position'] || null,
+        name:             p['name'],
+        jerseyNumber:     p['jerseyNumber'],
+        position:         p['position'] || null,
+        documentType:     p['documentType'] || null,
+        documentNumber:   p['documentNumber'] || null,
+        email:            p['email'] || null,
+        phone:            p['phone'] || null,
+        birthDate:        p['birthDate'] || null,
+        photoUrl:         p['photoUrl'] || null,
+        documentFrontUrl: p['documentFrontUrl'] || null,
+        documentBackUrl:  p['documentBackUrl'] || null,
+        epsFileUrl:       p['epsFileUrl'] || null,
       })),
     };
 
