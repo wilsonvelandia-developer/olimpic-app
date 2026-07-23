@@ -11,6 +11,14 @@
       @if (tournament()!.category) {
         <span class="public-detail__category">{{ tournament()!.category }}</span>
       }
+      <div class="public-detail__actions">
+        <button type="button" class="btn btn--sm btn--primary" (click)="goToEnroll()">
+          📋 Inscribir equipo
+        </button>
+        <button type="button" class="btn btn--sm btn--secondary" (click)="shareTournament()">
+          🔗 Compartir
+        </button>
+      </div>
     </header>
 
     <!-- Live matches banner -->

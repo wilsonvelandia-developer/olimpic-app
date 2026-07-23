@@ -172,3 +172,11 @@
   .public-detail__title { font-size: 1.4rem; }
   .public-tab { padding: 0.625rem 0.75rem; font-size: 0.8rem; }
 }
+
+/* Public detail action buttons */
+.public-detail__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}

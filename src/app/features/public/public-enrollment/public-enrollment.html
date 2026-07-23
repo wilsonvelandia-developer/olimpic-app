@@ -110,20 +110,89 @@
 
       <!-- Players -->
       <h2 class="form-section-title">Jugadores</h2>
-      <p class="form-hint">Registra los jugadores del equipo. Puedes agregar más después.</p>
+      <p class="form-hint">
+        Registra los jugadores del equipo. Se creará una cuenta para cada jugador.
+        La contraseña inicial será su número de documento. Al primer ingreso se le pedirá cambiarla.
+      </p>
 
       <div class="enrollment-players" formArrayName="players">
         @for (player of players.controls; track $index; let i = $index) {
-          <div class="enrollment-player" [formGroupName]="i">
-            <span class="enrollment-player__number">{{ i + 1 }}</span>
-            <input type="text" class="form-control enrollment-player__name"
-              formControlName="name" placeholder="Nombre del jugador" />
-            <input type="number" class="form-control enrollment-player__jersey"
-              formControlName="jerseyNumber" placeholder="#" min="0" />
-            <input type="text" class="form-control enrollment-player__position"
-              formControlName="position" placeholder="Posición" />
-            <button type="button" class="btn btn--ghost btn--sm" (click)="removePlayer(i)"
-              [disabled]="players.length <= 1">×</button>
+          <div class="enrollment-player-card" [formGroupName]="i">
+            <div class="enrollment-player-card__header">
+              <span class="enrollment-player-card__number">Jugador {{ i + 1 }}</span>
+              <button type="button" class="btn btn--ghost btn--sm" (click)="removePlayer(i)"
+                [disabled]="players.length <= 1">Eliminar</button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label form-label--required">Nombre completo</label>
+                <input type="text" class="form-control" formControlName="name"
+                  placeholder="Nombre completo del jugador" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tipo de documento</label>
+                <select class="form-control" formControlName="documentType">
+                  <option value="CC">Cédula de Ciudadanía</option>
+                  <option value="TI">Tarjeta de Identidad</option>
+                  <option value="RC">Registro Civil</option>
+                  <option value="CE">Cédula de Extranjería</option>
+                  <option value="PA">Pasaporte</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label form-label--required">Número de documento</label>
+                <input type="text" class="form-control" formControlName="documentNumber"
+                  placeholder="Número de identificación" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" formControlName="email"
+                  placeholder="correo@ejemplo.com" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" class="form-control" formControlName="phone"
+                  placeholder="+57 300 123 4567" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fecha de nacimiento</label>
+                <input type="date" class="form-control" formControlName="birthDate" />
+              </div>
+              <div class="form-group">
+                <label class="form-label form-label--required">Número de camiseta</label>
+                <input type="number" class="form-control" formControlName="jerseyNumber"
+                  placeholder="#" min="0" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Posición</label>
+                <input type="text" class="form-control" formControlName="position"
+                  placeholder="Ej: Líbero, Armador" />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Foto del jugador (URL)</label>
+                <input type="url" class="form-control" formControlName="photoUrl"
+                  placeholder="https://..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Documento frente (URL foto/PDF)</label>
+                <input type="url" class="form-control" formControlName="documentFrontUrl"
+                  placeholder="https://..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Documento reverso (URL foto/PDF)</label>
+                <input type="url" class="form-control" formControlName="documentBackUrl"
+                  placeholder="https://..." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Certificado EPS (URL foto/PDF)</label>
+                <input type="url" class="form-control" formControlName="epsFileUrl"
+                  placeholder="https://..." />
+              </div>
+            </div>
           </div>
         }
       </div>

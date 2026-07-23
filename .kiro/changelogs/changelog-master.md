@@ -349,3 +349,30 @@
 ### Cambiado
 - Formulario de inscripción pública (`public-enrollment`): se agregaron campos para Club/Organización, Escudo/Logo (URL), colores (primary/secondary con color picker), redes sociales (Instagram, Facebook, TikTok, YouTube), y email
 - Hint informativo en campo Club: indica que si el club participa con varios equipos, debe usar el mismo nombre en cada inscripción
+
+### Cambiado
+- Formulario de inscripción de jugadores (`public-enrollment`): expandido con campos completos:
+  - Tipo de documento (select: CC, TI, RC, CE, PA)
+  - Número de documento (requerido)
+  - Email, teléfono, fecha de nacimiento
+  - Foto del jugador (URL)
+  - Documento de identidad frente y reverso (URL foto/PDF)
+  - Certificado EPS (URL foto/PDF)
+  - Número de camiseta y posición
+- Nota informativa: "Se creará una cuenta para cada jugador. La contraseña inicial será su número de documento."
+- Cada jugador se presenta en una tarjeta individual (card layout) en vez de fila inline
+
+### Agregado
+- Se creó componente `ShareableLinks` en tournament-detail: muestra tarjetas con URLs copiables para "Torneo público", "Inscripción de equipos" y "Partidos en vivo". Botones de Copiar y Compartir (usa Web Share API en mobile, clipboard en desktop)
+- Se integró `ShareableLinks` en la pestaña "Información" del detalle de torneo (visible solo para organizadores)
+- Vista pública del torneo (`public-tournament-detail`): se agregaron botones "Inscribir equipo" y "Compartir" en el header para que espectadores puedan compartir el link o ir directamente a inscribirse
+
+### Corregido
+- `authInterceptor`: las rutas públicas (`/p/*`) ya no redirigen a login cuando reciben un 401 — se detecta la ruta actual y se deja pasar el error sin redirección
+- `authInterceptor`: las peticiones a `/public/*` ya no envían cookies de autenticación (`withCredentials: false`) para evitar enviar sesión innecesaria
+- `authInterceptor`: se excluye `/auth/me` de los intentos de refresh (la restauración de sesión silencia su propio 401 sin necesidad de refresh loop)
+
+### Agregado
+- Se creó página de aterrizaje (`/inicio`): hero con CTA, sección de features (6 cards), sección de planes con precios en COP (cargados desde API), sección CTA con botón de WhatsApp, y footer
+- Se configuró ruta `/inicio` como landing pública (sin auth) y fallback `**` redirige a `/inicio`
+- Los planes se cargan dinámicamente desde `GET /public/plans/available` (sin autenticación)

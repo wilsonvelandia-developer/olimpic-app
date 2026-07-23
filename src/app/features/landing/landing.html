@@ -1,0 +1,222 @@
+<div class="landing">
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero__content">
+      <span class="hero__badge">Plataforma #1 en gestión de torneos</span>
+      <h1 class="hero__title">Organiza torneos deportivos como un profesional</h1>
+      <p class="hero__subtitle">
+        Fixture automático, marcador en tiempo real, tabla de posiciones, panel de árbitros,
+        inscripción online y estadísticas avanzadas — todo en una sola plataforma.
+      </p>
+      <div class="hero__actions">
+        <button type="button" class="btn btn--primary btn--lg" (click)="goToLogin()">
+          Ingresar a mi cuenta
+        </button>
+        <button type="button" class="btn btn--outline btn--lg" (click)="goToContact()">
+          Solicitar demo gratuita
+        </button>
+      </div>
+      <p class="hero__trust">Más de 50 torneos gestionados · Voleibol, Fútbol, Básquetbol y más</p>
+    </div>
+    <div class="hero__graphic" aria-hidden="true">
+      <div class="hero__visual">
+        <span>🏐</span><span>⚽</span><span>🏀</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <h2 class="section-title">Todo lo que necesitas, nada que te sobre</h2>
+      <p class="section-subtitle">Desde la inscripción hasta la premiación, controla cada detalle de tu torneo.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-card__icon">📅</span>
+          <h3 class="feature-card__title">Fixture automático inteligente</h3>
+          <p class="feature-card__desc">
+            Genera partidos todos-contra-todos o eliminatorias con un clic.
+            Multi-cancha (hasta 10 simultáneas), multi-día, con descanso configurable entre partidos.
+            Sorteo de grupos con separación por club.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">📊</span>
+          <h3 class="feature-card__title">Posiciones y estadísticas en vivo</h3>
+          <p class="feature-card__desc">
+            Tabla de posiciones que se recalcula automáticamente al finalizar cada partido.
+            Ranking de goleadores, sanciones acumuladas, estadísticas por jugador
+            y por fase (Copa Oro, Copa Plata, etc.).
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">📱</span>
+          <h3 class="feature-card__title">Seguimiento en tiempo real</h3>
+          <p class="feature-card__desc">
+            Los espectadores siguen los partidos en vivo desde su celular con un link compartible.
+            Sin necesidad de registro. Marcador actualizado punto a punto o set a set vía WebSocket.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">👨‍⚖️</span>
+          <h3 class="feature-card__title">Panel del árbitro profesional</h3>
+          <p class="feature-card__desc">
+            Los jueces registran marcador, sanciones (tarjetas), cambios y eventos desde la cancha.
+            Selección de alineaciones por set, capitán, líbero. Bloqueo exclusivo: solo un árbitro controla cada partido.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">📋</span>
+          <h3 class="feature-card__title">Inscripción online con documentos</h3>
+          <p class="feature-card__desc">
+            Los clubes inscriben equipos y jugadores con formulario público compartible por WhatsApp.
+            Sube foto, documento de identidad, certificado EPS. Cuenta de jugador creada automáticamente.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">🏐</span>
+          <h3 class="feature-card__title">Multi-deporte y reglas configurables</h3>
+          <p class="feature-card__desc">
+            Voleibol (sets, rotaciones, líbero), fútbol (tiempos, sustituciones),
+            básquetbol (cuartos), tenis (games/sets). Cada torneo puede personalizar reglas:
+            puntos por set, margen de victoria, sets para ganar, cambios permitidos.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">🏆</span>
+          <h3 class="feature-card__title">Copa Oro, Plata y Bronce</h3>
+          <p class="feature-card__desc">
+            Configura múltiples copas por torneo. Los primeros de cada grupo disputan Copa Oro,
+            los segundos Copa Plata, etc. Avance automático de eliminatorias con partido por 3er puesto.
+            Bracket visual interactivo.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">📄</span>
+          <h3 class="feature-card__title">Planillas PDF y exportación</h3>
+          <p class="feature-card__desc">
+            Genera planillas de partido en PDF con nóminas, goles y tarjetas.
+            Exporta fixture y posiciones a CSV/Excel. Comparte tabla de posiciones como imagen para redes sociales.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">🔔</span>
+          <h3 class="feature-card__title">Notificaciones y comunicados</h3>
+          <p class="feature-card__desc">
+            Notificaciones push (Firebase) cuando se publica fixture, hay cambios de horario o resultados.
+            Tablero de comunicados para anunciar información a todos los equipos del torneo.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">🔒</span>
+          <h3 class="feature-card__title">Control de acceso por roles</h3>
+          <p class="feature-card__desc">
+            13 roles configurables: Admin, Organizador, Entrenador, Árbitro, Jugador, Padre, Veedor y más.
+            Cada rol ve y hace solo lo que le corresponde. El organizador gestiona sus torneos sin ver los de otros.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">📸</span>
+          <h3 class="feature-card__title">Galería de fotos y momentos</h3>
+          <p class="feature-card__desc">
+            Álbumes por torneo con fotos y videos. Subida directa desde el celular.
+            Los espectadores pueden ver la galería desde el link público.
+          </p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-card__icon">💬</span>
+          <h3 class="feature-card__title">Chat en tiempo real</h3>
+          <p class="feature-card__desc">
+            Salas de chat por torneo y por equipo. Comunicación directa entre organizador,
+            entrenadores y delegados. Mensajes en tiempo real vía WebSocket.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <h2 class="section-title">Planes diseñados para cada tipo de torneo</h2>
+      <p class="section-subtitle">Sin contratos. Cancela cuando quieras. Soporte incluido en todos los planes.</p>
+
+      <div class="plans-grid">
+        @for (plan of plans(); track plan.id) {
+          <div class="plan-card" [class.plan-card--featured]="plan.slug === 'professional'" [class.plan-card--premium]="plan.slug === 'premium'">
+            @if (plan.slug === 'professional') {
+              <span class="plan-card__badge">Más popular</span>
+            }
+            @if (plan.slug === 'premium') {
+              <span class="plan-card__badge plan-card__badge--gold">Máximo poder</span>
+            }
+            <h3 class="plan-card__name">{{ plan.name }}</h3>
+            <div class="plan-card__price">
+              <span class="plan-card__amount">{{ plan.priceCop | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+              <span class="plan-card__period">/ mes</span>
+            </div>
+
+            <ul class="plan-card__limits">
+              <li><strong>{{ formatLimit(plan.maxTeamsPerTournament) }}</strong> equipos por torneo</li>
+              <li><strong>{{ formatLimit(plan.maxActiveTournaments) }}</strong> torneo(s) simultáneo(s)</li>
+              <li><strong>{{ formatLimit(plan.maxVenues) }}</strong> cancha(s) simultánea(s)</li>
+            </ul>
+
+            <ul class="plan-card__features">
+              @for (feature of planFeatures(plan); track feature.label) {
+                <li [class.plan-card__feature--included]="feature.included" [class.plan-card__feature--disabled]="!feature.included">
+                  <span class="plan-card__feature-icon">{{ feature.included ? '✓' : '—' }}</span>
+                  {{ feature.label }}
+                </li>
+              }
+            </ul>
+
+            <button type="button" class="btn plan-card__cta" [class.btn--primary]="plan.slug !== 'premium'" [class.btn--gold]="plan.slug === 'premium'" (click)="goToContact()">
+              {{ plan.slug === 'premium' ? 'Contactar ventas' : 'Elegir plan' }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <p class="pricing__note">
+        Todos los precios en pesos colombianos (COP). IVA incluido.
+        ¿Necesitas un plan personalizado? <button type="button" class="link-btn" (click)="goToContact()">Contáctanos</button>.
+      </p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container cta-section__inner">
+      <h2 class="cta-section__title">¿Listo para tu próximo torneo?</h2>
+      <p class="cta-section__text">
+        Contacta con nosotros y te ayudamos a configurar tu primer torneo.
+        Sin costo de implementación.
+      </p>
+      <div class="cta-section__actions">
+        <button type="button" class="btn btn--white btn--lg" (click)="goToContact()">
+          Contactar por WhatsApp
+        </button>
+        <button type="button" class="btn btn--outline-white btn--lg" (click)="goToLogin()">
+          Ya tengo cuenta
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="container landing-footer__inner">
+      <div class="landing-footer__brand">
+        <span class="landing-footer__logo">🏅 OlimpicApp</span>
+        <p class="landing-footer__copy">&copy; 2026 · Gestión de torneos deportivos</p>
+      </div>
+      <nav class="landing-footer__links" aria-label="Enlaces del pie de página">
+        <a routerLink="/auth/login">Ingresar</a>
+        <a routerLink="/p">Torneos públicos</a>
+        <a href="https://wa.me/573001234567" target="_blank" rel="noopener">WhatsApp</a>
+      </nav>
+    </div>
+  </footer>
+</div>

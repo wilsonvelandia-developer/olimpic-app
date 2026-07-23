@@ -91,6 +91,34 @@ export class Dashboard implements OnInit {
     this.router.navigate([route]);
   }
 
+  /** Admin quick-links for sharing. */
+  get adminLinks(): Array<{ label: string; url: string; icon: string }> {
+    const base = window.location.origin;
+    return [
+      { label: 'Landing / Página comercial', url: `${base}/inicio`, icon: '🌐' },
+      { label: 'Login de organizadores', url: `${base}/auth/login`, icon: '🔑' },
+      { label: 'Torneos públicos', url: `${base}/p`, icon: '🏆' },
+    ];
+  }
+
+  readonly copiedLinkIndex = signal<number | null>(null);
+
+  async copyAdminLink(index: number): Promise<void> {
+    const link = this.adminLinks[index];
+    try {
+      await navigator.clipboard.writeText(link.url);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = link.url;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    this.copiedLinkIndex.set(index);
+    setTimeout(() => this.copiedLinkIndex.set(null), 2000);
+  }
+
   formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('es-CO', {
       day: 'numeric', month: 'short', year: 'numeric',

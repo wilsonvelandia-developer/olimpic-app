@@ -332,3 +332,58 @@
     font-size: 0.8rem;
   }
 }
+
+/* Admin quick links */
+.quick-links {
+  margin-top: 2rem;
+}
+
+.quick-links__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1e293b);
+  margin: 0 0 0.75rem;
+}
+
+.quick-links__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-link-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-bg-secondary, #f8fafc);
+}
+
+.quick-link-item__icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.quick-link-item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.quick-link-item__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1e293b);
+}
+
+.quick-link-item__url {
+  font-size: 0.7rem;
+  color: var(--color-primary, #3b82f6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

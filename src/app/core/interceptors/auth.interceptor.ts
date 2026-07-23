@@ -23,9 +23,12 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   const correlationId = crypto.randomUUID();
 
+  // Don't send auth cookies to public endpoints (they don't need them)
+  const isPublicRequest = req.url.includes('/public/');
+
   const enrichedReq = req.clone({
     headers: req.headers.set('X-Correlation-ID', correlationId),
-    withCredentials: true,
+    withCredentials: !isPublicRequest,
   });
 
   return next(enrichedReq).pipe(
@@ -34,10 +37,15 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
         return throwError(() => error);
       }
 
+      // Don't redirect to login for public routes — they don't need auth
+      const currentUrl = router.url;
+      if (currentUrl.startsWith('/p') || currentUrl.startsWith('/auth')) {
+        return throwError(() => error);
+      }
+
       // Don't retry refresh or login endpoints to avoid infinite loops
       const url = req.url;
-      if (url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/logout')) {
-        router.navigate(['/auth/login']);
+      if (url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/logout') || url.includes('/auth/me')) {
         return throwError(() => error);
       }
 

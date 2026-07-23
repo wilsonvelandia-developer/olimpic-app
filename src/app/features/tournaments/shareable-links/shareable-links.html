@@ -1,0 +1,35 @@
+<div class="shareable-links">
+  <h3 class="shareable-links__title">Enlaces compartibles</h3>
+  <p class="shareable-links__subtitle">Comparte estos enlaces con equipos, jugadores y espectadores</p>
+
+  <div class="shareable-links__list">
+    @for (link of links; track link.label; let i = $index) {
+      <div class="link-card">
+        <div class="link-card__icon" aria-hidden="true">{{ link.icon }}</div>
+        <div class="link-card__info">
+          <span class="link-card__label">{{ link.label }}</span>
+          <span class="link-card__description">{{ link.description }}</span>
+          <code class="link-card__url">{{ link.url }}</code>
+        </div>
+        <div class="link-card__actions">
+          <button
+            type="button"
+            class="btn btn--sm btn--secondary"
+            (click)="copyLink(i)"
+            [attr.aria-label]="'Copiar enlace: ' + link.label"
+          >
+            {{ copiedIndex() === i ? '✓ Copiado' : 'Copiar' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn--sm btn--ghost"
+            (click)="shareLink(i)"
+            [attr.aria-label]="'Compartir enlace: ' + link.label"
+          >
+            Compartir
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

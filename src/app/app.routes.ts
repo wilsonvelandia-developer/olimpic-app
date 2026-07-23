@@ -14,6 +14,11 @@ export const routes: Routes = [
     path: 'p',
     loadChildren: () => import('./features/public/public.routes').then((m) => m.PUBLIC_ROUTES),
   },
+  {
+    // Landing page — shown to visitors (no auth required)
+    path: 'inicio',
+    loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
+  },
 
   // ── 403 page (inside shell so navbar/sidebar are still visible) ─
   {
@@ -164,6 +169,6 @@ export const routes: Routes = [
   // Fallback
   {
     path: '**',
-    redirectTo: 'dashboard',
+    redirectTo: 'inicio',
   },
 ];

@@ -141,6 +141,27 @@
         </button>
       </div>
     </div>
+
+    <!-- Admin quick links (only for admin) -->
+    @if (auth.isAdmin()) {
+      <div class="quick-links">
+        <h2 class="quick-links__title">Enlaces para compartir</h2>
+        <div class="quick-links__list">
+          @for (link of adminLinks; track link.label; let i = $index) {
+            <div class="quick-link-item">
+              <span class="quick-link-item__icon" aria-hidden="true">{{ link.icon }}</span>
+              <div class="quick-link-item__info">
+                <span class="quick-link-item__label">{{ link.label }}</span>
+                <code class="quick-link-item__url">{{ link.url }}</code>
+              </div>
+              <button type="button" class="btn btn--sm btn--secondary" (click)="copyAdminLink(i)">
+                {{ copiedLinkIndex() === i ? '✓ Copiado' : 'Copiar' }}
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
   }
 
 </section>

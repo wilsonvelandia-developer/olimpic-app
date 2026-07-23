@@ -100,4 +100,21 @@ export class PublicTournamentDetail implements OnInit {
   goBack(): void {
     this.router.navigate(['/p']);
   }
+
+  /** Share the public tournament link via Web Share API or clipboard. */
+  async shareTournament(): Promise<void> {
+    const name = this.tournament()?.name ?? 'Torneo';
+    const url = window.location.href;
+
+    if (navigator.share) {
+      await navigator.share({ title: name, url }).catch(() => {});
+    } else {
+      await navigator.clipboard.writeText(url).catch(() => {});
+    }
+  }
+
+  /** Navigate to the enrollment form for this tournament. */
+  goToEnroll(): void {
+    this.router.navigate(['/p/tournament', this.id(), 'enroll']);
+  }
 }

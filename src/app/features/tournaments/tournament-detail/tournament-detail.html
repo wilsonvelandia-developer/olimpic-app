@@ -169,6 +169,14 @@
                 <a [href]="tournament()!.invitationFileUrl" target="_blank" rel="noopener" class="social-link social-link--doc">📨 Invitación</a>
               }
             </div>
+
+            <!-- Shareable Links (visible only for organizers) -->
+            @if (auth.isOrganizer()) {
+              <app-shareable-links
+                [tournamentId]="tournament()!.id"
+                [tournamentName]="tournament()!.name"
+              />
+            }
           </div>
         }
 

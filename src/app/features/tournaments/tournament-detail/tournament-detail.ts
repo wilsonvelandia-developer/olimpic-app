@@ -26,6 +26,7 @@ import { TournamentGallery }       from '../tournament-gallery/tournament-galler
 import { TournamentBracket }      from '../tournament-bracket/tournament-bracket';
 import { TournamentSanctions }    from '../tournament-sanctions/tournament-sanctions';
 import { TournamentScorers }      from '../tournament-scorers/tournament-scorers';
+import { ShareableLinks }         from '../shareable-links/shareable-links';
 import { AuthService }        from '../../../core/services/auth.service';
 import type {
   Tournament, StandingsEntry, TournamentStatsData, Match,
@@ -41,6 +42,7 @@ type ActiveTab = 'info' | 'groups' | 'matches' | 'bracket' | 'standings' | 'stat
     EnrollmentManager, TournamentVenues, TournamentPayments, TournamentAnnouncements, TournamentGallery,
     TournamentBracket,
     TournamentSanctions, TournamentScorers,
+    ShareableLinks,
   ],
   templateUrl: './tournament-detail.html',
   styleUrl:    './tournament-detail.css',
