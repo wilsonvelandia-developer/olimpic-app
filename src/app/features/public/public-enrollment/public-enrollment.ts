@@ -46,6 +46,7 @@ export class PublicEnrollment implements OnInit {
     contactName:    ['', [Validators.required, Validators.minLength(3)]],
     contactPhone:   ['', [Validators.required]],
     contactEmail:   ['', [Validators.email]],
+    acceptsDataPolicy: [false, [Validators.requiredTrue]],
     players:        this.fb.array([] as ReturnType<typeof this.createPlayerGroup>[]),
   });
 

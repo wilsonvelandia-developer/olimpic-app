@@ -8,7 +8,7 @@
     >
       ☰
     </button>
-    <span class="navbar__logo">OlimpicApp</span>
+    <a href="/inicio" target="_blank" rel="noopener" class="navbar__logo" title="Ver página principal">OlimpicApp</a>
   </div>
 
   <nav class="navbar__right" aria-label="User menu">
@@ -24,6 +24,9 @@
       <button type="button" class="navbar__theme-btn" (click)="onStartTour()" aria-label="Tour de ayuda" title="Tour de ayuda">
         ❓
       </button>
+      <a href="/ayuda" target="_blank" rel="noopener" class="navbar__theme-btn" aria-label="Centro de ayuda" title="Centro de ayuda">
+        📖
+      </a>
       <div class="navbar__user-info">
         <span class="navbar__user-name">{{ currentUser()!.name }}</span>
         <span class="navbar__role-badge">

@@ -201,6 +201,23 @@
         + Agregar jugador
       </button>
 
+      <!-- Data policy consent -->
+      <div class="form-group form-group--consent">
+        <label class="consent-label">
+          <input type="checkbox" formControlName="acceptsDataPolicy" class="consent-checkbox" />
+          <span>
+            Acepto la
+            <a href="/politica-de-privacidad" target="_blank" rel="noopener" class="consent-link">
+              Política de Tratamiento de Datos Personales
+            </a>
+            y autorizo el uso de la información proporcionada para los fines descritos en la misma.
+          </span>
+        </label>
+        @if (form.get('acceptsDataPolicy')?.touched && form.get('acceptsDataPolicy')?.invalid) {
+          <span class="form-error">Debes aceptar la política de tratamiento de datos para continuar.</span>
+        }
+      </div>
+
       <!-- Submit -->
       <div class="form-actions">
         <button type="button" class="btn btn--secondary" (click)="goBack()">Cancelar</button>

@@ -3,7 +3,7 @@
  *  - Blue (#1a56db / #3b82f6): Trust, professionalism, reliability
  *  - Green (#10b981): Success, growth, positive outcomes
  *  - Gold (#d97706): Premium, excellence, achievement
- *  - Dark (#0f172a / #1e293b): Authority, stability
+ *  - Dark (#6d98ff / #1e293b): Authority, stability
  *  - White/Light (#f8fafc): Clean, open, approachable
  */
 
@@ -48,7 +48,7 @@
 .hero__title {
   font-size: 3rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #6d98ff;
   line-height: 1.1;
   margin: 0 0 1.25rem;
   letter-spacing: -0.5px;
@@ -56,7 +56,7 @@
 
 .hero__subtitle {
   font-size: 1.125rem;
-  color: #475569;
+  color: #cdd5df;
   line-height: 1.7;
   margin: 0 0 2rem;
 }
@@ -88,14 +88,14 @@
   font-size: 2rem;
   font-weight: 800;
   text-align: center;
-  color: #0f172a;
+  color: #6d98ff;
   margin: 0 0 0.5rem;
   letter-spacing: -0.3px;
 }
 
 .section-subtitle {
   text-align: center;
-  color: #64748b;
+  color: #75808f;
   font-size: 1.05rem;
   margin: 0 0 3rem;
   max-width: 600px;
@@ -130,8 +130,8 @@
 }
 
 .feature-card__icon { font-size: 2rem; display: block; margin-bottom: 0.75rem; }
-.feature-card__title { font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0 0 0.5rem; }
-.feature-card__desc { font-size: 0.85rem; color: #475569; line-height: 1.6; margin: 0; }
+.feature-card__title { font-size: 1rem; font-weight: 700; color: #6d98ff; margin: 0 0 0.5rem; }
+.feature-card__desc { font-size: 0.85rem; color: #75808f; line-height: 1.6; margin: 0; }
 
 /* ── Pricing ───────────────────────────────────────────────── */
 .pricing {
@@ -195,7 +195,7 @@
 .plan-card__name {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #6d98ff;
   margin: 0;
   text-align: center;
 }
@@ -209,7 +209,7 @@
 .plan-card__amount {
   font-size: 2rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #6d98ff;
 }
 
 .plan-card__period {
@@ -241,7 +241,7 @@
 }
 
 .plan-card__limits strong {
-  color: #0f172a;
+  color: #6d98ff;
 }
 
 .plan-card__features {
@@ -296,7 +296,7 @@
 /* ── CTA Section ───────────────────────────────────────────── */
 .cta-section {
   padding: 5rem 2rem;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1a56db 100%);
+  background: linear-gradient(135deg, #6d98ff 0%, #1e293b 50%, #1a56db 100%);
   color: #fff;
 }
 
@@ -331,7 +331,7 @@
 .landing-footer__logo {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #6d98ff;
 }
 
 .landing-footer__copy {

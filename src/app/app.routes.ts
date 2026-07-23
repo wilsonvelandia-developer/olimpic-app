@@ -19,6 +19,16 @@ export const routes: Routes = [
     path: 'inicio',
     loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
   },
+  {
+    // Help center — role-based documentation (no auth required)
+    path: 'ayuda',
+    loadComponent: () => import('./features/help/help').then((m) => m.Help),
+  },
+  {
+    // Privacy policy — data treatment policy (no auth required)
+    path: 'politica-de-privacidad',
+    loadComponent: () => import('./features/privacy-policy/privacy-policy').then((m) => m.PrivacyPolicy),
+  },
 
   // ── 403 page (inside shell so navbar/sidebar are still visible) ─
   {

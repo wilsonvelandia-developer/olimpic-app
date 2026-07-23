@@ -1,0 +1,21 @@
+@if (isVisible()) {
+  <div class="cookie-banner" role="alert" aria-label="Aviso de cookies">
+    <div class="cookie-banner__content">
+      <p class="cookie-banner__text">
+        🍪 Este sitio utiliza cookies esenciales para el funcionamiento de la sesión y la autenticación.
+        Al continuar navegando, aceptas el uso de cookies.
+        <a href="/politica-de-privacidad" target="_blank" rel="noopener" class="cookie-banner__link">
+          Ver Política de Privacidad
+        </a>
+      </p>
+      <div class="cookie-banner__actions">
+        <button type="button" class="btn btn--primary btn--sm" (click)="accept()">
+          Aceptar todas
+        </button>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="reject()">
+          Solo esenciales
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CurrencyPipe } from '@angular/common';
 import { environment } from '../../../environments/environment';
@@ -22,7 +22,7 @@ interface Plan {
  */
 @Component({
   selector: 'app-landing',
-  imports: [RouterLink, CurrencyPipe],
+  imports: [CurrencyPipe],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,19 +31,37 @@ export class Landing implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
-  readonly plans = signal<Plan[]>([]);
+  readonly plans = signal<Plan[]>([
+    // Fallback estático — se actualiza con datos de la API cuando está disponible
+    {
+      id: '1', slug: 'basic', name: 'Básico', priceCop: 49900, displayOrder: 1,
+      maxTeamsPerTournament: 8, maxActiveTournaments: 1, maxVenues: 1,
+      features: { chat: false, gallery: false, analytics: false, pdf: true, publicEnrollment: false, notifications: false, customBranding: false, multiCup: false },
+    },
+    {
+      id: '2', slug: 'professional', name: 'Profesional', priceCop: 149900, displayOrder: 2,
+      maxTeamsPerTournament: 20, maxActiveTournaments: 3, maxVenues: 3,
+      features: { chat: false, gallery: true, analytics: true, pdf: true, publicEnrollment: true, notifications: true, customBranding: false, multiCup: true },
+    },
+    {
+      id: '3', slug: 'premium', name: 'Premium', priceCop: 299900, displayOrder: 3,
+      maxTeamsPerTournament: 32, maxActiveTournaments: 0, maxVenues: 0,
+      features: { chat: true, gallery: true, analytics: true, pdf: true, publicEnrollment: true, notifications: true, customBranding: true, multiCup: true },
+    },
+  ]);
 
   ngOnInit(): void {
+    // Try to load plans from API (overrides fallback if successful)
     this.http
-      .get<{ data: Plan[] }>(`${environment.apiBaseUrl}/public/plans/available`)
+      .get<{ data: Plan[] }>(`${environment.apiBaseUrl}/public/plans`)
       .subscribe({
-        next: (res) => this.plans.set(res.data ?? []),
-        error: () => {},
+        next: (res) => { if (res.data?.length) this.plans.set(res.data); },
+        error: () => { /* keep fallback static plans */ },
       });
   }
 
   goToLogin(): void {
-    this.router.navigate(['/auth/login']);
+    window.open('/auth/login', '_blank');
   }
 
   goToContact(): void {

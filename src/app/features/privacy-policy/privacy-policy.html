@@ -1,0 +1,181 @@
+<div class="policy-page">
+  <header class="policy-header">
+    <a href="/inicio" class="policy-header__back">← Volver al inicio</a>
+    <h1 class="policy-header__title">Política de Tratamiento de Datos Personales</h1>
+    <p class="policy-header__date">Última actualización: Julio 2026</p>
+  </header>
+
+  <article class="policy-content">
+
+    <section>
+      <h2>1. Responsable del tratamiento</h2>
+      <p>
+        <strong>OlimpicApp</strong> es una plataforma de gestión de torneos deportivos.
+        El responsable del tratamiento de datos personales es el administrador de la plataforma,
+        quien actúa conforme a la legislación colombiana vigente en materia de protección de datos
+        (Ley 1581 de 2012 y Decreto 1377 de 2013).
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Datos que recopilamos</h2>
+      <p>Dependiendo de tu rol en la plataforma, podemos recopilar:</p>
+
+      <h3>Organizadores de torneos</h3>
+      <ul>
+        <li>Nombre completo, correo electrónico, teléfono</li>
+        <li>Información de pago y suscripción</li>
+      </ul>
+
+      <h3>Jugadores</h3>
+      <ul>
+        <li>Nombre completo, tipo y número de documento de identidad</li>
+        <li>Fecha de nacimiento, correo electrónico, teléfono</li>
+        <li>Fotografía del jugador</li>
+        <li>Foto/copia del documento de identidad (frente y reverso)</li>
+        <li>Certificado o carnet de EPS (seguro de salud)</li>
+        <li>Número de camiseta y posición de juego</li>
+      </ul>
+
+      <h3>Entrenadores, árbitros y otros roles</h3>
+      <ul>
+        <li>Nombre completo, correo electrónico, teléfono</li>
+        <li>Documento de identidad</li>
+      </ul>
+
+      <h3>Datos técnicos (automáticos)</h3>
+      <ul>
+        <li>Dirección IP, tipo de navegador, sistema operativo</li>
+        <li>Cookies de sesión (httpOnly) para autenticación</li>
+        <li>Identificadores de correlación para trazabilidad técnica</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. Finalidad del tratamiento</h2>
+      <p>Los datos personales se utilizan exclusivamente para:</p>
+      <ul>
+        <li>Gestionar la inscripción de equipos y jugadores en torneos deportivos</li>
+        <li>Verificar la identidad y edad de los jugadores (categorías juveniles)</li>
+        <li>Validar la cobertura de salud (EPS) como requisito para participar</li>
+        <li>Autenticar usuarios y mantener sesiones seguras</li>
+        <li>Enviar notificaciones relacionadas con el torneo (horarios, resultados, cambios)</li>
+        <li>Generar estadísticas deportivas (goles, tarjetas, partidos jugados)</li>
+        <li>Soporte técnico y resolución de incidencias</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. Cookies</h2>
+      <p>OlimpicApp utiliza las siguientes cookies:</p>
+
+      <table class="policy-table">
+        <thead>
+          <tr><th>Cookie</th><th>Tipo</th><th>Duración</th><th>Propósito</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>auth_token</td><td>Esencial</td><td>1 hora</td><td>Token de acceso JWT para autenticación</td></tr>
+          <tr><td>refresh_token</td><td>Esencial</td><td>7 días</td><td>Token de renovación de sesión</td></tr>
+          <tr><td>cookie_consent</td><td>Funcional</td><td>1 año</td><td>Registra la aceptación de cookies</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        Las cookies de autenticación son <strong>httpOnly</strong> y <strong>Secure</strong>,
+        lo que significa que no pueden ser leídas por JavaScript del navegador ni transmitidas
+        por conexiones no cifradas. Son estrictamente necesarias para el funcionamiento de la sesión.
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Compartición de datos</h2>
+      <p>
+        Los datos personales <strong>no se comparten ni venden a terceros</strong>.
+        La información de los jugadores es visible únicamente para:
+      </p>
+      <ul>
+        <li>El organizador del torneo donde están inscritos</li>
+        <li>El entrenador/delegado de su equipo</li>
+        <li>Los árbitros asignados a sus partidos (solo nombre y dorsal)</li>
+      </ul>
+      <p>
+        La información sensible (documento de identidad, EPS) solo es visible para
+        el organizador y el entrenador del equipo, nunca para el público.
+      </p>
+    </section>
+
+    <section>
+      <h2>6. Seguridad</h2>
+      <p>Implementamos las siguientes medidas de seguridad:</p>
+      <ul>
+        <li>Contraseñas cifradas con bcrypt (nunca almacenadas en texto plano)</li>
+        <li>Conexiones cifradas (HTTPS/TLS) en producción</li>
+        <li>Cookies httpOnly + Secure + SameSite para prevenir ataques XSS/CSRF</li>
+        <li>Content Security Policy (CSP) para prevenir inyección de scripts</li>
+        <li>Rate limiting para prevenir ataques de fuerza bruta</li>
+        <li>Sanitización de entradas para prevenir inyección SQL y XSS</li>
+        <li>Audit trail de operaciones críticas</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7. Derechos del titular</h2>
+      <p>Conforme a la Ley 1581 de 2012, como titular de los datos tienes derecho a:</p>
+      <ul>
+        <li><strong>Conocer:</strong> acceder a tus datos personales almacenados</li>
+        <li><strong>Actualizar:</strong> corregir información inexacta o incompleta</li>
+        <li><strong>Rectificar:</strong> solicitar la corrección de datos erróneos</li>
+        <li><strong>Revocar:</strong> retirar la autorización para el tratamiento</li>
+        <li><strong>Suprimir:</strong> solicitar la eliminación de tus datos cuando no exista obligación legal de conservarlos</li>
+      </ul>
+      <p>
+        Para ejercer estos derechos, contacta al organizador de tu torneo o al
+        administrador de la plataforma.
+      </p>
+    </section>
+
+    <section>
+      <h2>8. Retención de datos</h2>
+      <ul>
+        <li>Los datos de torneos finalizados se conservan por <strong>90 días</strong> para consulta de resultados y estadísticas</li>
+        <li>Después de este período, los torneos se archivan y los datos dejan de ser accesibles públicamente</li>
+        <li>Los documentos de identidad y certificados EPS se conservan durante la vigencia del torneo y se eliminan después del archivado</li>
+        <li>Las cuentas de usuario inactivas por más de 12 meses pueden ser eliminadas previa notificación</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>9. Menores de edad</h2>
+      <p>
+        OlimpicApp gestiona torneos deportivos que incluyen categorías juveniles (menores de 18 años).
+        La inscripción de menores de edad requiere que sea realizada por su entrenador, delegado,
+        padre de familia o acudiente autorizado.
+      </p>
+      <p>
+        Los datos de menores reciben protección reforzada: solo son visibles para el organizador
+        del torneo y el equipo técnico del club. Nunca se exponen públicamente.
+      </p>
+    </section>
+
+    <section>
+      <h2>10. Modificaciones a esta política</h2>
+      <p>
+        Nos reservamos el derecho de actualizar esta política. Los cambios serán publicados
+        en esta misma página con la fecha de última actualización. El uso continuado de la
+        plataforma después de los cambios constituye aceptación de los mismos.
+      </p>
+    </section>
+
+    <section>
+      <h2>11. Contacto</h2>
+      <p>
+        Para consultas, quejas o reclamos relacionados con el tratamiento de datos personales:
+      </p>
+      <ul>
+        <li>WhatsApp: +57 300 123 4567</li>
+        <li>Email: privacidad&#64;olimpicapp.com</li>
+      </ul>
+    </section>
+
+  </article>
+</div>

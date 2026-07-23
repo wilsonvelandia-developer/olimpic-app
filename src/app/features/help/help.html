@@ -1,0 +1,409 @@
+<div class="help-page">
+  <header class="help-header">
+    <a href="/inicio" class="help-header__back">← Volver al inicio</a>
+    <h1 class="help-header__title">Centro de Ayuda</h1>
+    <p class="help-header__subtitle">Guías paso a paso según tu rol en OlimpicApp</p>
+  </header>
+
+  <!-- Role selector -->
+  <nav class="role-nav" aria-label="Seleccionar perfil">
+    @for (section of sections; track section.id) {
+      <button
+        type="button"
+        class="role-nav__btn"
+        [class.role-nav__btn--active]="activeSection() === section.id"
+        (click)="setSection(section.id)"
+      >
+        <span class="role-nav__icon">{{ section.icon }}</span>
+        <span class="role-nav__label">{{ section.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <!-- Content -->
+  <main class="help-content">
+
+    <!-- ═══════ ADMINISTRADOR ═══════ -->
+    @if (activeSection() === 'admin') {
+      <article class="guide">
+        <h2 class="guide__title">🛡️ Guía del Administrador</h2>
+        <p class="guide__intro">
+          Como administrador tienes control total sobre la plataforma: gestión de organizadores,
+          planes, y supervisión de todos los torneos.
+        </p>
+
+        <section class="guide-step">
+          <h3>1. Invitar un organizador</h3>
+          <p>Desde tu <strong>Dashboard</strong>, usa la sección de gestión de usuarios para crear una cuenta de organizador:</p>
+          <ul>
+            <li>Ingresa el email, nombre y teléfono del organizador</li>
+            <li>Selecciona el plan (Básico, Profesional o Premium)</li>
+            <li>El sistema genera una contraseña temporal</li>
+            <li>Comparte las credenciales por WhatsApp o email</li>
+          </ul>
+          <div class="guide-tip">💡 El organizador deberá cambiar su contraseña en el primer inicio de sesión.</div>
+        </section>
+
+        <section class="guide-step">
+          <h3>2. Controlar acceso</h3>
+          <ul>
+            <li><strong>Desactivar:</strong> Si un organizador no renueva, desactiva su cuenta. No podrá ingresar.</li>
+            <li><strong>Reactivar:</strong> Cuando renueve, reactiva su cuenta con un clic.</li>
+            <li><strong>Cambiar plan:</strong> Actualiza el plan asignado si el organizador necesita más capacidad.</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>3. Supervisar torneos</h3>
+          <ul>
+            <li>Ve todos los torneos de la plataforma desde tu dashboard</li>
+            <li>Accede a cualquier torneo para verificar su estado</li>
+            <li>Puedes modificar cualquier dato (el admin no tiene restricciones de lifecycle)</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>4. Compartir enlaces</h3>
+          <p>En tu Dashboard verás la sección "Enlaces para compartir" con URLs copiables:</p>
+          <ul>
+            <li><strong>Landing page:</strong> Para enviar a potenciales clientes</li>
+            <li><strong>Login:</strong> Para enviar a organizadores ya invitados</li>
+            <li><strong>Torneos públicos:</strong> Para mostrar torneos activos</li>
+          </ul>
+        </section>
+      </article>
+    }
+
+    <!-- ═══════ ORGANIZADOR ═══════ -->
+    @if (activeSection() === 'organizer') {
+      <article class="guide">
+        <h2 class="guide__title">🏆 Guía del Organizador de Torneos</h2>
+        <p class="guide__intro">
+          Como organizador puedes crear y gestionar torneos completos: desde la inscripción
+          hasta la premiación final.
+        </p>
+
+        <section class="guide-step">
+          <h3>1. Crear un torneo</h3>
+          <p>Desde el <strong>Dashboard → Nuevo torneo</strong>:</p>
+          <ul>
+            <li>Nombre del torneo, deporte, categoría (ej: U13, Libre)</li>
+            <li>Fecha de inicio y fecha límite de inscripción</li>
+            <li>Reglas del deporte: sets para ganar, puntos por set, set decisivo</li>
+            <li>Logística: duración de partidos, canchas simultáneas, partidos por día</li>
+          </ul>
+          <div class="guide-tip">💡 Puedes configurar descanso mínimo entre partidos y separación por club.</div>
+        </section>
+
+        <section class="guide-step">
+          <h3>2. Configurar sedes y copas</h3>
+          <ul>
+            <li><strong>Sedes:</strong> Agrega las canchas/coliseos con sub-espacios (ej: "Espacio 1", "Espacio 2")</li>
+            <li><strong>Copas:</strong> Configura Copa Oro (1° y 2° de cada grupo), Copa Plata (3° y 4°), etc.</li>
+            <li><strong>Sanciones:</strong> Configura tipos de tarjeta y acumulación (ej: 3 amarillas = roja)</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>3. Abrir inscripciones</h3>
+          <ul>
+            <li>En la pestaña "Información" del torneo, copia el <strong>link de inscripción</strong></li>
+            <li>Compártelo por WhatsApp, redes sociales o email</li>
+            <li>Los clubes se inscriben con sus equipos y jugadores desde el formulario público</li>
+            <li>Revisa y aprueba las inscripciones en la pestaña "Inscripciones"</li>
+          </ul>
+          <div class="guide-tip">💡 Si un club participa con varios equipos, deben usar el mismo "Nombre de club" al inscribirse. El sorteo los separará automáticamente.</div>
+        </section>
+
+        <section class="guide-step">
+          <h3>4. Sorteo de grupos</h3>
+          <ul>
+            <li><strong>Automático:</strong> Botón "Sorteo automático" → elige modo (aleatorio, serpentine) y número de grupos</li>
+            <li><strong>Manual:</strong> Arrastra equipos entre grupos hasta que quedes conforme</li>
+            <li>El sistema separa equipos del mismo club automáticamente (si hay suficientes grupos)</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>5. Generar el fixture</h3>
+          <ul>
+            <li>Botón "Generar fixture" → crea todos los partidos round-robin por grupo</li>
+            <li>Asigna fechas, horarios y canchas automáticamente</li>
+            <li>Puedes ajustar manualmente cualquier partido después</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>6. Asignar árbitros</h3>
+          <ul>
+            <li>Registra a los árbitros como usuarios con rol "Árbitro"</li>
+            <li>Asígnalos al torneo como staff</li>
+            <li>(Opcional) Asigna árbitros específicos a partidos específicos</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>7. Durante el torneo</h3>
+          <ul>
+            <li>Los árbitros ejecutan los partidos desde su panel</li>
+            <li>Las posiciones se actualizan automáticamente</li>
+            <li>Comparte el link público para que espectadores sigan en vivo</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>8. Fase eliminatoria</h3>
+          <ul>
+            <li>"Generar eliminatoria por Copa Oro" → crea cruces automáticos (1A vs 2B)</li>
+            <li>"Generar eliminatoria por Copa Plata" → crea cruces (3A vs 4B)</li>
+            <li>"Avanzar eliminatoria" → crea final + 3er puesto después de cada ronda</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>9. Cierre del torneo</h3>
+          <ul>
+            <li>Revisa estadísticas, goleadores y sanciones por fase/copa</li>
+            <li>Exporta reportes en PDF o CSV</li>
+            <li>Marca el torneo como "Finalizado" (queda en solo-lectura)</li>
+          </ul>
+          <div class="guide-tip">💡 Un torneo finalizado permanece visible por 90 días. Después se archiva automáticamente.</div>
+        </section>
+      </article>
+    }
+
+    <!-- ═══════ ÁRBITRO ═══════ -->
+    @if (activeSection() === 'referee') {
+      <article class="guide">
+        <h2 class="guide__title">👨‍⚖️ Guía del Árbitro / Juez</h2>
+        <p class="guide__intro">
+          Como árbitro controlas los partidos en tiempo real: marcador, sanciones, cambios y alineaciones.
+        </p>
+
+        <section class="guide-step">
+          <h3>1. Acceder al panel de árbitro</h3>
+          <ul>
+            <li>Inicia sesión con tu cuenta (credenciales asignadas por el organizador)</li>
+            <li>En el menú lateral, selecciona "Panel de Árbitro"</li>
+            <li>Verás solo los partidos de torneos donde estás asignado</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>2. Tomar control del partido</h3>
+          <ul>
+            <li>Selecciona el partido a juzgar</li>
+            <li>Presiona "Tomar control" — solo tú podrás modificar ese partido</li>
+            <li>Si otro árbitro intenta tomar el mismo partido, será bloqueado</li>
+          </ul>
+          <div class="guide-tip">💡 Si te desconectas, el bloqueo se libera automáticamente.</div>
+        </section>
+
+        <section class="guide-step">
+          <h3>3. Registrar alineación</h3>
+          <ul>
+            <li>Selecciona qué jugadores están presentes para cada equipo</li>
+            <li>Marca quiénes son titulares, quién es capitán y quién es líbero</li>
+            <li>Puedes cambiar la alineación en cada set/periodo</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>4. Registrar marcador</h3>
+          <ul>
+            <li><strong>Opción A (en vivo):</strong> Registra punto a punto. El sistema detecta automáticamente cuándo termina el set.</li>
+            <li><strong>Opción B (planilla física):</strong> Al terminar el set, ingresa el resultado final directamente (ej: 21-18).</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>5. Registrar eventos</h3>
+          <ul>
+            <li><strong>Sanciones:</strong> Tarjeta amarilla o roja al jugador correspondiente</li>
+            <li><strong>Cambios:</strong> Selecciona jugador que sale y jugador que entra</li>
+            <li><strong>Timeouts:</strong> Registra tiempos muertos solicitados</li>
+          </ul>
+          <div class="guide-tip">💡 La acumulación de tarjetas es automática. 3 amarillas = roja automática (según configuración del torneo).</div>
+        </section>
+
+        <section class="guide-step">
+          <h3>6. Finalizar el partido</h3>
+          <ul>
+            <li>Presiona "Finalizar partido"</li>
+            <li>El sistema calcula el ganador y recalcula la tabla de posiciones</li>
+            <li>Los espectadores ven el resultado inmediatamente</li>
+          </ul>
+        </section>
+      </article>
+    }
+
+    <!-- ═══════ ENTRENADOR ═══════ -->
+    @if (activeSection() === 'coach') {
+      <article class="guide">
+        <h2 class="guide__title">📋 Guía del Entrenador / Director Técnico</h2>
+        <p class="guide__intro">
+          Como entrenador gestionas tu equipo: jugadores, nómina y seguimiento de partidos.
+        </p>
+
+        <section class="guide-step">
+          <h3>1. Acceder a tu equipo</h3>
+          <ul>
+            <li>Inicia sesión con tu cuenta</li>
+            <li>En el Dashboard verás los equipos y torneos donde estás registrado</li>
+            <li>Selecciona tu equipo para ver el detalle</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>2. Gestionar jugadores</h3>
+          <ul>
+            <li>Agrega jugadores con su información completa (documento, foto, EPS)</li>
+            <li>Asigna dorsal y posición</li>
+            <li>Puedes agregar o cambiar jugadores hasta la fecha/jornada límite configurada por el organizador</li>
+          </ul>
+          <div class="guide-tip">💡 Cada jugador registrado obtiene una cuenta automáticamente. Comparte sus credenciales (email + documento como contraseña).</div>
+        </section>
+
+        <section class="guide-step">
+          <h3>3. Ver fixture y posiciones</h3>
+          <ul>
+            <li>Consulta los próximos partidos de tu equipo (fecha, hora, cancha, rival)</li>
+            <li>Revisa la tabla de posiciones de tu grupo</li>
+            <li>Consulta estadísticas de tus jugadores (goles, tarjetas)</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>4. Exportar planilla</h3>
+          <ul>
+            <li>Antes de cada partido, puedes exportar la planilla en PDF</li>
+            <li>Incluye nómina completa, dorsales y datos del partido</li>
+          </ul>
+        </section>
+      </article>
+    }
+
+    <!-- ═══════ JUGADOR ═══════ -->
+    @if (activeSection() === 'player') {
+      <article class="guide">
+        <h2 class="guide__title">🏃 Guía del Jugador</h2>
+        <p class="guide__intro">
+          Como jugador puedes ver tu información personal, estadísticas y calendario de partidos.
+        </p>
+
+        <section class="guide-step">
+          <h3>1. Primer ingreso</h3>
+          <ul>
+            <li>Tu cuenta fue creada automáticamente al ser inscrito por tu club/entrenador</li>
+            <li>Ingresa con tu email (o documento&#64;player.olimpicapp.local) y tu número de documento como contraseña</li>
+            <li>El sistema te pedirá cambiar la contraseña obligatoriamente</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>2. Tu perfil</h3>
+          <ul>
+            <li>Ve tu información personal: foto, documento, EPS, equipo, dorsal</li>
+            <li>Consulta tus estadísticas: goles/puntos, tarjetas, partidos jugados</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>3. Calendario de partidos</h3>
+          <ul>
+            <li>Ve los próximos partidos de tu equipo</li>
+            <li>Consulta resultados anteriores</li>
+            <li>Sigue los partidos en vivo desde la vista pública</li>
+          </ul>
+          <div class="guide-tip">💡 Tu cuenta es de solo-lectura. No puedes modificar la información del torneo ni los resultados.</div>
+        </section>
+      </article>
+    }
+
+    <!-- ═══════ PADRE / ACUDIENTE ═══════ -->
+    @if (activeSection() === 'parent') {
+      <article class="guide">
+        <h2 class="guide__title">👨‍👧 Guía del Padre de Familia / Acudiente</h2>
+        <p class="guide__intro">
+          Como padre o acudiente puedes seguir los torneos de tu hijo(a) y ver su progreso.
+        </p>
+
+        <section class="guide-step">
+          <h3>1. Acceso</h3>
+          <ul>
+            <li>Si tienes cuenta, inicia sesión para ver información más detallada</li>
+            <li>Si no tienes cuenta, puedes seguir todo desde el <strong>link público del torneo</strong> (sin registro)</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>2. Seguir partidos</h3>
+          <ul>
+            <li>Abre el link público del torneo compartido por el club</li>
+            <li>Ve los partidos en vivo con marcador actualizado</li>
+            <li>Consulta tabla de posiciones y fixture pendiente</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>3. Ver información de tu hijo(a)</h3>
+          <ul>
+            <li>Si tienes cuenta con rol "padre", puedes ver el perfil del jugador vinculado</li>
+            <li>Estadísticas, partidos jugados, sanciones</li>
+          </ul>
+          <div class="guide-tip">💡 Tu cuenta es de solo-lectura. Solo puedes consultar información, no modificarla.</div>
+        </section>
+      </article>
+    }
+
+    <!-- ═══════ PÚBLICO GENERAL ═══════ -->
+    @if (activeSection() === 'public') {
+      <article class="guide">
+        <h2 class="guide__title">👀 Guía para el Público General</h2>
+        <p class="guide__intro">
+          No necesitas cuenta para seguir los torneos. Todo lo público es accesible con un link.
+        </p>
+
+        <section class="guide-step">
+          <h3>1. Acceder al torneo</h3>
+          <ul>
+            <li>Recibe el link del torneo compartido por WhatsApp, redes o poster</li>
+            <li>Ábrelo desde cualquier navegador (celular o computador)</li>
+            <li>No necesitas registro ni descarga de apps</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>2. ¿Qué puedes ver?</h3>
+          <ul>
+            <li>📊 Tabla de posiciones actualizada</li>
+            <li>📅 Fixture completo (próximos partidos con fecha, hora y cancha)</li>
+            <li>⚽ Resultados de partidos ya jugados</li>
+            <li>🔴 Partidos en vivo (marcador en tiempo real)</li>
+            <li>🏆 Bracket de eliminatorias (llaves)</li>
+            <li>📸 Galería de fotos (si está disponible)</li>
+          </ul>
+        </section>
+
+        <section class="guide-step">
+          <h3>3. Compartir</h3>
+          <ul>
+            <li>Usa el botón "Compartir" para enviar el link del torneo a más personas</li>
+            <li>El link funciona para cualquiera, sin necesidad de cuenta</li>
+          </ul>
+          <div class="guide-tip">💡 La información se actualiza automáticamente cada 30 segundos. En partidos en vivo, las actualizaciones son instantáneas.</div>
+        </section>
+
+        <section class="guide-step">
+          <h3>4. Inscribir un equipo</h3>
+          <ul>
+            <li>Si el torneo acepta inscripciones, verás el botón "Inscribir equipo"</li>
+            <li>Llena el formulario con los datos del equipo y los jugadores</li>
+            <li>El organizador revisará y aprobará tu inscripción</li>
+          </ul>
+        </section>
+      </article>
+    }
+
+  </main>
+</div>
